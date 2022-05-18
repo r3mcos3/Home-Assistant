@@ -1,0 +1,569 @@
+- id: '1651867199741'
+  alias: Verlichting - WC
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_wc
+  condition: []
+  action:
+  - if:
+    - type: is_motion
+      condition: device
+      device_id: ab1d151d4f019d37687f8bd28f1dab13
+      entity_id: binary_sensor.motion_wc
+      domain: binary_sensor
+    then:
+    - type: turn_on
+      device_id: 66fa08569268029d5df3abebbc86a6c5
+      entity_id: light.wc
+      domain: light
+    else:
+    - delay:
+        hours: 0
+        minutes: 3
+        seconds: 0
+        milliseconds: 0
+    - type: turn_off
+      device_id: 66fa08569268029d5df3abebbc86a6c5
+      entity_id: light.wc
+      domain: light
+  mode: restart
+- id: '1651867278786'
+  alias: Verlichting - Kelder
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_kelder
+  condition: []
+  action:
+  - if:
+    - type: is_motion
+      condition: device
+      device_id: 3476982224efc03c57618baf793830d4
+      entity_id: binary_sensor.motion_kelder
+      domain: binary_sensor
+    then:
+    - type: turn_on
+      device_id: ba54891bbd16cc389e462ade8d05d107
+      entity_id: light.kelder
+      domain: light
+    else:
+    - type: turn_off
+      device_id: ba54891bbd16cc389e462ade8d05d107
+      entity_id: light.kelder
+      domain: light
+  mode: single
+- id: '1651867516005'
+  alias: Remote - Woonkamer
+  description: ''
+  trigger:
+  - device_id: cba3b31c140b9d3307e29bea5840b66b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+    id: 'on'
+  - device_id: cba3b31c140b9d3307e29bea5840b66b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: dim_up
+    id: up
+  - device_id: cba3b31c140b9d3307e29bea5840b66b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: right
+    id: right
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'on'
+      sequence:
+      - service: light.toggle
+        data:
+          brightness_pct: 75
+        target:
+          entity_id:
+          - light.woonkamer_spotjes
+          - light.kast
+    - conditions:
+      - condition: trigger
+        id: up
+      sequence:
+      - type: toggle
+        device_id: b8a78bc7fe19884ded512e99ecea49ec
+        entity_id: light.keuken_licht
+        domain: light
+    - conditions:
+      - condition: trigger
+        id: right
+      sequence:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.patio
+    default: []
+  mode: restart
+- id: '1651867725766'
+  alias: Remote - Overloop
+  description: ''
+  trigger:
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: right
+    id: right
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: left
+    id: left
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+    id: up
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_off
+    id: down
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_long_press
+    subtype: dim_down
+    id: down_pressed
+  - device_id: fd91e3432b652431b0b5881e16aec81a
+    domain: zha
+    platform: device
+    type: remote_button_long_press
+    subtype: dim_up
+    id: up_pressed
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: right
+      sequence:
+      - type: toggle
+        device_id: 79a7fc612b3738ea30693241683b082f
+        entity_id: light.licht_elyza
+        domain: light
+    - conditions:
+      - condition: trigger
+        id: down_pressed
+      sequence:
+      - type: toggle
+        device_id: cec7ba9131e5a3caafa4305e8cce223e
+        entity_id: light.wled_elyza
+        domain: light
+    - conditions:
+      - condition: trigger
+        id: up
+      sequence:
+      - service: cover.open_cover
+        data: {}
+        target:
+          device_id: 5f0eb59fa92527a609597b6aa4d4f061
+    - conditions:
+      - condition: trigger
+        id: down
+      sequence:
+      - service: cover.close_cover
+        data: {}
+        target:
+          device_id: 5f0eb59fa92527a609597b6aa4d4f061
+    - conditions:
+      - condition: trigger
+        id: left
+      sequence:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.zolder
+    - conditions:
+      - condition: trigger
+        id: up_pressed
+      sequence:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.overloop
+    default: []
+  mode: restart
+- id: '1651869469562'
+  alias: Verlichting - Prullenbak
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: df5971aff5b20615af5a5376d35ac25b
+    entity_id: binary_sensor.achter_deur
+    domain: binary_sensor
+  condition:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+    target:
+      device_id:
+      - 294a58cfbdeba42fc16791e41a6262b3
+      - cb8e170687dd794876f90f3fbb5a2308
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 30
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      device_id:
+      - 294a58cfbdeba42fc16791e41a6262b3
+      - cb8e170687dd794876f90f3fbb5a2308
+  mode: restart
+- id: '1651872263028'
+  alias: Systeem - Volume Controller
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:30:00'
+    id: late
+  - platform: time
+    at: 08:30:00
+    id: early
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: early
+      sequence:
+      - service: media_player.volume_set
+        data:
+          volume_level: 0.6
+        target:
+          device_id:
+          - 364c464e0e202bff3e0bde1d8437ec07
+          - 299acf3ce36c8cb89e54dc1f5a3aaaae
+          - 5dedfe783d0fd7c612b70a992eccf51b
+          - 27429429865c131acfa167c2eaec8cee
+          - 1874e2d9c1173fc75115fa99abaaf0c4
+    - conditions:
+      - condition: trigger
+        id: late
+      sequence:
+      - service: media_player.volume_set
+        data:
+          volume_level: 0.2
+        target:
+          device_id:
+          - 364c464e0e202bff3e0bde1d8437ec07
+          - 27429429865c131acfa167c2eaec8cee
+          - 299acf3ce36c8cb89e54dc1f5a3aaaae
+          - 5dedfe783d0fd7c612b70a992eccf51b
+          - 1874e2d9c1173fc75115fa99abaaf0c4
+    default: []
+  mode: single
+- id: '1651910649614'
+  alias: Controller - IKEA E1812 TRÅDFRI Shortcut button
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1812.yaml
+    input:
+      integration: ZHA
+      controller_device: 1de969ae37f4a43f53b63eec5a22b433
+      helper_last_controller_event: input_text.e1812_helper
+      action_button_short:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.schuur
+      - type: toggle
+        device_id: ab3c230cf4937cb1010fea329e5a87fc
+        entity_id: light.schuur_led_strip
+        domain: light
+- id: '1651995638708'
+  alias: Systeem - Zet Alarm Input Helper
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.oneplus_next_alarm
+  condition: []
+  action:
+  - service: input_datetime.set_datetime
+    data_template:
+      entity_id: input_datetime.next_alarm_helper
+      datetime: '{% if ''clock'' in (state_attr(''sensor.oneplus_next_alarm'', ''Package''
+        )) %} {{ states(''sensor.oneplus_next_alarm'') |as_datetime |as_local }} {%
+        endif %}'
+  mode: single
+- id: '1651995960366'
+  alias: Verlichting - Wekker
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.next_alarm_helper
+  condition:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 15
+    target:
+      entity_id:
+      - light.kast
+      - light.woonkamer_spot_2
+      - light.woonkamer_spot_4
+      - light.woonkamer_spot_6
+  - type: turn_on
+    device_id: 4222716b45a1d39dbd565ee54535dac5
+    entity_id: switch.keuken_spotjes
+    domain: switch
+  mode: single
+- id: '1651996343863'
+  alias: Systeem - Backup
+  description: ''
+  trigger:
+  - platform: time
+    at: 03:00:00
+  condition: []
+  action:
+  - service: backup.create
+    data: {}
+  mode: single
+- id: '1652007654762'
+  alias: Verlichting - Thuiskomst
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    above: '0'
+  condition:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 75
+    target:
+      entity_id:
+      - light.woonkamer_spotjes
+      - light.kast
+      - light.keuken_spotjes
+  - type: turn_on
+    device_id: 3737fc549df81e34ab2f390c4c68aeb5
+    entity_id: light.gang
+    domain: light
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - type: turn_off
+    device_id: 3737fc549df81e34ab2f390c4c68aeb5
+    entity_id: light.gang
+    domain: light
+  mode: single
+- id: '1652032478793'
+  alias: Verlichting - Niemand Thuis, Alles Uit
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    below: '1'
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.alles
+  mode: single
+- id: '1652120448569'
+  alias: Verlichting - Overloop 10%
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 4bd76bab612b2a4b845bfe7228ae036c
+    entity_id: binary_sensor.motion_trap
+    domain: binary_sensor
+  - type: motion
+    platform: device
+    device_id: c1b1a95ec76e9b76bc892d9b167cdb54
+    entity_id: binary_sensor.motion_overloop
+    domain: binary_sensor
+  condition:
+  - condition: or
+    conditions:
+    - condition: device
+      type: is_on
+      device_id: cec7ba9131e5a3caafa4305e8cce223e
+      entity_id: light.wled_elyza
+      domain: light
+    - condition: device
+      type: is_on
+      device_id: 37772b9b7040a174af7d0992802c61c7
+      entity_id: light.wled_santi
+      domain: light
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 10
+    target:
+      entity_id: light.overloop_spot_1
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.overloop_spot_1
+  mode: restart
+- id: '1652120649110'
+  alias: Verlichting - Overloop 100%
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 4bd76bab612b2a4b845bfe7228ae036c
+    entity_id: binary_sensor.motion_trap
+    domain: binary_sensor
+  - type: motion
+    platform: device
+    device_id: c1b1a95ec76e9b76bc892d9b167cdb54
+    entity_id: binary_sensor.motion_overloop
+    domain: binary_sensor
+  condition:
+  - type: is_illuminance
+    condition: device
+    device_id: 08db6d4ff7e65710551d21cbf67b7687
+    entity_id: sensor.licht_sensor
+    domain: sensor
+    below: 30
+  - condition: device
+    type: is_off
+    device_id: cec7ba9131e5a3caafa4305e8cce223e
+    entity_id: light.wled_elyza
+    domain: light
+  - condition: device
+    type: is_off
+    device_id: 37772b9b7040a174af7d0992802c61c7
+    entity_id: light.wled_santi
+    domain: light
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.overloop
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.overloop
+  mode: restart
+- id: '1652204202294'
+  alias: Verlichting - Sfeer Licht
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:00:00'
+    id: 'off'
+  - platform: state
+    entity_id:
+    - sun.sun
+    to: below_horizon
+    id: 'on'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'on'
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.sfeer_licht
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.sfeer_licht
+    default: []
+  mode: single
+- id: '1652288635900'
+  alias: Rolluik - Santi
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: '30'
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: weather.home
+      state: sunny
+    - condition: state
+      entity_id: weather.home
+      state: partlycloudy
+  - condition: time
+    after: '12:00:00'
+    before: '22:00:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+  action:
+  - service: cover.close_cover
+    data: {}
+    target:
+      device_id: 4296f897a44538a9b541d1a2bc0a2295
+  mode: single
+- id: '1652636355217'
+  alias: Systeem - Update Beschikbaar
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.home_assistant_versions_dev_update_available
+  condition: []
+  action:
+  - service: notify.mobile_app_oneplus
+    data:
+      message: Home Assistant Update Beschikbaar Versie {{ states('sensor.home_assistant_versions_dev')
+        }}
+  mode: single
