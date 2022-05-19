@@ -2,6 +2,7 @@
 
 import voluptuous as vol
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.service import ServiceCall
 from music_assistant import MusicAssistant
 from music_assistant.models.enums import QueueOption, RepeatMode
@@ -34,7 +35,7 @@ CMD_ARGS_MAP = {
 
 QueueCommandServiceSchema = vol.Schema(
     {
-        "entity_id": list,
+        "entity_id": cv.entity_ids,
         "command": str,
         "uri": vol.Optional(str),
         "mode": vol.Any(*CMD_ARGS_MAP.keys()),
@@ -49,9 +50,13 @@ def register_services(hass: HomeAssistant, mass: MusicAssistant):
     async def handle_queue_command(call: ServiceCall) -> None:
         """Handle queue_command service."""
         data = call.data
-        for entity_id in data["entity_id"]:
+        if isinstance(data["entity_id"]):
+            entity_ids = data["entity_id"]
+        else:
+            entity_ids = [data["entity_id"]]
+        for entity_id in entity_ids:
             entity = hass.states.get(entity_id)
-            entity_id = entity.attributes.get("source_entity_id", data["entity_id"])
+            entity_id = entity.attributes.get("source_entity_id", entity_id)
             player = mass.players.get_player(entity_id)
             queue = player.active_queue
             if data["command"] == CMD_PLAY:
