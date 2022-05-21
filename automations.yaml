@@ -336,7 +336,7 @@
       - light.woonkamer_spot_6
   - type: turn_on
     device_id: 4222716b45a1d39dbd565ee54535dac5
-    entity_id: switch.keuken_spotjes
+    entity_id: switch.keuken_schakelaar
     domain: switch
   mode: single
 - id: '1651996343863'
@@ -566,4 +566,55 @@
     data:
       message: Home Assistant Update Beschikbaar Versie {{ states('sensor.home_assistant_versions_dev')
         }}
+  mode: single
+- id: '1653126461264'
+  alias: Schakelaar - Keuken Dubbel Keuken Lamp
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: 4222716b45a1d39dbd565ee54535dac5
+    type: button_double_press
+    subtype: button_1
+    discovery_id: D8F15BE77D0A_button_1_DOUBLE
+  condition: []
+  action:
+  - type: toggle
+    device_id: b8a78bc7fe19884ded512e99ecea49ec
+    entity_id: light.keuken_licht
+    domain: light
+  mode: single
+- id: '1653126790769'
+  alias: Schakelaar - Santi Dubbel Rolluik
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: b71563e3728141c6e5e649390681a7b7
+    type: button_double_press
+    subtype: button_1
+    discovery_id: 2CF432C02815_button_1_DOUBLE
+  condition: []
+  action:
+  - service: cover.toggle
+    data: {}
+    target:
+      device_id: 4296f897a44538a9b541d1a2bc0a2295
+  mode: single
+- id: '1653126873228'
+  alias: Schakelaar - Santi Hold Wled
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: b71563e3728141c6e5e649390681a7b7
+    type: button_long_press
+    subtype: button_1
+    discovery_id: 2CF432C02815_button_1_HOLD
+  condition: []
+  action:
+  - type: toggle
+    device_id: 37772b9b7040a174af7d0992802c61c7
+    entity_id: light.wled_santi
+    domain: light
   mode: single
