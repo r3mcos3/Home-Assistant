@@ -1,2 +1,8 @@
 sensor:
   - platform: formulaone_api
+
+  - platform: command_line
+    name: Aantal Backups
+    command: "ls /config/backups | wc -l"
+    unique_id: "aantal_backups"
+    scan_interval: 3600
