@@ -1,0 +1,354 @@
+kiosk_mode:
+  entity_settings:
+    - entity:
+        input_boolean.kiosk: 'off'
+      hide_header: true
+    - entity:
+        input_boolean.kiosk: 'on'
+      hide_header: false
+views:
+  - title: Home
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: weather
+                entity: weather.home
+                show_conditions: true
+                show_temperature: true
+              - type: entity
+                entity: zone.home
+              - type: entity
+                entity: input_boolean.kiosk
+                tap_action:
+                  action: toggle
+          - type: custom:mushroom-title-card
+            title: Dashboard
+            subtitle: >-
+              {{ now().strftime('%H:%M') }} // {{ now().strftime('%d-%m-%Y ') }}
+              // Week {{ now().strftime('%U') }} 
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-person-card
+                entity: person.remco
+                use_entity_picture: true
+                fill_container: false
+                hide_state: true
+                tap_action:
+                  action: none
+              - type: custom:mushroom-person-card
+                entity: person.annemarie
+                use_entity_picture: true
+                hide_state: true
+          - type: custom:mushroom-title-card
+            title: Woonkamer
+            subtitle: '{{ states(''sensor.woonkamer_temperatuur'')}} °C'
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-light-card
+                entity: light.kast
+                fill_container: true
+                icon: mdi:dresser-outline
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-light-card
+                entity: light.woonkamer_spotjes
+                show_brightness_control: true
+                collapsible_controls: true
+                name: Spotjes
+              - type: custom:mushroom-cover-card
+                entity: cover.rolluiken
+                show_buttons_control: true
+              - type: custom:mushroom-entity-card
+                entity: climate.woonkamer
+                layout: vertical
+              - type: custom:mushroom-media-player-card
+                entity: media_player.woonkamer
+                use_media_info: true
+                fill_container: true
+                use_media_artwork: true
+                show_volume_level: true
+                media_controls:
+                  - on_off
+                volume_controls:
+                  - volume_mute
+                collapsible_controls: false
+          - type: custom:mushroom-title-card
+            title: Keuken
+            subtitle: >-
+              Vandaag Heb Je {{ states('sensor.water_dagelijks')}} Liter Water
+              Verbruikt.
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.keuken_schakelaar
+                name: Spotjes
+                fill_container: true
+                icon: mdi:countertop-outline
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-light-card
+                entity: light.keuken_licht
+                collapsible_controls: true
+                show_brightness_control: true
+                fill_container: false
+                icon: mdi:ceiling-light-outline
+          - type: custom:mushroom-title-card
+            title: Tuin
+            subtitle: '{{ states(''sensor.tuin_temperatuur'')}} °C'
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-light-card
+                entity: light.patio
+                show_brightness_control: true
+                collapsible_controls: true
+                fill_container: true
+              - type: custom:mushroom-light-card
+                entity: light.tuin_lampen
+                show_brightness_control: true
+                collapsible_controls: true
+                fill_container: true
+              - type: custom:mushroom-light-card
+                entity: light.schuur_groep
+                name: Schuur
+                fill_container: true
+                show_brightness_control: true
+                collapsible_controls: true
+              - type: custom:mushroom-entity-card
+                entity: switch.verstraler
+                icon: mdi:track-light
+                fill_container: true
+                tap_action:
+                  action: toggle
+          - type: custom:mushroom-title-card
+            title: Slaapkamer
+            subtitle: '{{ states(''sensor.slaapkamer_temperatuur'')}} °C'
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: light.slaapkamer_licht
+                name: Slaapkamer
+                fill_container: true
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-cover-card
+                entity: cover.rolgordijn
+                show_buttons_control: true
+              - type: custom:mushroom-media-player-card
+                entity: media_player.slaapkamer
+                fill_container: true
+                use_media_artwork: true
+                use_media_info: true
+                show_volume_level: true
+                volume_controls:
+                  - volume_mute
+                media_controls:
+                  - on_off
+                collapsible_controls: true
+          - type: custom:mushroom-title-card
+            title: Slaapkamers Kids
+            subtitle: |-
+              Santi {{ states('sensor.santi_temperatuur')}} °C 
+              Elyza {{ states('sensor.slaapkamer_elyza_temperatuur')}} °C
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.schakelaar_santi
+                fill_container: true
+                icon: mdi:lightbulb-spot
+                tap_action:
+                  action: toggle
+                name: Spotjes Santi
+              - type: custom:mushroom-light-card
+                entity: light.licht_elyza
+                show_brightness_control: true
+                fill_container: true
+                collapsible_controls: true
+                use_light_color: true
+              - type: custom:mushroom-entity-card
+                entity: light.wled_santi
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: light.wled_elyza
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-cover-card
+                entity: cover.rolluik_boven
+                show_buttons_control: true
+              - type: custom:mushroom-template-card
+                primary: ''
+                secondary: ''
+                icon: ''
+                fill_container: true
+              - type: custom:mushroom-media-player-card
+                entity: media_player.tv_santi
+                fill_container: true
+                use_media_info: true
+                use_media_artwork: true
+                media_controls:
+                  - on_off
+                show_volume_level: true
+          - type: custom:mushroom-title-card
+            title: Overige
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-light-card
+                entity: light.overloop
+                show_brightness_control: true
+                collapsible_controls: true
+                fill_container: true
+              - type: custom:mushroom-light-card
+                entity: light.zolder
+                fill_container: true
+                show_brightness_control: true
+                collapsible_controls: true
+              - type: custom:mushroom-entity-card
+                entity: light.wc
+                tap_action:
+                  action: toggle
+                icon: mdi:toilet
+                fill_container: true
+              - type: custom:mushroom-light-card
+                entity: light.kelder
+                icon: mdi:home-floor-b
+                fill_container: true
+                show_brightness_control: true
+                collapsible_controls: true
+          - type: custom:mushroom-title-card
+            title: Sport
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Formule 1
+                secondary: >-
+                  {{ as_timestamp(state_attr('sensor.formula_one_sensor',
+                  'next_race').date) | timestamp_custom('%d-%m-%Y') }}
+
+                  {{ state_attr('sensor.formula_one_sensor',
+                  'next_race').raceName }}
+
+                  {{ state_attr('sensor.formula_one_sensor',
+                  'next_race').Circuit.circuitName }}
+                icon: mdi:flag-checkered
+                layout: vertical
+                multiline_secondary: true
+                fill_container: true
+                icon_color: ''
+              - type: custom:mushroom-template-card
+                primary: Volgende Wedstrijd
+                secondary: >-
+                  {{ state_attr('calendar.ajax_seizoen_2021_2022', 'message') |
+                  default('Geen wedstrijd', true) }}
+
+                  {{ as_timestamp(state_attr('calendar.ajax_seizoen_2021_2022',
+                  'start_time'),default='Geen Wedstrijd') |
+                  timestamp_custom('%d-%m-%Y',default='Geen Datum') }} // {{
+                  as_timestamp(state_attr('calendar.ajax_seizoen_2021_2022',
+                  'start_time'),default='Geen Wedstrijd') |
+                  timestamp_custom('%H:%M',default='Geen Tijd') }}
+                icon: mdi:soccer-field
+                layout: vertical
+                multiline_secondary: true
+                icon_color: green
+                entity: calendar.ajax_seizoen_2021_2022
+                fill_container: true
+          - type: custom:mushroom-title-card
+            title: Tools
+          - type: custom:love-lock-card
+            popup: password
+            password: 1986
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Tools
+                icon: mdi:tools
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: tools
+  - theme: Backend-selected
+    title: Tools
+    path: tools
+    icon: mdi:tools
+    visible: []
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon: mdi:arrow-left
+                tap_action:
+                  action: navigate
+                  navigation_path: home
+              - type: weather
+                entity: weather.home
+                show_conditions: true
+                show_temperature: true
+              - type: entity
+                entity: zone.home
+              - type: entity
+                entity: input_boolean.kiosk
+                tap_action:
+                  action: toggle
+          - type: custom:mushroom-title-card
+            title: Tools
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Update
+                secondary: All Docker Containers
+                icon: mdi:package-up
+                multiline_secondary: false
+                tap_action:
+                  action: call-service
+                  service: shell_command.update_ha
+                  service_data: {}
+                  target: {}
+              - type: custom:mushroom-template-card
+                primary: Delete Backups
+                secondary: Home Assistant
+                icon: mdi:trash-can-outline
+                tap_action:
+                  action: call-service
+                  service: shell_command.delete_backups
+                  service_data: {}
+                  target: {}
+          - type: custom:mushroom-title-card
+            title: Info
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Current Version
+                secondary: '{{states(''sensor.current_version'')}}'
+                icon: mdi:package
+              - type: custom:mushroom-template-card
+                primary: New Version
+                secondary: '{{states(''sensor.home_assistant_versions_dev'')}}'
+                icon: mdi:package-up
+              - type: custom:mushroom-template-card
+                primary: Backups
+                secondary: '{{states(''sensor.aantal_backups'')}}'
+                icon: mdi:folder-zip-outline
