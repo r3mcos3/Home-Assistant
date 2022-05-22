@@ -77,6 +77,12 @@
     type: remote_button_short_press
     subtype: right
     id: right
+  - device_id: cba3b31c140b9d3307e29bea5840b66b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: left
+    id: left
   condition: []
   action:
   - choose:
@@ -108,6 +114,14 @@
           brightness_pct: 100
         target:
           entity_id: light.patio
+    - conditions:
+      - condition: trigger
+        id: left
+      sequence:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.tuin_lampen
     default: []
   mode: restart
 - id: '1651867725766'
@@ -617,4 +631,31 @@
     device_id: 37772b9b7040a174af7d0992802c61c7
     entity_id: light.wled_santi
     domain: light
+  mode: single
+- id: '1653202710748'
+  alias: Verlichting - Motion Schuur
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_schuur_on_off
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - type: is_motion
+        condition: device
+        device_id: a412e917d33c538085d414d80699e1ba
+        entity_id: binary_sensor.motion_schuur_on_off
+        domain: binary_sensor
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.schuur_groep
+    default:
+    - service: light.turn_off
+      data: {}
+      target:
+        entity_id: light.schuur_groep
   mode: single
