@@ -639,7 +639,10 @@
   - platform: state
     entity_id:
     - binary_sensor.motion_schuur_on_off
-  condition: []
+  condition:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
   action:
   - choose:
     - conditions:
@@ -659,3 +662,11 @@
       target:
         entity_id: light.schuur_groep
   mode: single
+- id: '1653211560221'
+  alias: Watermeterkit Meter Value
+  description: ''
+  use_blueprint:
+    path: Techwolf12/watermeter.yaml
+    input:
+      watermeterkit: sensor.water_meter_total_consumption
+      counter: counter.water_teller
