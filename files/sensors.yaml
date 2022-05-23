@@ -5,4 +5,5 @@ sensor:
     name: Aantal Backups
     command: "ls /config/backups | wc -l"
     unique_id: "aantal_backups"
-    scan_interval: 3600
+    scan_interval: 900
+
