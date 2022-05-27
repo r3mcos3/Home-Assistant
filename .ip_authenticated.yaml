@@ -1,0 +1,46 @@
+---
+10.10.50.54:
+  city: null
+  country: null
+  hostname: null
+  last_used_at: '2022-05-06T22:06:48.647146+00:00'
+  prev_used_at: null
+  region: null
+  user_id: 2ca0266a084a4266a95d5dff2d2c277b
+  username: Remco
+10.10.50.73:
+  city: null
+  country: null
+  hostname: 10.10.50.73
+  last_used_at: '2022-05-27T03:56:20.501092+00:00'
+  prev_used_at: '2022-05-26T22:18:58.709415+00:00'
+  region: null
+  user_id: bb285edb15864ca8ab53f1f1712237e6
+  username: Annemarie
+10.10.50.76:
+  city: null
+  country: null
+  hostname: 10.10.50.76
+  last_used_at: '2022-05-27T03:59:37.794077+00:00'
+  prev_used_at: '2022-05-26T18:34:06.515609+00:00'
+  region: null
+  user_id: 2ca0266a084a4266a95d5dff2d2c277b
+  username: Remco
+127.0.0.1:
+  city: null
+  country: null
+  hostname: localhost
+  last_used_at: '2022-05-27T03:39:35.096426+00:00'
+  prev_used_at: '2022-05-27T01:48:49.424514+00:00'
+  region: null
+  user_id: 2ca0266a084a4266a95d5dff2d2c277b
+  username: Remco
+172.22.54.135:
+  city: null
+  country: null
+  hostname: 172.22.54.135
+  last_used_at: '2022-05-26T07:13:09.682316+00:00'
+  prev_used_at: null
+  region: null
+  user_id: 2ca0266a084a4266a95d5dff2d2c277b
+  username: Remco
