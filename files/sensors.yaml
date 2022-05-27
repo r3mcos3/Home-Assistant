@@ -7,3 +7,13 @@ sensor:
     unique_id: "aantal_backups"
     scan_interval: 900
 
+  - platform: authenticated
+    enable_notification: true
+    provider: ipvigilante
+
+  - platform: template
+    sensors:
+      water_in_liters:
+        friendly_name: Water in Liters
+        unit_of_measurement: "L"
+        value_template: "{{ ( states('sensor.water_meter_total_consumption') | float * 1000 ) }}"
