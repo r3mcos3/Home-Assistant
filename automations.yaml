@@ -1,23 +1,23 @@
 - id: '1651867199741'
-  alias: Verlichting - WC
+  alias: Verlichting - Motion WC
   description: ''
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.motion_wc
+    - binary_sensor.motion_wc_occupancy
   condition: []
   action:
   - if:
     - type: is_motion
       condition: device
-      device_id: ab1d151d4f019d37687f8bd28f1dab13
-      entity_id: binary_sensor.motion_wc
+      device_id: 5d7edd0dba517d1e6248c427036ef9f8
+      entity_id: binary_sensor.motion_wc_occupancy
       domain: binary_sensor
     then:
     - type: turn_on
-      device_id: 66fa08569268029d5df3abebbc86a6c5
-      entity_id: light.wc
-      domain: light
+      device_id: 6c2f1fa3fe7a60a8e24ea6e380828587
+      entity_id: switch.wc
+      domain: switch
     else:
     - delay:
         hours: 0
@@ -25,208 +25,44 @@
         seconds: 0
         milliseconds: 0
     - type: turn_off
-      device_id: 66fa08569268029d5df3abebbc86a6c5
-      entity_id: light.wc
-      domain: light
+      device_id: 6c2f1fa3fe7a60a8e24ea6e380828587
+      entity_id: switch.wc
+      domain: switch
   mode: restart
 - id: '1651867278786'
-  alias: Verlichting - Kelder
+  alias: Verlichting - Motion Kelder
   description: ''
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.motion_kelder
+    - binary_sensor.motion_kelder_occupancy
   condition: []
   action:
   - if:
     - type: is_motion
       condition: device
-      device_id: 3476982224efc03c57618baf793830d4
-      entity_id: binary_sensor.motion_kelder
+      device_id: 6a569df4bb8bf2af8035bc3fc0a1c00e
+      entity_id: binary_sensor.motion_kelder_occupancy
       domain: binary_sensor
     then:
     - type: turn_on
-      device_id: ba54891bbd16cc389e462ade8d05d107
+      device_id: b321535cf6c225feba281c1049d33667
       entity_id: light.kelder
       domain: light
     else:
     - type: turn_off
-      device_id: ba54891bbd16cc389e462ade8d05d107
+      device_id: b321535cf6c225feba281c1049d33667
       entity_id: light.kelder
       domain: light
   mode: single
-- id: '1651867516005'
-  alias: Remote - Woonkamer
-  description: ''
-  trigger:
-  - device_id: cba3b31c140b9d3307e29bea5840b66b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
-    id: 'on'
-  - device_id: cba3b31c140b9d3307e29bea5840b66b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: dim_up
-    id: up
-  - device_id: cba3b31c140b9d3307e29bea5840b66b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: right
-    id: right
-  - device_id: cba3b31c140b9d3307e29bea5840b66b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: left
-    id: left
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: 'on'
-      sequence:
-      - service: light.toggle
-        data:
-          brightness_pct: 75
-        target:
-          entity_id:
-          - light.woonkamer_spotjes
-          - light.kast
-    - conditions:
-      - condition: trigger
-        id: up
-      sequence:
-      - type: toggle
-        device_id: b8a78bc7fe19884ded512e99ecea49ec
-        entity_id: light.keuken_licht
-        domain: light
-    - conditions:
-      - condition: trigger
-        id: right
-      sequence:
-      - service: light.toggle
-        data:
-          brightness_pct: 100
-        target:
-          entity_id: light.patio
-    - conditions:
-      - condition: trigger
-        id: left
-      sequence:
-      - service: light.toggle
-        data: {}
-        target:
-          entity_id: light.tuin_lampen
-    default: []
-  mode: restart
-- id: '1651867725766'
-  alias: Remote - Overloop
-  description: ''
-  trigger:
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: right
-    id: right
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: left
-    id: left
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
-    id: up
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_off
-    id: down
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_long_press
-    subtype: dim_down
-    id: down_pressed
-  - device_id: fd91e3432b652431b0b5881e16aec81a
-    domain: zha
-    platform: device
-    type: remote_button_long_press
-    subtype: dim_up
-    id: up_pressed
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: right
-      sequence:
-      - type: toggle
-        device_id: 79a7fc612b3738ea30693241683b082f
-        entity_id: light.licht_elyza
-        domain: light
-    - conditions:
-      - condition: trigger
-        id: down_pressed
-      sequence:
-      - type: toggle
-        device_id: cec7ba9131e5a3caafa4305e8cce223e
-        entity_id: light.wled_elyza
-        domain: light
-    - conditions:
-      - condition: trigger
-        id: up
-      sequence:
-      - service: cover.open_cover
-        data: {}
-        target:
-          device_id: 5f0eb59fa92527a609597b6aa4d4f061
-    - conditions:
-      - condition: trigger
-        id: down
-      sequence:
-      - service: cover.close_cover
-        data: {}
-        target:
-          device_id: 5f0eb59fa92527a609597b6aa4d4f061
-    - conditions:
-      - condition: trigger
-        id: left
-      sequence:
-      - service: light.toggle
-        data:
-          brightness_pct: 100
-        target:
-          entity_id: light.zolder
-    - conditions:
-      - condition: trigger
-        id: up_pressed
-      sequence:
-      - service: light.toggle
-        data:
-          brightness_pct: 100
-        target:
-          entity_id: light.overloop
-    default: []
-  mode: restart
 - id: '1651869469562'
   alias: Verlichting - Prullenbak
   description: ''
   trigger:
   - type: opened
     platform: device
-    device_id: df5971aff5b20615af5a5376d35ac25b
-    entity_id: binary_sensor.achter_deur
+    device_id: d6b807206713d4e9894e9890d5bfefee
+    entity_id: binary_sensor.achter_deur_contact
     domain: binary_sensor
   condition:
   - condition: state
@@ -238,8 +74,8 @@
       brightness_pct: 100
     target:
       device_id:
-      - 294a58cfbdeba42fc16791e41a6262b3
-      - cb8e170687dd794876f90f3fbb5a2308
+      - ead4600643be65bf57ac2bf4230c6de3
+      - e81bc8e9c660d0eed4b4bfada7e85bd0
   - delay:
       hours: 0
       minutes: 2
@@ -249,8 +85,8 @@
     data: {}
     target:
       device_id:
-      - 294a58cfbdeba42fc16791e41a6262b3
-      - cb8e170687dd794876f90f3fbb5a2308
+      - ead4600643be65bf57ac2bf4230c6de3
+      - e81bc8e9c660d0eed4b4bfada7e85bd0
   mode: restart
 - id: '1651872263028'
   alias: Systeem - Volume Controller
@@ -296,23 +132,20 @@
     default: []
   mode: single
 - id: '1651910649614'
-  alias: Controller - IKEA E1812 TRÅDFRI Shortcut button
+  alias: Remote - Schuur
   description: ''
   use_blueprint:
     path: EPMatt/ikea_e1812.yaml
     input:
-      integration: ZHA
+      integration: Zigbee2MQTT
       controller_device: 1de969ae37f4a43f53b63eec5a22b433
       helper_last_controller_event: input_text.e1812_helper
       action_button_short:
       - service: light.toggle
         data: {}
         target:
-          entity_id: light.schuur
-      - type: toggle
-        device_id: ab3c230cf4937cb1010fea329e5a87fc
-        entity_id: light.schuur_led_strip
-        domain: light
+          entity_id: light.schuur_groep
+      controller_entity: sensor.remote_schuur_action
 - id: '1651995638708'
   alias: Systeem - Zet Alarm Input Helper
   description: ''
@@ -338,6 +171,9 @@
   - condition: state
     entity_id: sun.sun
     state: below_horizon
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
   action:
   - service: light.turn_on
     data:
@@ -383,18 +219,19 @@
       entity_id:
       - light.woonkamer_spotjes
       - light.kast
-      - light.keuken_spotjes
+      device_id: 4222716b45a1d39dbd565ee54535dac5
   - type: turn_on
-    device_id: 3737fc549df81e34ab2f390c4c68aeb5
+    device_id: e5db3653dada9b0d11d0938e57e035b7
     entity_id: light.gang
     domain: light
+    brightness_pct: 100
   - delay:
       hours: 0
       minutes: 5
       seconds: 0
       milliseconds: 0
   - type: turn_off
-    device_id: 3737fc549df81e34ab2f390c4c68aeb5
+    device_id: e5db3653dada9b0d11d0938e57e035b7
     entity_id: light.gang
     domain: light
   mode: single
@@ -418,13 +255,13 @@
   trigger:
   - type: motion
     platform: device
-    device_id: 4bd76bab612b2a4b845bfe7228ae036c
-    entity_id: binary_sensor.motion_trap
+    device_id: 127defd3005d56d0d76ce6fb80869602
+    entity_id: binary_sensor.motion_trap_occupancy
     domain: binary_sensor
   - type: motion
     platform: device
-    device_id: c1b1a95ec76e9b76bc892d9b167cdb54
-    entity_id: binary_sensor.motion_overloop
+    device_id: 127defd3005d56d0d76ce6fb80869602
+    entity_id: binary_sensor.motion_trap_occupancy
     domain: binary_sensor
   condition:
   - condition: or
@@ -461,21 +298,15 @@
   trigger:
   - type: motion
     platform: device
-    device_id: 4bd76bab612b2a4b845bfe7228ae036c
-    entity_id: binary_sensor.motion_trap
+    device_id: 127defd3005d56d0d76ce6fb80869602
+    entity_id: binary_sensor.motion_trap_occupancy
     domain: binary_sensor
   - type: motion
     platform: device
-    device_id: c1b1a95ec76e9b76bc892d9b167cdb54
-    entity_id: binary_sensor.motion_overloop
+    device_id: 77afe808b9885c19a21e7c68ad9190fd
+    entity_id: binary_sensor.motion_overloop_occupancy
     domain: binary_sensor
   condition:
-  - type: is_illuminance
-    condition: device
-    device_id: 08db6d4ff7e65710551d21cbf67b7687
-    entity_id: sensor.licht_sensor
-    domain: sensor
-    below: 30
   - condition: device
     type: is_off
     device_id: cec7ba9131e5a3caafa4305e8cce223e
@@ -594,8 +425,8 @@
   condition: []
   action:
   - type: toggle
-    device_id: b8a78bc7fe19884ded512e99ecea49ec
-    entity_id: light.keuken_licht
+    device_id: 4a2b72f0f45e6c51642e36d43ea5e32c
+    entity_id: light.keuken
     domain: light
   mode: single
 - id: '1653126790769'
@@ -638,7 +469,7 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.motion_schuur_on_off
+    - binary_sensor.motion_schuur_occupancy
   condition:
   - condition: state
     entity_id: sun.sun
@@ -648,8 +479,8 @@
     - conditions:
       - type: is_motion
         condition: device
-        device_id: a412e917d33c538085d414d80699e1ba
-        entity_id: binary_sensor.motion_schuur_on_off
+        device_id: e9691606a8fc7b3264d331b130b254ea
+        entity_id: binary_sensor.motion_schuur_occupancy
         domain: binary_sensor
       sequence:
       - service: light.turn_on
@@ -662,11 +493,133 @@
       target:
         entity_id: light.schuur_groep
   mode: single
-- id: '1653211560221'
-  alias: Watermeterkit Meter Value
+- id: '1653407158347'
+  alias: Remote - Overloop
   description: ''
   use_blueprint:
-    path: Techwolf12/watermeter.yaml
+    path: EPMatt/ikea_e2001_e2002.yaml
     input:
-      watermeterkit: sensor.water_meter_total_consumption
-      counter: counter.water_teller
+      integration: Zigbee2MQTT
+      controller_entity: sensor.remote_overloop_action
+      helper_last_controller_event: input_text.helper_e2002
+      action_button_left_short:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.zolder
+      action_button_right_short:
+      - type: toggle
+        device_id: 164a63ca549c719a100c8ba6eeacc2c6
+        entity_id: light.licht_elyza
+        domain: light
+      action_button_up_short:
+      - service: cover.open_cover
+        data: {}
+        target:
+          device_id: 8d114b3c9cfb890d35bc3e52db65cd6a
+      action_button_down_short:
+      - service: cover.close_cover
+        data: {}
+        target:
+          device_id: 8d114b3c9cfb890d35bc3e52db65cd6a
+      action_button_down_long:
+      - type: toggle
+        device_id: cec7ba9131e5a3caafa4305e8cce223e
+        entity_id: light.wled_elyza
+        domain: light
+      action_button_up_long:
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.overloop
+- id: '1653408286649'
+  alias: Remote - Woonkamer
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_entity: sensor.remote_woonkamer_action
+      helper_last_controller_event: input_text.helper_e1810
+      action_button_up_short:
+      - type: toggle
+        device_id: 4a2b72f0f45e6c51642e36d43ea5e32c
+        entity_id: light.keuken
+        domain: light
+      action_button_center_short:
+      - service: light.toggle
+        data:
+          brightness_pct: 75
+        target:
+          entity_id: light.woonkamer_spotjes
+      - device_id: ''
+        domain: ''
+        entity_id: ''
+- id: '1653409956101'
+  alias: Remote - Woonkamer
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_entity: sensor.remote_woonkamer_action
+      helper_last_controller_event: input_text.helper_e1810
+      action_button_left_short:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.tuin_lampen
+      action_button_right_short:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.patio
+      action_button_up_short:
+      - type: toggle
+        device_id: 4a2b72f0f45e6c51642e36d43ea5e32c
+        entity_id: light.keuken
+        domain: light
+      action_button_center_short:
+      - service: light.toggle
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.woonkamer_spotjes
+      action_button_down_short:
+      - service: cover.toggle
+        data: {}
+        target:
+          entity_id: cover.rolluiken
+- id: '1653590844696'
+  alias: Update notifications
+  description: ''
+  use_blueprint:
+    path: mdegat01/update_notifications.yaml
+    input:
+      reminder_hours: '3'
+      update_entities:
+      - update.u7lt
+      - update.dream_machine_pro
+      - update.u7msh
+      - update.us8p60
+      - update.usmini
+      - update.wled_elyza_firmware
+      - update.wled_santi_firmware
+      mobile_app_device: 9f035e104be4bcce4b3a992f3fb072d0
+      send_to_ha: true
+- id: '1653591806367'
+  alias: Tag Gang is scanned
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 1b2cf4c5-7e80-4b55-869b-de8b602617c6
+  condition: []
+  action:
+  - type: toggle
+    device_id: e5db3653dada9b0d11d0938e57e035b7
+    entity_id: light.gang
+    domain: light
+  mode: single
