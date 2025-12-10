@@ -153,6 +153,11 @@ Format: `{floor}_{room}_{season}_{item}`
 - `light.gf_living_christmas_tree`
 - `light.gf_living_christmas_garland`
 
+## Screenshot
+
+<img width="1348" height="1550" alt="screenshot" src="https://github.com/user-attachments/assets/d8f2ee31-7574-43c1-8aa8-f1877bdcc73b" />
+
+
 ## 🙏 Credits
 
 - [Home Assistant Community](https://community.home-assistant.io/)
