@@ -1,0 +1,139 @@
+version: 4
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://10.10.2.51:1883
+  user: mqtt
+  password: Elyza2017
+serial:
+  rtscts: false
+  port: tcp://10.10.2.182:6638
+  adapter: zstack
+  baudrate: 115200
+advanced:
+  log_level: info
+  channel: 11
+  network_key:
+    - 163
+    - 116
+    - 75
+    - 138
+    - 124
+    - 235
+    - 207
+    - 66
+    - 224
+    - 140
+    - 83
+    - 116
+    - 195
+    - 69
+    - 153
+    - 195
+  pan_id: 45204
+  ext_pan_id:
+    - 5
+    - 81
+    - 69
+    - 192
+    - 7
+    - 189
+    - 128
+    - 84
+frontend:
+  enabled: true
+  port: 8099
+homeassistant:
+  enabled: true
+  legacy_action_sensor: true
+onboarding: false
+devices:
+  '0xeeee0302010367df':
+    friendly_name: GF Living Ceiling 2
+  '0xdddd030201036a81':
+    friendly_name: GF Living Ceiling 1
+  '0x04cd15fffe2c9b8f':
+    friendly_name: GF Living Spot 5
+  '0x04cd15fffe471152':
+    friendly_name: GF Living Spot 6
+  '0x04cd15fffe2874cf':
+    friendly_name: GF Living Spot 3
+  '0x04cd15fffe288be9':
+    friendly_name: GF Living Spot 4
+  '0x04cd15fffe2691ae':
+    friendly_name: GF Living Spot 2
+  '0x003c84fffe243027':
+    friendly_name: GF Living Spot 1
+  '0x90fd9ffffe1fb2a4':
+    friendly_name: GF Kitchen Light
+  '0x000b3cfffef93be2':
+    friendly_name: BF Basement Light
+  '0x04cd15fffe288d06':
+    friendly_name: FF Landing Spot 1
+  '0x04cd15fffe2e1e07':
+    friendly_name: FF Landing Spot 3
+  '0x04cd15fffe2fdf1b':
+    friendly_name: FF Landing Spot 4
+  '0x04cd15fffe28929e':
+    friendly_name: FF Landing Spot 2
+  '0x000d6ffffefd1cc8':
+    friendly_name: GF Hallway Light
+  '0xb4e3f9fffeb0c3a2':
+    friendly_name: GF Toilet Light
+  '0x00158d00042cf9dc':
+    friendly_name: BF Basement Motion
+  '0x00158d00028b0a6d':
+    friendly_name: GF Toilet Motion
+  '0x00158d000322ae2f':
+    friendly_name: GF Door Back Contact
+  '0xb4e3f9fffeb0c279':
+    friendly_name: FF Bedroom Main Light
+  '0x90fd9ffffe0f67d7':
+    friendly_name: AT Attic Light 2
+  '0xd0cf5efffe291e84':
+    friendly_name: FF Bedroom Elyza Light
+  '0x000b57fffeec7909':
+    friendly_name: AT Attic Light 1
+  '0x8cf681fffe50679d':
+    friendly_name: FF Landing Motion 2
+  '0xcc86ecfffe6a8df7':
+    friendly_name: FF Landing Remote
+  '0x8cf681fffe506794':
+    friendly_name: FF Landing Motion
+  '0xa4c138b5ec9037cb':
+    friendly_name: GF Hallway Motion
+  '0x588e81fffe5f735a':
+    friendly_name: OUT Conservatory Spot 5
+  '0x588e81fffe41efba':
+    friendly_name: OUT Conservatory Spot 2
+  '0x842e14fffe17b46f':
+    friendly_name: OUT Conservatory Spot 6
+  '0x588e81fffe419a18':
+    friendly_name: OUT Conservatory Spot 1
+  '0x588e81fffe4d13dc':
+    friendly_name: OUT Conservatory Spot 3
+  '0x588e81fffe50827f':
+    friendly_name: OUT Conservatory Spot 4
+  '0x680ae2fffe12029d':
+    friendly_name: OUT Shed Light 1
+  '0x000b3cfffef6c8e2':
+    friendly_name: OUT Shed Light 2
+  '0x04cd15fffe2e2fe9':
+    friendly_name: OUT Shed Motion
+  '0xccccccfffe8c3e4c':
+    friendly_name: OUT Garden Light 1
+  '0xccccccfffebeb92a':
+    friendly_name: OUT Garden Light 3
+  '0xec1bbdfffea4d69d':
+    friendly_name: OUT Garden Light 4
+  '0xccccccfffebeafe9':
+    friendly_name: OUT Garden Light 2
+  '0x00158d0003219547':
+    friendly_name: GF Door Front Contact
+  '0xd44867fffe019143':
+    friendly_name: Multi Sensor
+  '0x54ef441000bdd582':
+    friendly_name: FF Bedroom Santi Light
+  '0x84ba20fffe77c666':
+    friendly_name: GF Living Christmas Tree
+  '0x84ba20fffe77b24a':
+    friendly_name: GF Living Christmas Garland

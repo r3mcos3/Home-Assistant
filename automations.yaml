@@ -1,0 +1,685 @@
+- id: '1763404523715'
+  alias: "\U0001F6B6 Motion - Basement Light"
+  description: Turns on basement light automatically when motion is detected
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.kelder_motion_occupancy
+      light_target:
+        entity_id: light.kelder_licht
+- id: '1763407144685'
+  alias: "\U0001F39B️ Remote - Attic/Elyza"
+  description: Controls attic lights using MQTT remote (left/right arrow buttons)
+  triggers:
+  - domain: mqtt
+    device_id: bb8b435050e96c96f5f55ff3c18ea8af
+    type: action
+    subtype: arrow_right_click
+    trigger: device
+    id: right
+  - domain: mqtt
+    device_id: bb8b435050e96c96f5f55ff3c18ea8af
+    type: action
+    subtype: arrow_left_click
+    trigger: device
+    id: left
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - right
+      sequence:
+      - type: toggle
+        device_id: 39269fabd5a7874e2dbf644fc650d10c
+        entity_id: 740ec9188ca5a282166e5577bdd3714d
+        domain: light
+    - conditions:
+      - condition: trigger
+        id:
+        - left
+      sequence:
+      - action: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.zolder_1
+          - light.zolder_2
+  mode: single
+- id: '1763407324981'
+  alias: "\U0001F6B6 Motion - Toilet Light"
+  description: Turns on toilet light when motion is detected and turns it off after
+    5 minutes
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.wc_motion_occupancy
+      light_target:
+        entity_id: light.wc_licht
+      no_motion_wait: 300
+- id: '1763407493663'
+  alias: "\U0001F6B6 Motion - Landing Light"
+  description: Controls landing spotlights at 10% brightness based on motion detection
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.trap_overloop_motion
+    to:
+    - 'on'
+    id: 'on'
+  - trigger: state
+    entity_id:
+    - binary_sensor.trap_overloop_motion
+    to:
+    - 'off'
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 10
+        target:
+          entity_id: light.landing_spots
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.landing_spots
+  mode: single
+- id: '1763407837707'
+  alias: "\U0001F6AA Entrance - Back Door Lights (Sunset)"
+  description: Turns on conservatory and garden lights when back door opens after
+    sunset, automatically turns off after 5 minutes
+  triggers:
+  - type: opened
+    device_id: 5d84dfadbe04ff15b5852f2af939a846
+    entity_id: ca3260bf9d0f41e2efb628b8e51605ad
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state:
+    - below_horizon
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id:
+      - light.garden_lights
+      - light.conservatory_spots
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 10
+    target:
+      entity_id:
+      - light.garden_lights
+      - light.conservatory_spots
+  mode: single
+- id: '1763408109883'
+  alias: "\U0001F6AA Entrance - Front Door Hallway Light"
+  description: Turns on hallway light when front door opens after sunset, automatically
+    turns off after 3 minutes
+  triggers:
+  - type: opened
+    device_id: 81680e6f6a60d772e58d17c5dcb5faed
+    entity_id: d904a21911b20c18fd7e4e384a7440fc
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state:
+    - below_horizon
+  actions:
+  - type: turn_on
+    device_id: f3767e6a80379cebd73bac3d95ba4e30
+    entity_id: 1ca41726a9d39acc5ea1e21112fc8e5c
+    domain: light
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - type: turn_off
+    device_id: f3767e6a80379cebd73bac3d95ba4e30
+    entity_id: 1ca41726a9d39acc5ea1e21112fc8e5c
+    domain: light
+  mode: single
+- id: '1763409777823'
+  alias: ⏰ Schedule - Alarm Light
+  description: Turns on kitchen and living room lights 10 minutes before alarm time
+    when home
+  triggers:
+  - trigger: time
+    at:
+      entity_id: sensor.pixel_8_pro_next_alarm
+      offset: -00:10:00
+    weekday:
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+  conditions:
+  - condition: state
+    entity_id: person.remco
+    state:
+    - home
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 33
+    target:
+      entity_id:
+      - light.livingroom_spots
+      - light.keuken_licht
+  mode: single
+- id: '1763410011466'
+  alias: "\U0001F464 Presence - Home/Away Lights"
+  description: Turns on lights when arriving home after sunset, turns off all lights
+    when leaving
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - zone.home
+    above: 0
+    id: home
+  - trigger: numeric_state
+    entity_id:
+    - zone.home
+    id: away
+    below: 1
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - home
+      - condition: state
+        entity_id: sun.sun
+        state:
+        - below_horizon
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 33
+        target:
+          entity_id:
+          - light.keuken_licht
+          - light.livingroom_spots
+    - conditions:
+      - condition: trigger
+        id:
+        - away
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: all
+  mode: single
+- id: '1763481145239'
+  alias: "\U0001F6B6 Motion - Shed Lights"
+  description: Turns on shed lights when motion is detected after sunset and turns
+    off when motion stops
+  triggers:
+  - type: occupied
+    device_id: 6c19ecefbd629a96075f4d30a56f231e
+    entity_id: 7b17a2d10f5f78aa3829f65e33f58592
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state:
+    - below_horizon
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.shed_lights
+  - wait_for_trigger:
+    - type: not_occupied
+      device_id: 6c19ecefbd629a96075f4d30a56f231e
+      entity_id: 7b17a2d10f5f78aa3829f65e33f58592
+      domain: binary_sensor
+      trigger: device
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.shed_lights
+  mode: single
+- id: '1763481280542'
+  alias: "\U0001F6B6 Motion - Hallway"
+  description: Turns on hallway light when motion is detected after sunset and turns
+    off when motion stops
+  triggers:
+  - type: occupied
+    device_id: 83719dfb63fe83bb137dbdebdbd4d4d1
+    entity_id: bb229f38e2c0f764f9b1bd18900bcd05
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state:
+    - below_horizon
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.hal_licht
+  - wait_for_trigger:
+    - type: not_occupied
+      device_id: 83719dfb63fe83bb137dbdebdbd4d4d1
+      entity_id: bb229f38e2c0f764f9b1bd18900bcd05
+      domain: binary_sensor
+      trigger: device
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.hal_licht
+  mode: single
+- id: '1763483180186'
+  alias: "\U0001F50A Media - Volume Control"
+  description: Controls volume levels for all media players based on schedule
+  use_blueprint:
+    path: r3mcos3/volume_control3.yaml
+    input:
+      media:
+        entity_id:
+        - media_player.nest_hub_woonkamer
+        - media_player.nest_hub
+        - media_player.living_room_2
+        - media_player.living_room_1
+        - media_player.nest_mini_santi
+        - media_player.nest_mini_schuur
+      scheduler: schedule.volume_schedule_8u_20u
+- id: '1763495326015'
+  alias: ⏰ Schedule - Garden LED Lights
+  description: Turns on garden LED lights at sunset and turns them off at midnight
+  triggers:
+  - trigger: state
+    entity_id:
+    - sun.sun
+    to:
+    - below_horizon
+    id: 'on'
+  - trigger: time
+    at: '23:59:59'
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - type: turn_on
+        device_id: f27a3b4a270070d93ddc9099ec4d3d7d
+        entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - type: turn_off
+        device_id: f27a3b4a270070d93ddc9099ec4d3d7d
+        entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
+        domain: switch
+  mode: single
+- id: '1763495919071'
+  alias: "\U0001F514 Notify - System Updates"
+  description: Sends notifications to a mobile device when updates are available for
+    Home Assistant core, add-ons, and firmware.
+  use_blueprint:
+    path: mdegat01/update_notifications.yaml
+    input:
+      mobile_app_device: 96dc4e1932960b1645890d2c1bb80479
+      mobile_app_device_2: 96dc4e1932960b1645890d2c1bb80479
+      take_backup: false
+      update_entities:
+      - update.advanced_ssh_web_terminal_update
+      - update.hacs_update
+      - update.home_assistant_core_update
+      - update.home_assistant_operating_system_update
+      - update.home_assistant_skyconnect_5442f4dd_firmware
+      - update.home_assistant_supervisor_update
+      - update.home_assistant_voice_092610
+      - update.ac_mesh
+      - update.13_home
+      - update.mawd_250_firmware
+      - update.life360_update
+      - update.matter_server_update
+      - update.mosquitto_broker_update
+      - update.openthread_border_router_update
+      - update.samba_share_update
+      - update.spook_your_homie_update
+      - update.studio_code_server_update
+      - update.uap_ac_lite
+      - update.zigbee_zigbee_firmware
+      - update.uk_ultra
+      - update.us_8_60w
+      - update.usw_flex_mini_zolder
+      - update.usw_flex_mini_beneden
+      - update.zigbee_core_firmware
+      - update.llm_vision_update
+      - update.person_tracker_card_update
+- id: '1764267800358'
+  alias: "\U0001F514 Notify - Sun/Moon"
+  description: Sends Telegram notifications at sunrise and sunset
+  triggers:
+  - trigger: sun
+    event: sunrise
+    offset: 0
+    id: up
+  - trigger: sun
+    event: sunset
+    offset: 0
+    id: down
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - down
+      sequence:
+      - action: telegram_bot.send_message
+        metadata: {}
+        data:
+          config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
+          message: "De zon gaat onder \U0001F319"
+    - conditions:
+      - condition: trigger
+        id:
+        - up
+      sequence:
+      - action: telegram_bot.send_message
+        metadata: {}
+        data:
+          config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
+          message: De zon komt op ☀️
+  mode: single
+- id: '1764487238397'
+  alias: ⏰ Schedule - Smart Heating
+  description: 'Controls the temperature: 18°C (Home), 10°C (Away), and 15°C (Night).
+    Outside < 15°C.'
+  triggers:
+  - entity_id: zone.home
+    above: 0
+    trigger: numeric_state
+  - entity_id: zone.home
+    below: 1
+    for: 00:10:00
+    trigger: numeric_state
+  - at: 08:00:00
+    trigger: time
+  - at: '21:00:00'
+    trigger: time
+  - trigger: homeassistant
+    event: start
+  - trigger: event
+    event_type: automation_reloaded
+  conditions:
+  - condition: numeric_state
+    entity_id: weather.thuis
+    below: 15
+    attribute: temperature
+  actions:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: '21:00:00'
+        - condition: time
+          before: 08:00:00
+      sequence:
+      - data:
+          temperature: 15
+        action: climate.set_temperature
+        target:
+          entity_id: climate.living_room
+    - conditions:
+      - condition: numeric_state
+        entity_id: zone.home
+        above: 0
+      sequence:
+      - data:
+          temperature: 18
+        action: climate.set_temperature
+        target:
+          entity_id: climate.living_room
+    - conditions:
+      - condition: numeric_state
+        entity_id: zone.home
+        below: 1
+      sequence:
+      - data:
+          temperature: 10
+        action: climate.set_temperature
+        target:
+          entity_id: climate.living_room
+    default: []
+  mode: single
+- id: '1764518208226'
+  alias: "\U0001F50A Media - Doorbell Chime"
+  description: Plays chime.mp3 when the doorbell is pressed, Google Mini Santi / Nest
+    Hub Bedroom
+  triggers:
+  - type: occupied
+    device_id: 7f5da20f6b36f21582e258741fbad3ff
+    entity_id: 3d193f0f2280735edf5ac5796ad8c8f2
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - parallel:
+    - action: media_player.play_media
+      metadata: {}
+      data:
+        media:
+          media_content_id: media-source://media_source/local/Chime.mp3
+          media_content_type: audio/mpeg
+          metadata:
+            title: Chime.mp3
+            thumbnail:
+            media_class: music
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+            browse_entity_id: media_player.nest_hub
+      target:
+        entity_id: media_player.nest_mini_santi
+    - action: media_player.play_media
+      metadata: {}
+      target:
+        entity_id:
+        - media_player.nest_hub
+      data:
+        media:
+          media_content_id: media-source://media_source/local/Chime.mp3
+          media_content_type: audio/mpeg
+          metadata:
+            title: Chime.mp3
+            thumbnail:
+            media_class: music
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+            browse_entity_id: media_player.nest_hub
+  mode: single
+- id: '1764519234512'
+  alias: "\U0001F916 AI - Weather Report"
+  description: Fetches hourly weather forecasts, uses AI to summarize them into an
+    emoji-rich report, and stores it in an input text helper every 12 hours.
+  triggers:
+  - trigger: time_pattern
+    hours: /6
+  conditions: []
+  actions:
+  - action: weather.get_forecasts
+    metadata: {}
+    target:
+      entity_id: weather.thuis
+    data:
+      type: hourly
+    response_variable: hourly_forecast
+  - variables:
+      forecast_list: '{{ hourly_forecast[''weather.thuis''].forecast | default([])
+        }}'
+  - action: ai_task.generate_data
+    metadata: {}
+    data:
+      task_name: hourly forecast
+      entity_id: ai_task.openai_ai_task
+      instructions: 'Hier is het weer voor de aankomende uren in JSON: {{ forecast_list
+        | tojson }}
+
+
+        maak hier een weerbericht van in 150 letters. maak gebruik van emojis.'
+    response_variable: ai_response
+  - action: input_text.set_value
+    metadata: {}
+    target:
+      entity_id: input_text.ai_respone
+    data:
+      value: '{{ ai_response.data | default(''Geen Data Beschikbaar.'') }}'
+  mode: single
+- id: '1764699483229'
+  alias: "\U0001F464 Presence - Turn Off All Lights (Away)"
+  description: Turns off all lights when Santi leaves home and no one else is home.
+  triggers:
+  - trigger: state
+    entity_id:
+    - device_tracker.life360_santi_verhagen
+    to:
+    - not_home
+  conditions:
+  - condition: numeric_state
+    entity_id: zone.home
+    below: 1
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    target:
+      entity_id: all
+    data: {}
+  mode: single
+- id: '1765035191172'
+  alias: "\U0001F916 AI - Parking Spot Count"
+  description: Analyzes doorbell camera feed with AI to count free and occupied parking
+    spaces upon arrival, updating sensors and sending a notification.
+  triggers:
+  - trigger: zone
+    entity_id: person.remco
+    zone: zone.huibevendreef
+    event: enter
+  - trigger: zone
+    entity_id: person.remco
+    zone: zone.moerse_dreef
+    event: enter
+  conditions:
+  - condition: state
+    entity_id: sensor.proximity_remco_remco_direction_of_travel
+    state:
+    - towards
+  actions:
+  - alias: Analyseer camera met AI
+    action: ai_task.generate_data
+    data:
+      instructions: Look at this image of the street in front of my house. There are
+        3 parking spaces directly in front of the door. Count how many of these 3
+        spaces are FREE (no car parked) and how many are OCCUPIED (car parked).
+      structure:
+        vrije_plekken:
+          selector:
+            number:
+              min: 0
+              max: 3
+        bezette_plekken:
+          selector:
+            number:
+              min: 0
+              max: 3
+      entity_id: ai_task.google_ai_task
+      task_name: Scan Free Park Spaces
+      attachments:
+        media_content_id: media-source://camera/camera.doorbell_camera_generic
+        media_content_type: application/vnd.apple.mpegurl
+        metadata:
+          title: Doorbell Camera Generic
+          thumbnail: /api/camera_proxy/camera.doorbell_camera_generic
+          media_class: video
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: app
+            media_content_id: media-source://camera
+    response_variable: parking_result
+    enabled: true
+  - alias: Update vrije plekken
+    action: input_number.set_value
+    target:
+      entity_id: input_number.vrije_parkeerplekken
+    data:
+      value: '{{ parking_result.data.vrije_plekken | int(0) }}'
+  - alias: Update bezette plekken
+    action: input_number.set_value
+    target:
+      entity_id: input_number.bezette_parkeerplekken
+    data:
+      value: '{{ parking_result.data.bezette_plekken | int(0) }}'
+  - action: telegram_bot.send_message
+    metadata: {}
+    data:
+      config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
+      message: "Er zijn {{ states('input_number.vrije_parkeerplekken') | int(0) }}
+        parkeerplaatsen \U0001F697 vrij voor de deur!\U0001F6AA"
+  - action: camera.snapshot
+    metadata: {}
+    target:
+      entity_id: camera.doorbell_camera_generic
+    data:
+      filename: /config/www/parking_spot.jpg
+  mode: single

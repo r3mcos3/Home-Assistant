@@ -1,0 +1,98 @@
+# Secrets
+secrets.yaml
+*_secrets.yaml
+
+# Database
+home-assistant.log
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
+*.db
+*.db-shm
+*.db-wal
+*.fault
+*.json
+
+# Storage folder (contains sensitive data)
+.storage/
+.cloud/
+
+# Folders
+image/
+zigbee2mqtt/log/
+
+# Temporary files
+*.log
+*.pid
+*.xml
+*.conf
+
+# Device tracking
+known_devices.yaml
+entity_registry.yaml
+device_registry.yaml
+
+# IP bans
+ip_bans.yaml
+
+# ZWave/OZW
+OZW_Log.txt
+ozw_log.txt
+
+# System files
+.DS_Store
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.uuid
+.ha_run.lock
+
+# Backups
+*.backup
+*.bak
+backups/
+*.db-journal
+
+# Dependencies
+deps/
+tts/
+downloads/
+
+# Generated files
+*.pickle
+*.pem
+*.crt
+*.csr
+*.key
+
+# Custom components cache
+custom_components/__pycache__/
+
+# ESPHome
+*.bin
+
+# Node-RED (if used)
+.node-red/
+
+# AppDaemon
+appdaemon/compiled/
+
+# Ignore all hidden files except specific ones
+.*
+!/.gitignore
+!/.gitattributes
+
+# Allow specific config files you want to track
+!/.github/
+!/automations.yaml
+!/configuration.yaml
+!/groups.yaml
+!/scenes.yaml
+!/scripts.yaml
+!/customize.yaml
+!/lovelace/
+!/packages/
+!/themes/
+!/blueprints/
+!/.HA_VERSION

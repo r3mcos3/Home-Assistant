@@ -1,0 +1,7 @@
+alle_personen:
+  name: Alle Personen Thuis
+  entities:
+    # Voeg hier de person-entiteiten toe voor elk gezinslid
+    - person.remco # Dit ben jij
+    - person.annemarie # Dit is je vrouw
+  all: false

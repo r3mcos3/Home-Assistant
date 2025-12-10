@@ -1,0 +1,41 @@
+
+- resource: https://www.vanraak.be/nl/professionals/tanken/poppel
+  verify_ssl: false
+  scan_interval: 86400
+  sensor:
+    - name: Euro95 Poppel
+      select: body > section.tankstation > div > div.row > div.col-md-9 > div > table > tbody > tr > td:nth-child(1) > span.text-bold
+      unit_of_measurement: "€"
+      icon: mdi:fuel
+      unique_id: "euro95_poppel"
+      value_template: '{{ value | replace (" ", "") | round(2) | float(0) }}'
+- resource: https://www.vanraak.be/nl/professionals/tanken/baarle-hertog
+  verify_ssl: false
+  scan_interval: 86400
+  sensor:
+    - name: Euro95 Baarle-Hertog
+      select: body > section.tankstation > div > div.row > div.col-md-9 > div > table > tbody > tr > td:nth-child(1) > span.text-bold
+      unit_of_measurement: "€"
+      icon: mdi:fuel
+      unique_id: "euro95_baarle_hertog"
+      value_template: '{{ value | replace (" ", "") | round(2) | float(0) }}'
+- resource: https://www.tankje.nl/GasStation/Details/1105
+  verify_ssl: false
+  scan_interval: 86400
+  sensor:
+    - name: Euro95 Eindesestraat Dongen
+      select: body > div > main > div > div > div.col-lg-8 > div:nth-child(2) > div.card-body > div > div:nth-child(1) > div > div.card-body.text-center > div.h3.text-success.mb-2
+      unit_of_measurement: "€"
+      icon: mdi:fuel
+      unique_id: "euro95_eindesestraat_dongen"
+      value_template: '{{ value | replace (",", ".") | replace("€", "") }}'
+- resource: https://www.tankje.nl/GasStation/Details/3638
+  verify_ssl: false
+  scan_interval: 86400
+  sensor:
+    - name: Euro95 Huibenvendreef Tilburg
+      select: body > div > main > div > div > div.col-lg-8 > div:nth-child(2) > div.card-body > div > div:nth-child(1) > div > div.card-body.text-center > div.h3.text-warning.mb-2
+      unit_of_measurement: "€"
+      icon: mdi:fuel
+      unique_id: "euro95_huibenvendreef_tilburg"
+      value_template: '{{ value | replace (",", ".") | replace("€", "") }}'
