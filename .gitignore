@@ -20,6 +20,7 @@ home-assistant_v2.db-wal
 # Folders
 image/
 zigbee2mqtt/log/
+custom_components/
 
 # Temporary files
 *.log
