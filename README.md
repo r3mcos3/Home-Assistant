@@ -13,6 +13,7 @@ This is my personal Home Assistant configuration. This repository contains all a
 - [Integrations](#-integrations)
 - [Automations](#-automations)
 - [Folder Structure](#-folder-structure)
+- [Entity Naming Convention](#-entity-naming-convention)
 - [Credits](#-credits)
 
 ## 🎯 Overview
@@ -82,6 +83,75 @@ All automations can be found in [`automations.yaml`](automations.yaml). The conf
 ## 🎨 Themes
 
 Custom themes are available in the `themes/` folder and are automatically loaded via the frontend configuration.
+
+## 🏷️ Entity Naming Convention
+
+All entities in this configuration follow a standardized English naming schema for consistency and clarity.
+
+### Naming Format
+
+```
+{floor}_{room}_{function}_{device_type}
+```
+
+### Floor Prefixes
+
+| Prefix | Floor | Dutch |
+|--------|-------|-------|
+| `gf_` | Ground Floor | begane grond |
+| `ff_` | First Floor | eerste verdieping |
+| `bf_` | Basement Floor | kelder |
+| `at_` | Attic | zolder |
+| `out_` | Outside | buiten |
+
+### Device Type Suffixes
+
+- `light` - Individual light or main light
+- `spots` - Spotlight group
+- `ceiling` - Ceiling light
+- `motion` - Motion/occupancy sensor
+- `contact` - Door/window contact sensor
+- `switch` - Physical or smart switch
+
+### Room Names
+
+| English | Dutch |
+|---------|-------|
+| `kitchen` | keuken |
+| `living` | woonkamer |
+| `bedroom_main` | grote slaapkamer |
+| `bedroom_elyza` | slaapkamer Elyza |
+| `bedroom_santi` | slaapkamer Santi |
+| `toilet` | WC |
+| `hallway` | hal |
+| `landing` | overloop/trap |
+| `basement` | kelder |
+| `attic` | zolder |
+| `shed` | schuur |
+| `conservatory` | serre |
+| `garden` | tuin |
+
+### Examples
+
+- `light.gf_kitchen_light` - Ground floor kitchen light
+- `light.gf_living_spots` - Ground floor living room spotlights
+- `light.ff_bedroom_elyza_light` - First floor Elyza's bedroom light
+- `binary_sensor.bf_basement_motion_occupancy` - Basement motion sensor
+- `binary_sensor.gf_door_front_contact` - Ground floor front door contact
+- `light.out_conservatory_spots` - Outside conservatory spotlights
+
+### Multiple Devices
+
+For multiple devices of the same type, use numbered suffixes:
+- `light.gf_living_ceiling_1` / `light.gf_living_ceiling_2`
+- `light.gf_living_spot_1` through `light.gf_living_spot_6`
+- `light.gf_living_spots` - Group containing all spots
+
+### Seasonal Devices
+
+Format: `{floor}_{room}_{season}_{item}`
+- `light.gf_living_christmas_tree`
+- `light.gf_living_christmas_garland`
 
 ## 🙏 Credits
 
