@@ -1,8 +1,8 @@
 # 🏠 Home Assistant Configuration
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0dev-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/USERNAME/REPO?style=flat-square)](https://github.com/USERNAME/REPO)
-[![GitHub Stars](https://img.shields.io/github/stars/USERNAME/REPO?style=flat-square)](https://github.com/USERNAME/REPO/stargazers)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512100242-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant)
+[![GitHub Stars](https://img.shields.io/github/stars/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant/stargazers)
 
 This is my personal Home Assistant configuration. This repository contains all automations, scripts, and custom integrations that power my smart home.
 
