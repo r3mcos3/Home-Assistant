@@ -459,7 +459,7 @@
   conditions:
   - condition: numeric_state
     entity_id: weather.thuis
-    below: 15
+    below: 12
     attribute: temperature
   actions:
   - choose:
