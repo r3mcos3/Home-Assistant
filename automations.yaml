@@ -200,52 +200,6 @@
       - light.livingroom_spots
       - light.keuken_licht
   mode: single
-- id: '1763410011466'
-  alias: "\U0001F464 Presence - Home/Away Lights"
-  description: Turns on lights when arriving home after sunset, turns off all lights
-    when leaving
-  triggers:
-  - trigger: numeric_state
-    entity_id:
-    - zone.home
-    above: 0
-    id: home
-  - trigger: numeric_state
-    entity_id:
-    - zone.home
-    id: away
-    below: 1
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - home
-      - condition: state
-        entity_id: sun.sun
-        state:
-        - below_horizon
-      sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_pct: 33
-        target:
-          entity_id:
-          - light.keuken_licht
-          - light.livingroom_spots
-    - conditions:
-      - condition: trigger
-        id:
-        - away
-      sequence:
-      - action: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: all
-  mode: single
 - id: '1763481145239'
   alias: "\U0001F6B6 Motion - Shed Lights"
   description: Turns on shed lights when motion is detected after sunset and turns
@@ -436,68 +390,6 @@
           config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
           message: De zon komt op ☀️
   mode: single
-- id: '1764487238397'
-  alias: ⏰ Schedule - Smart Heating
-  description: 'Controls the temperature: 18°C (Home), 10°C (Away), and 15°C (Night).
-    Outside < 15°C.'
-  triggers:
-  - entity_id: zone.home
-    above: 0
-    trigger: numeric_state
-  - entity_id: zone.home
-    below: 1
-    for: 00:10:00
-    trigger: numeric_state
-  - at: 08:00:00
-    trigger: time
-  - at: '21:00:00'
-    trigger: time
-  - trigger: homeassistant
-    event: start
-  - trigger: event
-    event_type: automation_reloaded
-  conditions:
-  - condition: numeric_state
-    entity_id: weather.thuis
-    below: 12
-    attribute: temperature
-  actions:
-  - choose:
-    - conditions:
-      - condition: or
-        conditions:
-        - condition: time
-          after: '21:00:00'
-        - condition: time
-          before: 08:00:00
-      sequence:
-      - data:
-          temperature: 15
-        action: climate.set_temperature
-        target:
-          entity_id: climate.living_room
-    - conditions:
-      - condition: numeric_state
-        entity_id: zone.home
-        above: 0
-      sequence:
-      - data:
-          temperature: 18
-        action: climate.set_temperature
-        target:
-          entity_id: climate.living_room
-    - conditions:
-      - condition: numeric_state
-        entity_id: zone.home
-        below: 1
-      sequence:
-      - data:
-          temperature: 10
-        action: climate.set_temperature
-        target:
-          entity_id: climate.living_room
-    default: []
-  mode: single
 - id: '1764518208226'
   alias: "\U0001F50A Media - Doorbell Chime"
   description: Plays chime.mp3 when the doorbell is pressed, Google Mini Santi / Nest
@@ -587,7 +479,7 @@
       value: '{{ ai_response.data | default(''Geen Data Beschikbaar.'') }}'
   mode: single
 - id: '1764699483229'
-  alias: "\U0001F464 Presence - Turn Off All Lights (Away)"
+  alias: "\U0001F464 Presence - Turn Off All Lights Santi  (Away)"
   description: Turns off all lights when Santi leaves home and no one else is home.
   triggers:
   - trigger: state
@@ -683,3 +575,35 @@
     data:
       filename: /config/www/parking_spot.jpg
   mode: single
+- id: '1765665488227'
+  alias: "\U0001F525 Advanced Heating Control V5"
+  description: ''
+  use_blueprint:
+    path: panhans/advanced_heating_control.yaml
+    input:
+      input_trvs:
+      - climate.living_room
+      input_temperature_sensor: sensor.multi_sensor_temperature
+      input_temperature_comfort_static: 18
+      input_temperature_eco_static: 13
+      input_persons:
+      - person.annemarie
+      - person.remco
+      input_schedulers:
+      - schedule.heating_schedule
+      input_proximity: 7e387087b7066d58e55644bc07fbac5b
+      input_windows:
+      - binary_sensor.achter_deur_contact
+      - binary_sensor.voor_deur_contact
+- id: '1765790226443'
+  alias: "\U0001F4A1 Presence - Home/Away Lights"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/presence_lights.yaml
+    input:
+      lights_target:
+        entity_id:
+        - light.livingroom_spots
+        - light.keuken_licht
+      presence_zone: zone.home
+      turn_off_all_lights: true
