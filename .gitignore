@@ -97,3 +97,5 @@ appdaemon/compiled/
 !/themes/
 !/blueprints/
 !/.HA_VERSION
+
+*.jpg
