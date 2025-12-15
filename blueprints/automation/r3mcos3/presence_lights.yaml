@@ -1,0 +1,92 @@
+# Version: 1.0.13
+blueprint:
+  name: "💡 Presence - Home/Away Lights"
+  description:
+    "📦 [Version 1.0.13] Turns on specified lights when someone arrives home after sunset, and turns
+    them off when the last person leaves."
+  domain: automation
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/presence_lights/presence_lights.yaml
+
+  input:
+    lights_target:
+      name: 💡 Target Lights
+      description: The lights to control based on presence.
+      selector:
+        target:
+          entity:
+            domain: light
+
+    presence_zone:
+      name: 🏠 Presence Zone
+      description: The zone to monitor for arrivals and departures (e.g., zone.home).
+      selector:
+        entity:
+          domain: zone
+
+    arrival_brightness:
+      name: "✨ Arrival Brightness"
+      description: The brightness percentage for the lights when they turn on.
+      default: 33
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+
+    turn_off_all_lights:
+      name: "🔌 Turn off all lights on departure"
+      description: "If enabled, all lights (light.all) will be turned off. If disabled, only the selected target lights will be turned off."
+      default: false
+      selector:
+        boolean: {}
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input presence_zone
+    above: 0
+    id: home
+  - platform: numeric_state
+    entity_id: !input presence_zone
+    below: 1
+    id: away
+
+action:
+  - variables:
+      _turn_off_all_lights: !input turn_off_all_lights
+  - choose:
+      # Case 1: Arrived Home
+      - conditions:
+          - condition: trigger
+            id: home
+          - condition: state
+            entity_id: sun.sun
+            state: "below_horizon"
+        sequence:
+          - service: light.turn_on
+            target: !input lights_target
+            data:
+              brightness_pct: !input arrival_brightness
+
+      # Case 2: Left Home
+      - conditions:
+          - condition: trigger
+            id: away
+        sequence:
+          - choose:
+              # If the 'turn_off_all_lights' switch is ON
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _turn_off_all_lights | bool }}"
+                sequence:
+                  - service: light.turn_off
+                    data: {}
+                    target:
+                      entity_id: all
+            # If the 'turn_off_all_lights' switch is OFF (default)
+            default:
+              - service: light.turn_off
+                target: !input lights_target
+                data: {}
