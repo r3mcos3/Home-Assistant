@@ -1,10 +1,10 @@
-# 🏠 Home Assistant Configuration
+# 🏠 Home Assistant 2026.1.0.dev202512160243Configuration
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512160243.-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512160243-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant)
 [![GitHub Stars](https://img.shields.io/github/stars/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant/stargazers)
 
-This is my personal Home Assistant configuration. This repository contains all automations, scripts, and custom integrations that power my smart home.
+This is my personal Home Assistant 2026.1.0.dev202512160243configuration. This repository contains all automations, scripts, and custom integrations that power my smart home.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@ This is my personal Home Assistant configuration. This repository contains all a
 
 ## 🎯 Overview
 
-This configuration runs on **Home Assistant 2026.1.0** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
+This configuration runs on **Home Assistant 2026.1.0.dev202512160243** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
 
 ### Key Features
 
@@ -33,7 +33,7 @@ This configuration runs on **Home Assistant 2026.1.0** (development version) and
 
 | Component | Description |
 |-----------|-------------|
-| [HACS](https://hacs.xyz/) | Home Assistant Community Store |
+| [HACS](https://hacs.xyz/) | Home Assistant 2026.1.0.dev202512160243Community Store |
 | [Life360](https://github.com/pnbruckner/ha-life360) | Life360 device tracking |
 | [LLMVision](https://github.com/valentinfrlch/ha-llmvision) | AI vision analysis with LLM |
 | [Spook](https://github.com/frenck/spook) | Extra developer tools and services |
@@ -42,7 +42,7 @@ This configuration runs on **Home Assistant 2026.1.0** (development version) and
 
 ### Official Integrations
 
-- 🏠 **Default Config** - Base Home Assistant functionality
+- 🏠 **Default Config** - Base Home Assistant 2026.1.0.dev202512160243functionality
 - 📱 **Frontend** - Dashboard and UI
 - 🔔 **Notify** - Notification services
 - 📊 **Scrape** - Web scraping sensors
@@ -160,7 +160,7 @@ Format: `{floor}_{room}_{season}_{item}`
 
 ## 🙏 Credits
 
-- [Home Assistant Community](https://community.home-assistant.io/)
+- [Home Assistant 2026.1.0.dev202512160243Community](https://community.home-assistant.io/)
 - [HACS](https://hacs.xyz/)
 - All developers of the custom components used in this configuration
 
