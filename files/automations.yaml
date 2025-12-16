@@ -462,8 +462,8 @@
       - schedule.heating_schedule
       input_proximity: 7e387087b7066d58e55644bc07fbac5b
       input_windows:
-      - binary_sensor.achter_deur_contact
-      - binary_sensor.voor_deur_contact
+      - binary_sensor.gf_door_back_contact_contact
+      - binary_sensor.gf_door_front_contact_contact
 - id: '1765865278411'
   alias: "\U0001F4A1 Presence - Home/Away Lights"
   description: ''
@@ -476,79 +476,6 @@
         - light.livingroom_spots
         - light.gf_kitchen_light
       turn_off_all_lights: true
-- id: '1765865536049'
-  alias: "\U0001F697 AI - Parking Spot Counter"
-  description: ''
-  use_blueprint:
-    path: r3mcos3/ai_parking_counter.yaml
-    input:
-      person_entity: person.remco
-      zone_1: zone.huibevendreef
-      zone_2: zone.moerse_dreef
-      proximity_sensor: sensor.proximity_remco_remco_direction_of_travel
-      camera_entity: camera.doorbell_camera_generic
-      ai_task_entity: ai_task.google_ai_task
-      free_spots_sensor: input_number.vrije_parkeerplekken
-      occupied_spots_sensor: input_number.bezette_parkeerplekken
-      telegram_bot: 01KB319JH3BYTR0K7PYGAEDJ6B
-      ai_instructions: 'Look at this image of the street in front of my house. There
-        are
-
-        3 parking spaces directly in front of the door. Count how many of these 3
-<<<<<<< HEAD
-        spaces are FREE (no car parked) and how many are OCCUPIED (car parked).
-      structure:
-        vrije_plekken:
-          selector:
-            number:
-              min: 0
-              max: 3
-        bezette_plekken:
-          selector:
-            number:
-              min: 0
-              max: 3
-      entity_id: ai_task.google_ai_task
-      task_name: Scan Free Park Spaces
-      attachments:
-        media_content_id: media-source://camera/camera.doorbell_camera_generic
-        media_content_type: application/vnd.apple.mpegurl
-        metadata:
-          title: Doorbell Camera Generic
-          thumbnail: /api/camera_proxy/camera.doorbell_camera_generic
-          media_class: video
-          children_media_class:
-          navigateIds:
-          - {}
-          - media_content_type: app
-            media_content_id: media-source://camera
-    response_variable: parking_result
-    enabled: true
-  - alias: Update vrije plekken
-    action: input_number.set_value
-    target:
-      entity_id: input_number.vrije_parkeerplekken
-    data:
-      value: '{{ parking_result.data.vrije_plekken | int(0) }}'
-  - alias: Update bezette plekken
-    action: input_number.set_value
-    target:
-      entity_id: input_number.bezette_parkeerplekken
-    data:
-      value: '{{ parking_result.data.bezette_plekken | int(0) }}'
-  - action: telegram_bot.send_message
-    metadata: {}
-    data:
-      config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
-      message: "Er zijn {{ states('input_number.vrije_parkeerplekken') | int(0) }}
-        parkeerplaatsen \U0001F697 vrij voor de deur!\U0001F6AA"
-  - action: camera.snapshot
-    metadata: {}
-    target:
-      entity_id: camera.doorbell_camera_generic
-    data:
-      filename: /config/www/parking_spot.jpg
-  mode: single
 - id: '1765665488227'
   alias: "\U0001F525 Advanced Heating Control V5"
   description: ''
@@ -567,8 +494,8 @@
       - schedule.heating_schedule
       input_proximity: 7e387087b7066d58e55644bc07fbac5b
       input_windows:
-      - binary_sensor.achter_deur_contact
-      - binary_sensor.voor_deur_contact
+      - binary_sensor.gf_door_back_contact_contact
+      - binary_sensor.gf_door_front_contact_contact
 - id: '1765790226443'
   alias: "\U0001F4A1 Presence - Home/Away Lights"
   description: ''
@@ -578,36 +505,6 @@
       lights_target:
         entity_id:
         - light.livingroom_spots
-        - light.keuken_licht
+        - light.gf_kitchen_light
       presence_zone: zone.home
       turn_off_all_lights: true
-=======
-        spaces are FREE (no car parked) and how many are OCCUPIED (car parked).'
-- id: '1765865796549'
-  alias: "\U0001F508 Volume Control"
-  description: ''
-  use_blueprint:
-    path: r3mcos3/volumecontrol.yaml
-    input:
-      scheduler: schedule.volume_schedule_8u_20u
-      media:
-        entity_id:
-        - media_player.nest_mini_schuur
-        - media_player.nest_mini_santi
-        - media_player.nest_hub
-        - media_player.nest_hub_woonkamer
-        device_id:
-        - ffafbb388566addd3c9a249cec75cff4
-        - 9f40e199b8a632d4fbc36652173dbf9e
-        - 20059926a27af788fa78b172b1a30d77
-- id: '1765866695780'
-  alias: "\U0001F916 AI Weather Report Generator"
-  description: ''
-  use_blueprint:
-    path: r3mcos3/ai_weather_report.yaml
-    input:
-      weather_entity: weather.thuis
-      ai_task_entity: ai_task.openai_ai_task
-      report_length: 200
-      target_input_text: input_text.ai_respone
->>>>>>> 8314008 (🏷️ Standardize entity naming convention)
