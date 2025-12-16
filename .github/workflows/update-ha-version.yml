@@ -1,4 +1,4 @@
-name: Update Version Badge
+name: Update Home Assistant Version
 
 on:
   push:
@@ -24,13 +24,11 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
-      - name: Update README badge and overview section
+      - name: Update README overview section
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Update badge
-          sed -i "s|Home%20Assistant-[^-]*-41BDF5|Home%20Assistant-${VERSION}-41BDF5|g" README.md
-          # Update overview section
-          sed -i "s|Home Assistant [0-9.]*\( (development version)\)\?|Home Assistant ${VERSION}|g" README.md
+          # Update overview section only (line 21)
+          sed -i "s|This configuration runs on \*\*Home Assistant [0-9.a-z]*\*\*|This configuration runs on **Home Assistant ${VERSION}**|g" README.md
 
       - name: Check for changes
         id: check_changes
@@ -47,5 +45,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          git commit -m "🔄 Update version badge to ${{ steps.version.outputs.version }}"
+          git commit -m "🔄 Update Home Assistant version to ${{ steps.version.outputs.version }}"
           git push
