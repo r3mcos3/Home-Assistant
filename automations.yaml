@@ -373,57 +373,6 @@
           config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
           message: De zon komt op ☀️
   mode: single
-- id: '1764518208226'
-  alias: "\U0001F50A Media - Doorbell Chime"
-  description: Plays chime.mp3 when the doorbell is pressed, Google Mini Santi / Nest
-    Hub Bedroom
-  triggers:
-  - type: occupied
-    device_id: 7f5da20f6b36f21582e258741fbad3ff
-    entity_id: 3d193f0f2280735edf5ac5796ad8c8f2
-    domain: binary_sensor
-    trigger: device
-  conditions: []
-  actions:
-  - parallel:
-    - action: media_player.play_media
-      metadata: {}
-      data:
-        media:
-          media_content_id: media-source://media_source/local/Chime.mp3
-          media_content_type: audio/mpeg
-          metadata:
-            title: Chime.mp3
-            thumbnail:
-            media_class: music
-            children_media_class:
-            navigateIds:
-            - {}
-            - media_content_type: app
-              media_content_id: media-source://media_source
-            browse_entity_id: media_player.nest_hub
-      target:
-        entity_id: media_player.nest_mini_santi
-    - action: media_player.play_media
-      metadata: {}
-      target:
-        entity_id:
-        - media_player.nest_hub
-      data:
-        media:
-          media_content_id: media-source://media_source/local/Chime.mp3
-          media_content_type: audio/mpeg
-          metadata:
-            title: Chime.mp3
-            thumbnail:
-            media_class: music
-            children_media_class:
-            navigateIds:
-            - {}
-            - media_content_type: app
-              media_content_id: media-source://media_source
-            browse_entity_id: media_player.nest_hub
-  mode: single
 - id: '1764699483229'
   alias: "\U0001F464 Presence - Turn Off All Lights Santi  (Away)"
   description: Turns off all lights when Santi leaves home and no one else is home.
@@ -464,18 +413,6 @@
       input_windows:
       - binary_sensor.gf_door_back_contact_contact
       - binary_sensor.gf_door_front_contact_contact
-- id: '1765865278411'
-  alias: "\U0001F4A1 Presence - Home/Away Lights"
-  description: ''
-  use_blueprint:
-    path: r3mcos3/presence_lights.yaml
-    input:
-      presence_zone: zone.home
-      lights_target:
-        entity_id:
-        - light.livingroom_spots
-        - light.gf_kitchen_light
-      turn_off_all_lights: true
 - id: '1765665488227'
   alias: "\U0001F525 Advanced Heating Control V5"
   description: ''
@@ -508,3 +445,73 @@
         - light.gf_kitchen_light
       presence_zone: zone.home
       turn_off_all_lights: true
+- id: '1765894072505'
+  alias: "\U0001F514 Doorbell Chime"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/doorbell_chime.yaml
+    input:
+      doorbell_sensor: binary_sensor.g4_doorbell_deurbel
+      media_players_target:
+        entity_id:
+        - media_player.nest_hub_woonkamer
+        - media_player.nest_mini_santi
+        device_id: d86a9599031a19feab54987e1a60877b
+      media_file:
+        media_content_id: media-source://media_source/local/Chime.mp3
+        media_content_type: audio/mpeg
+        metadata:
+          title: Chime.mp3
+          thumbnail:
+          media_class: music
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: app
+            media_content_id: media-source://media_source
+      chime_volume: 1
+      time_end: '20:30:00'
+      use_time_condition: true
+- id: '1765905452963'
+  alias: "\U0001F916 AI Weather Report Generator"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/ai_weather_report.yaml
+    input:
+      weather_entity: weather.thuis
+      ai_task_entity: ai_task.openai_ai_task
+      report_length: 200
+      target_input_text: input_text.ai_respone
+- id: '1765905578931'
+  alias: "\U0001F697 AI - Parking Spot Counter"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/ai_parking_counter.yaml
+    input:
+      person_entity: person.remco
+      zone_1: zone.moerse_dreef
+      zone_2: zone.huibevendreef
+      proximity_sensor: sensor.proximity_remco_remco_direction_of_travel
+      camera_entity: camera.doorbell_camera_generic
+      free_spots_sensor: input_number.vrije_parkeerplekken
+      occupied_spots_sensor: input_number.bezette_parkeerplekken
+      telegram_bot: 01KB319JH3BYTR0K7PYGAEDJ6B
+      ai_instructions: Ik 3 parkeerplaatsen voor me deur, 1 links van de boom en 2
+        rechts van de boom, vertel met hoeveel parkeerplaatsen vrij zijn.
+      ai_task_entity: ai_task.openai_ai_task
+- id: '1765905653209'
+  alias: "\U0001F508 Volume Control"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/volumecontrol.yaml
+    input:
+      scheduler: schedule.volume_schedule_8u_20u
+      media:
+        entity_id:
+        - media_player.nest_mini_santi
+        - media_player.nest_mini_schuur
+        - media_player.living_room_1
+        - media_player.living_room_2
+        - media_player.back_porch
+        - media_player.nest_hub
+        - media_player.nest_hub_woonkamer

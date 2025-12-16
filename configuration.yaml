@@ -5,9 +5,9 @@ default_config:
 frontend:
   themes: !include_dir_merge_named themes
 
-automation: !include files/automations.yaml
-script: !include files/scripts.yaml
-scene: !include files/scenes.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
 scrape: !include files/scrape.yaml
 notify: !include files/notify.yaml
 group: !include files/groups.yaml
