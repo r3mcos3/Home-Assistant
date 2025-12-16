@@ -24,11 +24,13 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
-      - name: Update README overview section
+      - name: Update README badge and overview section
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Update overview section only (line 21)
-          sed -i "s|This configuration runs on \*\*Home Assistant [0-9.a-z]*\*\*|This configuration runs on **Home Assistant ${VERSION}**|g" README.md
+          # Update badge on line 3
+          sed -i "3s|Home%20Assistant-[^-]*-41BDF5|Home%20Assistant-${VERSION}-41BDF5|" README.md
+          # Update overview section on line 21
+          sed -i "21s|\*\*Home Assistant [0-9.a-z]*\*\*|**Home Assistant ${VERSION}**|" README.md
 
       - name: Check for changes
         id: check_changes
