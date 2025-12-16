@@ -4,9 +4,9 @@
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
-      motion_entity: binary_sensor.kelder_motion_occupancy
+      motion_entity: binary_sensor.bf_basement_motion_occupancy
       light_target:
-        entity_id: light.kelder_licht
+        entity_id: light.bf_basement_light
 - id: '1763407144685'
   alias: "\U0001F39B️ Remote - Attic/Elyza"
   description: Controls attic lights using MQTT remote (left/right arrow buttons)
@@ -44,9 +44,7 @@
         metadata: {}
         data: {}
         target:
-          entity_id:
-          - light.zolder_1
-          - light.zolder_2
+          entity_id: light.attic_lights
   mode: single
 - id: '1763407324981'
   alias: "\U0001F6B6 Motion - Toilet Light"
@@ -55,9 +53,9 @@
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
-      motion_entity: binary_sensor.wc_motion_occupancy
+      motion_entity: binary_sensor.gf_toilet_motion_occupancy
       light_target:
-        entity_id: light.wc_licht
+        entity_id: light.gf_toilet_light
       no_motion_wait: 300
 - id: '1763407493663'
   alias: "\U0001F6B6 Motion - Landing Light"
@@ -198,7 +196,7 @@
     target:
       entity_id:
       - light.livingroom_spots
-      - light.keuken_licht
+      - light.gf_kitchen_light
   mode: single
 - id: '1763481145239'
   alias: "\U0001F6B6 Motion - Shed Lights"
@@ -254,7 +252,7 @@
     metadata: {}
     data: {}
     target:
-      entity_id: light.hal_licht
+      device_id: f3767e6a80379cebd73bac3d95ba4e30
   - wait_for_trigger:
     - type: not_occupied
       device_id: 83719dfb63fe83bb137dbdebdbd4d4d1
@@ -265,23 +263,8 @@
     metadata: {}
     data: {}
     target:
-      entity_id: light.hal_licht
+      device_id: f3767e6a80379cebd73bac3d95ba4e30
   mode: single
-- id: '1763483180186'
-  alias: "\U0001F50A Media - Volume Control"
-  description: Controls volume levels for all media players based on schedule
-  use_blueprint:
-    path: r3mcos3/volume_control3.yaml
-    input:
-      media:
-        entity_id:
-        - media_player.nest_hub_woonkamer
-        - media_player.nest_hub
-        - media_player.living_room_2
-        - media_player.living_room_1
-        - media_player.nest_mini_santi
-        - media_player.nest_mini_schuur
-      scheduler: schedule.volume_schedule_8u_20u
 - id: '1763495326015'
   alias: ⏰ Schedule - Garden LED Lights
   description: Turns on garden LED lights at sunset and turns them off at midnight
@@ -441,43 +424,6 @@
               media_content_id: media-source://media_source
             browse_entity_id: media_player.nest_hub
   mode: single
-- id: '1764519234512'
-  alias: "\U0001F916 AI - Weather Report"
-  description: Fetches hourly weather forecasts, uses AI to summarize them into an
-    emoji-rich report, and stores it in an input text helper every 12 hours.
-  triggers:
-  - trigger: time_pattern
-    hours: /6
-  conditions: []
-  actions:
-  - action: weather.get_forecasts
-    metadata: {}
-    target:
-      entity_id: weather.thuis
-    data:
-      type: hourly
-    response_variable: hourly_forecast
-  - variables:
-      forecast_list: '{{ hourly_forecast[''weather.thuis''].forecast | default([])
-        }}'
-  - action: ai_task.generate_data
-    metadata: {}
-    data:
-      task_name: hourly forecast
-      entity_id: ai_task.openai_ai_task
-      instructions: 'Hier is het weer voor de aankomende uren in JSON: {{ forecast_list
-        | tojson }}
-
-
-        maak hier een weerbericht van in 150 letters. maak gebruik van emojis.'
-    response_variable: ai_response
-  - action: input_text.set_value
-    metadata: {}
-    target:
-      entity_id: input_text.ai_respone
-    data:
-      value: '{{ ai_response.data | default(''Geen Data Beschikbaar.'') }}'
-  mode: single
 - id: '1764699483229'
   alias: "\U0001F464 Presence - Turn Off All Lights Santi  (Away)"
   description: Turns off all lights when Santi leaves home and no one else is home.
@@ -498,30 +444,58 @@
       entity_id: all
     data: {}
   mode: single
-- id: '1765035191172'
-  alias: "\U0001F916 AI - Parking Spot Count"
-  description: Analyzes doorbell camera feed with AI to count free and occupied parking
-    spaces upon arrival, updating sensors and sending a notification.
-  triggers:
-  - trigger: zone
-    entity_id: person.remco
-    zone: zone.huibevendreef
-    event: enter
-  - trigger: zone
-    entity_id: person.remco
-    zone: zone.moerse_dreef
-    event: enter
-  conditions:
-  - condition: state
-    entity_id: sensor.proximity_remco_remco_direction_of_travel
-    state:
-    - towards
-  actions:
-  - alias: Analyseer camera met AI
-    action: ai_task.generate_data
-    data:
-      instructions: Look at this image of the street in front of my house. There are
+- id: '1765665488227'
+  alias: "\U0001F525 Advanced Heating Control V5"
+  description: ''
+  use_blueprint:
+    path: panhans/advanced_heating_control.yaml
+    input:
+      input_trvs:
+      - climate.living_room
+      input_temperature_sensor: sensor.multi_sensor_temperature
+      input_temperature_comfort_static: 18
+      input_temperature_eco_static: 13
+      input_persons:
+      - person.annemarie
+      - person.remco
+      input_schedulers:
+      - schedule.heating_schedule
+      input_proximity: 7e387087b7066d58e55644bc07fbac5b
+      input_windows:
+      - binary_sensor.achter_deur_contact
+      - binary_sensor.voor_deur_contact
+- id: '1765865278411'
+  alias: "\U0001F4A1 Presence - Home/Away Lights"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/presence_lights.yaml
+    input:
+      presence_zone: zone.home
+      lights_target:
+        entity_id:
+        - light.livingroom_spots
+        - light.gf_kitchen_light
+      turn_off_all_lights: true
+- id: '1765865536049'
+  alias: "\U0001F697 AI - Parking Spot Counter"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/ai_parking_counter.yaml
+    input:
+      person_entity: person.remco
+      zone_1: zone.huibevendreef
+      zone_2: zone.moerse_dreef
+      proximity_sensor: sensor.proximity_remco_remco_direction_of_travel
+      camera_entity: camera.doorbell_camera_generic
+      ai_task_entity: ai_task.google_ai_task
+      free_spots_sensor: input_number.vrije_parkeerplekken
+      occupied_spots_sensor: input_number.bezette_parkeerplekken
+      telegram_bot: 01KB319JH3BYTR0K7PYGAEDJ6B
+      ai_instructions: 'Look at this image of the street in front of my house. There
+        are
+
         3 parking spaces directly in front of the door. Count how many of these 3
+<<<<<<< HEAD
         spaces are FREE (no car parked) and how many are OCCUPIED (car parked).
       structure:
         vrije_plekken:
@@ -607,3 +581,33 @@
         - light.keuken_licht
       presence_zone: zone.home
       turn_off_all_lights: true
+=======
+        spaces are FREE (no car parked) and how many are OCCUPIED (car parked).'
+- id: '1765865796549'
+  alias: "\U0001F508 Volume Control"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/volumecontrol.yaml
+    input:
+      scheduler: schedule.volume_schedule_8u_20u
+      media:
+        entity_id:
+        - media_player.nest_mini_schuur
+        - media_player.nest_mini_santi
+        - media_player.nest_hub
+        - media_player.nest_hub_woonkamer
+        device_id:
+        - ffafbb388566addd3c9a249cec75cff4
+        - 9f40e199b8a632d4fbc36652173dbf9e
+        - 20059926a27af788fa78b172b1a30d77
+- id: '1765866695780'
+  alias: "\U0001F916 AI Weather Report Generator"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/ai_weather_report.yaml
+    input:
+      weather_entity: weather.thuis
+      ai_task_entity: ai_task.openai_ai_task
+      report_length: 200
+      target_input_text: input_text.ai_respone
+>>>>>>> 8314008 (🏷️ Standardize entity naming convention)
