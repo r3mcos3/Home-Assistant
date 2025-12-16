@@ -1,6 +1,6 @@
 # 🏠 Home Assistant Configuration
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512100242-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512160243.-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant)
 [![GitHub Stars](https://img.shields.io/github/stars/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant/stargazers)
 
