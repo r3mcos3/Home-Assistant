@@ -66,6 +66,7 @@ downloads/
 *.crt
 *.csr
 *.key
+*.jpg
 
 # Custom components cache
 custom_components/__pycache__/
