@@ -15,4 +15,3 @@ group: !include files/groups.yaml
 homeassistant:
   allowlist_external_dirs:
     - "/config"
-    - "/config/tmp"
