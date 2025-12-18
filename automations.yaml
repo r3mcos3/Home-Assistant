@@ -99,7 +99,7 @@
           entity_id: light.landing_spots
   mode: single
 - id: '1763407837707'
-  alias: "\U0001F6AA Entrance - Back Door Lights (Sunset)"
+  alias: "\U0001F6AA Door - Back Door Lights (Sunset)"
   description: Turns on conservatory and garden lights when back door opens after
     sunset, automatically turns off after 5 minutes
   triggers:
@@ -137,7 +137,7 @@
       - light.conservatory_spots
   mode: single
 - id: '1763408109883'
-  alias: "\U0001F6AA Entrance - Front Door Hallway Light"
+  alias: "\U0001F6AA Door - Front Door Hallway Light"
   description: Turns on hallway light when front door opens after sunset, automatically
     turns off after 3 minutes
   triggers:
@@ -165,38 +165,6 @@
     device_id: f3767e6a80379cebd73bac3d95ba4e30
     entity_id: 1ca41726a9d39acc5ea1e21112fc8e5c
     domain: light
-  mode: single
-- id: '1763409777823'
-  alias: ⏰ Schedule - Alarm Light
-  description: Turns on kitchen and living room lights 10 minutes before alarm time
-    when home
-  triggers:
-  - trigger: time
-    at:
-      entity_id: sensor.pixel_8_pro_next_alarm
-      offset: -00:10:00
-    weekday:
-    - sun
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-    - sat
-  conditions:
-  - condition: state
-    entity_id: person.remco
-    state:
-    - home
-  actions:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      brightness_pct: 33
-    target:
-      entity_id:
-      - light.livingroom_spots
-      - light.gf_kitchen_light
   mode: single
 - id: '1763481145239'
   alias: "\U0001F6B6 Motion - Shed Lights"
@@ -393,48 +361,8 @@
       entity_id: all
     data: {}
   mode: single
-- id: '1765665488227'
-  alias: "\U0001F525 Advanced Heating Control V5"
-  description: ''
-  use_blueprint:
-    path: panhans/advanced_heating_control.yaml
-    input:
-      input_trvs:
-      - climate.living_room
-      input_temperature_sensor: sensor.multi_sensor_temperature
-      input_temperature_comfort_static: 18
-      input_temperature_eco_static: 13
-      input_persons:
-      - person.annemarie
-      - person.remco
-      input_schedulers:
-      - schedule.heating_schedule
-      input_proximity: 7e387087b7066d58e55644bc07fbac5b
-      input_windows:
-      - binary_sensor.gf_door_back_contact_contact
-      - binary_sensor.gf_door_front_contact_contact
-- id: '1765665488227'
-  alias: "\U0001F525 Advanced Heating Control V5"
-  description: ''
-  use_blueprint:
-    path: panhans/advanced_heating_control.yaml
-    input:
-      input_trvs:
-      - climate.living_room
-      input_temperature_sensor: sensor.multi_sensor_temperature
-      input_temperature_comfort_static: 18
-      input_temperature_eco_static: 13
-      input_persons:
-      - person.annemarie
-      - person.remco
-      input_schedulers:
-      - schedule.heating_schedule
-      input_proximity: 7e387087b7066d58e55644bc07fbac5b
-      input_windows:
-      - binary_sensor.gf_door_back_contact_contact
-      - binary_sensor.gf_door_front_contact_contact
 - id: '1765790226443'
-  alias: "\U0001F4A1 Presence - Home/Away Lights"
+  alias: "\U0001F464 Presence - Home/Away Lights"
   description: ''
   use_blueprint:
     path: r3mcos3/presence_lights.yaml
@@ -446,7 +374,7 @@
       presence_zone: zone.home
       turn_off_all_lights: true
 - id: '1765894072505'
-  alias: "\U0001F514 Doorbell Chime"
+  alias: "\U0001F6CE️ Doorbell - Chime"
   description: ''
   use_blueprint:
     path: r3mcos3/doorbell_chime.yaml
@@ -483,7 +411,7 @@
       report_length: 200
       target_input_text: input_text.ai_respone
 - id: '1765905578931'
-  alias: "\U0001F697 AI - Parking Spot Counter"
+  alias: "\U0001F916 AI - Parking Spot Counter"
   description: ''
   use_blueprint:
     path: r3mcos3/ai_parking_counter.yaml
@@ -498,9 +426,13 @@
       telegram_bot: 01KB319JH3BYTR0K7PYGAEDJ6B
       ai_instructions: Ik 3 parkeerplaatsen voor me deur, 1 links van de boom en 2
         rechts van de boom, vertel met hoeveel parkeerplaatsen vrij zijn.
-      ai_task_entity: ai_task.openai_ai_task
+      ai_task_entity: ai_task.google_ai_task
+      proximity_sensor_enabled: true
+      zone_2_enabled: true
+      zone_3: zone.garderenstraat
+      zone_3_enabled: true
 - id: '1765905653209'
-  alias: "\U0001F508 Volume Control"
+  alias: "\U0001F508 Media - Volume Control"
   description: ''
   use_blueprint:
     path: r3mcos3/volumecontrol.yaml
@@ -516,12 +448,12 @@
         - media_player.nest_hub
         - media_player.nest_hub_woonkamer
 - id: '1765915484270'
-  alias: "\U0001F525 Smart Heating Controller"
+  alias: "\U0001F321️ Climate - Smart Heating Controller"
   description: ''
   use_blueprint:
     path: r3mcos3/smart_heating.yaml
     input:
-      comfort_temp: 18
+      comfort_temp: 20
       away_temp: 10
       night_temp: 13
       outdoor_temp_threshold: 12
@@ -534,3 +466,15 @@
       - binary_sensor.gf_door_back_contact_contact
       night_start: '21:00:00'
       humidity_sensor: sensor.multi_sensor_humidity
+- id: '1765992237695'
+  alias: ⏰ Alarm Light
+  description: ''
+  use_blueprint:
+    path: r3mcos3/alarm_light.yaml
+    input:
+      alarm_sensor: sensor.pixel_8_pro_next_alarm
+      person_entity: person.remco
+      lights_target:
+        entity_id:
+        - light.gf_kitchen_light
+        - light.livingroom_spots
