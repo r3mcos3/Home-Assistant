@@ -268,43 +268,6 @@
         entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
         domain: switch
   mode: single
-- id: '1763495919071'
-  alias: "\U0001F514 Notify - System Updates"
-  description: Sends notifications to a mobile device when updates are available for
-    Home Assistant core, add-ons, and firmware.
-  use_blueprint:
-    path: mdegat01/update_notifications.yaml
-    input:
-      mobile_app_device: 96dc4e1932960b1645890d2c1bb80479
-      mobile_app_device_2: 96dc4e1932960b1645890d2c1bb80479
-      take_backup: false
-      update_entities:
-      - update.advanced_ssh_web_terminal_update
-      - update.hacs_update
-      - update.home_assistant_core_update
-      - update.home_assistant_operating_system_update
-      - update.home_assistant_skyconnect_5442f4dd_firmware
-      - update.home_assistant_supervisor_update
-      - update.home_assistant_voice_092610
-      - update.ac_mesh
-      - update.13_home
-      - update.mawd_250_firmware
-      - update.life360_update
-      - update.matter_server_update
-      - update.mosquitto_broker_update
-      - update.openthread_border_router_update
-      - update.samba_share_update
-      - update.spook_your_homie_update
-      - update.studio_code_server_update
-      - update.uap_ac_lite
-      - update.zigbee_zigbee_firmware
-      - update.uk_ultra
-      - update.us_8_60w
-      - update.usw_flex_mini_zolder
-      - update.usw_flex_mini_beneden
-      - update.zigbee_core_firmware
-      - update.llm_vision_update
-      - update.person_tracker_card_update
 - id: '1764267800358'
   alias: "\U0001F514 Notify - Sun/Moon"
   description: Sends Telegram notifications at sunrise and sunset
@@ -328,7 +291,7 @@
       - action: telegram_bot.send_message
         metadata: {}
         data:
-          config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
+          config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
           message: "De zon gaat onder \U0001F319"
     - conditions:
       - condition: trigger
@@ -338,7 +301,7 @@
       - action: telegram_bot.send_message
         metadata: {}
         data:
-          config_entry_id: 01KB319JH3BYTR0K7PYGAEDJ6B
+          config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
           message: De zon komt op ☀️
   mode: single
 - id: '1764699483229'
@@ -407,7 +370,7 @@
     path: r3mcos3/ai_weather_report.yaml
     input:
       weather_entity: weather.thuis
-      ai_task_entity: ai_task.openai_ai_task
+      ai_task_entity: ai_task.google_ai_task
       report_length: 200
       target_input_text: input_text.ai_respone
 - id: '1765905578931'
@@ -423,10 +386,10 @@
       camera_entity: camera.doorbell_camera_generic
       free_spots_sensor: input_number.vrije_parkeerplekken
       occupied_spots_sensor: input_number.bezette_parkeerplekken
-      telegram_bot: 01KB319JH3BYTR0K7PYGAEDJ6B
+      telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       ai_instructions: Ik 3 parkeerplaatsen voor me deur, 1 links van de boom en 2
         rechts van de boom, vertel met hoeveel parkeerplaatsen vrij zijn.
-      ai_task_entity: ai_task.google_ai_task
+      ai_task_entity: ai_task.openai_ai_task_vision
       proximity_sensor_enabled: true
       zone_2_enabled: true
       zone_3: zone.garderenstraat
@@ -456,7 +419,7 @@
       comfort_temp: 20
       away_temp: 10
       night_temp: 13
-      outdoor_temp_threshold: 12
+      outdoor_temp_threshold: 15
       climate_entity: climate.living_room
       indoor_temp_sensor: sensor.multi_sensor_temperature
       outdoor_temp_sensor: sensor.thuis_temperatuur
@@ -478,3 +441,56 @@
         entity_id:
         - light.gf_kitchen_light
         - light.livingroom_spots
+- id: '1766041712731'
+  alias: "\U0001F504 Update Notifications"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/update_notifications.yaml
+    input:
+      update_entities:
+      - update.hacs_update
+      - update.13_home
+      - update.ac_mesh
+      - update.zigbee_core_firmware
+      - update.mawd_250_firmware
+      - update.home_assistant_skyconnect_5442f4dd_firmware
+      - update.zigbee_zigbee_firmware
+      - update.home_assistant_voice_092610
+      - update.uap_ac_lite
+      - update.uk_ultra
+      - update.usw_flex_mini_zolder
+      - update.usw_flex_mini_beneden
+      - update.us_8_60w
+      - update.zigbee2mqtt_update
+      - update.studio_code_server_update
+      - update.spook_your_homie_update
+      - update.samba_share_update
+      - update.person_tracker_card_update
+      - update.openthread_border_router_update
+      - update.music_assistant_update
+      - update.mosquitto_broker_update
+      - update.matter_server_update
+      - update.llm_vision_update
+      - update.home_assistant_core_update
+      - update.home_assistant_operating_system_update
+      - update.home_assistant_supervisor_update
+      - update.advanced_ssh_web_terminal_update
+      - update.extended_openai_conversation_update
+      - update.life360_update
+      - update.repeater
+      telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
+      take_backup: false
+      reminder_hours: '1'
+      notification_platform: mobile_app
+      mobile_app_device:
+      - 96dc4e1932960b1645890d2c1bb80479
+      send_to_ha: false
+- id: '1766136783624'
+  alias: "\U0001F4F1 Telegram Update Notifications"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/telegram_update_notifications.yaml
+    input:
+      telegram_bot_config: 01KCRE8DZCPF9BTMZKH4DTEHFN
+      update_entities:
+      - update.home_assistant_operating_system_update
