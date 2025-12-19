@@ -137,3 +137,11 @@ devices:
     friendly_name: GF Living Christmas Tree
   '0x84ba20fffe77b24a':
     friendly_name: GF Living Christmas Garland
+  '0xa4c138bd47758f01':
+    friendly_name: GF Kitchen Spots
+  '0x000d6ffffe2addc8':
+    friendly_name: Repeater
+  '0x04cf8cdf3c78a9e7':
+    friendly_name: GF Day Light Sensor
+availability:
+  enabled: true
