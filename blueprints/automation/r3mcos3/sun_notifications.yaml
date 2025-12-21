@@ -1,0 +1,90 @@
+blueprint:
+  name: ☀️ Sun Notifications
+  description: "\U0001F305 Get notified at sunrise and sunset via Telegram. Version
+    1.1.2"
+  domain: automation
+  author: r3mcos3
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/sun_notifications/sun_notifications.yaml
+  homeassistant:
+    min_version: 2025.12.0
+  input:
+    notification_target:
+      name: "\U0001F4F1 Telegram Bot"
+      description: Select the Telegram Bot integration to use for notifications.
+      selector:
+        config_entry:
+          integration: telegram_bot
+    sunrise_enabled:
+      name: "\U0001F305 Enable Sunrise Notification"
+      description: If enabled, sends a notification when the sun rises.
+      default: true
+      selector:
+        boolean: {}
+    sunrise_offset:
+      name: ⏰ Sunrise Offset
+      description: Offset from the sunrise event (e.g., '-00:30:00' for 30 minutes
+        before).
+      default: 00:00:00
+      selector:
+        time: {}
+    sunrise_message:
+      name: "\U0001F4AC Sunrise Message"
+      description: The message to send at sunrise. Templates are supported.
+      default: De zon komt op ☀️
+      selector:
+        text:
+          multiple: false
+          multiline: false
+    sunset_enabled:
+      name: "\U0001F307 Enable Sunset Notification"
+      description: If enabled, sends a notification when the sun sets.
+      default: true
+      selector:
+        boolean: {}
+    sunset_offset:
+      name: ⏰ Sunset Offset
+      description: Offset from the sunset event (e.g., '00:15:00' for 15 minutes after).
+      default: 00:00:00
+      selector:
+        time: {}
+    sunset_message:
+      name: "\U0001F4AC Sunset Message"
+      description: The message to send at sunset. Templates are supported.
+      default: "De zon gaat onder \U0001F303"
+      selector:
+        text:
+          multiple: false
+          multiline: false
+variables:
+  sunrise_enabled_var: !input sunrise_enabled
+  sunset_enabled_var: !input sunset_enabled
+  sunrise_message_var: !input sunrise_message
+  sunset_message_var: !input sunset_message
+trigger:
+- platform: sun
+  event: sunrise
+  offset: !input sunrise_offset
+  id: sunrise_trigger
+- platform: sun
+  event: sunset
+  offset: !input sunset_offset
+  id: sunset_trigger
+action:
+- choose:
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger.id == ''sunrise_trigger'' and sunrise_enabled_var
+        }}'
+    sequence:
+    - service: telegram_bot.send_message
+      data:
+        message: '{{ sunrise_message_var }}'
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger.id == ''sunset_trigger'' and sunset_enabled_var
+        }}'
+    sequence:
+    - service: telegram_bot.send_message
+      data:
+        message: '{{ sunset_message_var }}'
+mode: single
