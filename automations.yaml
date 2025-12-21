@@ -234,7 +234,7 @@
       device_id: f3767e6a80379cebd73bac3d95ba4e30
   mode: single
 - id: '1763495326015'
-  alias: ⏰ Schedule - Garden LED Lights
+  alias: ⏰ Light - Garden LED Lights (Schedule)
   description: Turns on garden LED lights at sunset and turns them off at midnight
   triggers:
   - trigger: state
@@ -389,7 +389,7 @@
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       ai_instructions: Ik 3 parkeerplaatsen voor me deur, 1 links van de boom en 2
         rechts van de boom, vertel met hoeveel parkeerplaatsen vrij zijn.
-      ai_task_entity: ai_task.openai_ai_task_vision
+      ai_task_entity: ai_task.google_ai_task
       proximity_sensor_enabled: true
       zone_2_enabled: true
       zone_3: zone.garderenstraat
@@ -422,7 +422,7 @@
       outdoor_temp_threshold: 15
       climate_entity: climate.living_room
       indoor_temp_sensor: sensor.multi_sensor_temperature
-      outdoor_temp_sensor: sensor.thuis_temperatuur
+      outdoor_temp_sensor: sensor.timmerflotte_temp_hmd_sensor_temperatuur
       presence_zone: zone.home
       door_window_sensors:
       - binary_sensor.gf_door_front_contact_contact
@@ -430,7 +430,7 @@
       night_start: '21:00:00'
       humidity_sensor: sensor.multi_sensor_humidity
 - id: '1765992237695'
-  alias: ⏰ Alarm Light
+  alias: ⏰ Light - Alarm
   description: ''
   use_blueprint:
     path: r3mcos3/alarm_light.yaml
@@ -452,7 +452,6 @@
       - update.13_home
       - update.ac_mesh
       - update.zigbee_core_firmware
-      - update.mawd_250_firmware
       - update.home_assistant_skyconnect_5442f4dd_firmware
       - update.zigbee_zigbee_firmware
       - update.home_assistant_voice_092610
@@ -494,3 +493,54 @@
       telegram_bot_config: 01KCRE8DZCPF9BTMZKH4DTEHFN
       update_entities:
       - update.home_assistant_operating_system_update
+      - update.13_home
+      - update.ac_mesh
+      - update.zigbee_core_firmware
+      - update.home_assistant_skyconnect_5442f4dd_firmware
+      - update.zigbee_zigbee_firmware
+      - update.home_assistant_voice_092610
+      - update.uap_ac_lite
+      - update.uk_ultra
+      - update.advanced_ssh_web_terminal_update
+      - update.extended_openai_conversation_update
+      - update.usw_flex_mini_zolder
+      - update.usw_flex_mini_beneden
+      - update.us_8_60w
+      - update.zigbee2mqtt_update
+      - update.studio_code_server_update
+      - update.spook_your_homie_update
+      - update.samba_share_update
+      - update.person_tracker_card_update
+      - update.openthread_border_router_update
+      - update.music_assistant_update
+      - update.mosquitto_broker_update
+      - update.matter_server_update
+      - update.llm_vision_update
+      - update.life360_update
+      - update.home_assistant_supervisor_update
+      - update.hacs_update
+      - update.home_assistant_core_update
+      - update.myggbett_door_window_sensor_firmware
+      - update.timmerflotte_temp_hmd_sensor_firmware
+      reminder_hours: '6'
+      send_to_ha: false
+      take_backup: false
+- id: '1766212614823'
+  alias: ☀️ Sun-aware Motion Landing Light
+  description: ''
+  use_blueprint:
+    path: r3mcos3/sun_aware_motion_light.yaml
+    input:
+      motion_sensor: binary_sensor.trap_overloop_motion
+      target_light:
+        entity_id: light.landing_spots
+      turn_off_delay: 0
+      brightness_day: 10
+- id: '1766216333616'
+  alias: ☀️ Sun Notifications
+  description: ''
+  use_blueprint:
+    path: r3mcos3/sun_notifications.yaml
+    input:
+      notification_target: 01KCRE8DZCPF9BTMZKH4DTEHFN
+      sunset_message: "De zon gaat onder \U0001F319"
