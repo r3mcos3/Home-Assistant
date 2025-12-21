@@ -11,8 +11,7 @@ blueprint:
     heating pause\n- \U0001F321️ Outdoor temperature factor (disable when warm outside)\n-
     \U0001F319 Night mode with scheduled temperature reduction\n- ⏰ Pre-heating before
     wake-up time\n- \U0001F4A7 Humidity compensation for comfort\n- ❄️ Frost protection
-    (minimum temperature)\n- \U0001F4F1 Optional notifications\n\n\U0001F4E6 Version:
-    1.2.3\n"
+    (minimum temperature)\n\n\U0001F4E6 Version: 1.2.4\n"
   input:
     climate_entity:
       name: "\U0001F321️ Climate Entity"
@@ -269,29 +268,6 @@ blueprint:
                 - humidity
               multiple: false
               reorder: false
-    notification_settings:
-      name: "\U0001F4F1 Notification Settings"
-      icon: mdi:bell
-      collapsed: true
-      input:
-        use_notifications:
-          name: "\U0001F4F1 Enable Notifications"
-          description: 'Send notifications when heating mode changes.
-
-            '
-          default: false
-          selector:
-            boolean: {}
-        notify_service:
-          name: "\U0001F4F1 Notification Service"
-          description: 'The notification service to use (e.g., notify.mobile_app_phone).
-
-            '
-          default: ''
-          selector:
-            text:
-              multiline: false
-              multiple: false
 mode: single
 max_exceeded: silent
 variables:
@@ -308,10 +284,8 @@ variables:
   night_mode_enabled: !input use_night_mode
   preheat_enabled: !input use_preheat
   humidity_enabled: !input use_humidity
-  notifications_enabled: !input use_notifications
   preheat_mins: !input preheat_minutes
   humidity_entity: !input humidity_sensor
-  notify_svc: !input notify_service
   night_start_time: !input night_start
   night_end_time: !input night_end
 triggers:
@@ -412,15 +386,6 @@ actions:
       data:
         temperature: '{{ temp_frost }}'
         hvac_mode: heat
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: '❄️ Frost protection activated! Indoor temp: {{ current_indoor
-            }}°C'
-          title: "\U0001F525 Heating Alert"
   - conditions:
     - condition: template
       value_template: '{{ target_mode == ''eco'' }}'
@@ -432,15 +397,6 @@ actions:
         entity_id: '{{ climate }}'
       data:
         hvac_mode: 'off'
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: "\U0001F321️ Eco mode: outdoor {{ current_outdoor }}°C. Heating
-            disabled."
-          title: "\U0001F525 Heating Update"
   - conditions:
     - condition: template
       value_template: '{{ target_mode == ''door_open'' }}'
@@ -452,14 +408,6 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ temp_frost }}'
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: "\U0001F6AA Door/window open. Heating paused."
-          title: "\U0001F525 Heating Update"
   - conditions:
     - condition: trigger
       id: left_home
@@ -469,14 +417,6 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ temp_away }}'
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: "\U0001F3C3 Away mode: temperature set to {{ temp_away }}°C"
-          title: "\U0001F525 Heating Update"
   - conditions:
     - condition: trigger
       id: arrived_home
@@ -487,14 +427,6 @@ actions:
       data:
         temperature: '{{ target_temp }}'
         hvac_mode: heat
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: "\U0001F3E0 Welcome home! Temperature set to {{ target_temp }}°C"
-          title: "\U0001F525 Heating Update"
   - conditions:
     - condition: trigger
       id: door_closed
@@ -558,14 +490,6 @@ actions:
       data:
         temperature: '{{ target_temp }}'
         hvac_mode: heat
-    - if:
-      - condition: template
-        value_template: '{{ notifications_enabled and notify_svc != '''' }}'
-      then:
-      - action: '{{ notify_svc }}'
-        data:
-          message: '⏰ Pre-heating started! Target: {{ target_temp }}°C'
-          title: "\U0001F525 Heating Update"
   - conditions:
     - condition: trigger
       id:
