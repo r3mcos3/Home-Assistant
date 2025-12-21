@@ -44,7 +44,7 @@ jobs:
       - name: Commit and push if changed
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
           git commit -m "🔄 Update Home Assistant version to ${{ steps.version.outputs.version }}"
