@@ -57,47 +57,6 @@
       light_target:
         entity_id: light.gf_toilet_light
       no_motion_wait: 300
-- id: '1763407493663'
-  alias: "\U0001F6B6 Motion - Landing Light"
-  description: Controls landing spotlights at 10% brightness based on motion detection
-  triggers:
-  - trigger: state
-    entity_id:
-    - binary_sensor.trap_overloop_motion
-    to:
-    - 'on'
-    id: 'on'
-  - trigger: state
-    entity_id:
-    - binary_sensor.trap_overloop_motion
-    to:
-    - 'off'
-    id: 'off'
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - 'on'
-      sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_pct: 10
-        target:
-          entity_id: light.landing_spots
-    - conditions:
-      - condition: trigger
-        id:
-        - 'off'
-      sequence:
-      - action: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.landing_spots
-  mode: single
 - id: '1763407837707'
   alias: "\U0001F6AA Door - Back Door Lights (Sunset)"
   description: Turns on conservatory and garden lights when back door opens after
@@ -267,42 +226,6 @@
         device_id: f27a3b4a270070d93ddc9099ec4d3d7d
         entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
         domain: switch
-  mode: single
-- id: '1764267800358'
-  alias: "\U0001F514 Notify - Sun/Moon"
-  description: Sends Telegram notifications at sunrise and sunset
-  triggers:
-  - trigger: sun
-    event: sunrise
-    offset: 0
-    id: up
-  - trigger: sun
-    event: sunset
-    offset: 0
-    id: down
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - down
-      sequence:
-      - action: telegram_bot.send_message
-        metadata: {}
-        data:
-          config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
-          message: "De zon gaat onder \U0001F319"
-    - conditions:
-      - condition: trigger
-        id:
-        - up
-      sequence:
-      - action: telegram_bot.send_message
-        metadata: {}
-        data:
-          config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
-          message: De zon komt op ☀️
   mode: single
 - id: '1764699483229'
   alias: "\U0001F464 Presence - Turn Off All Lights Santi  (Away)"
