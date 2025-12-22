@@ -1,51 +1,69 @@
-name: Update Home Assistant Version
+name: Update Home Assistant Badge (PR)
 
 on:
-  push:
-    paths:
-      - '.HA_VERSION'
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      version-file:
+        type: string
+        default: ".HA_VERSION"
+      readme-file:
+        type: string
+        default: "README.md"
+      badge-line:
+        type: number
+        default: 3
+      overview-line:
+        type: number
+        default: 21
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  update-badge:
+  update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read version from .HA_VERSION
+      - name: Read Home Assistant version
         id: version
         run: |
-          VERSION=$(cat .HA_VERSION | tr -d '\n\r')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+          VERSION=$(tr -d '\n\r' < "${{ inputs.version-file }}")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Update README badge and overview section
+      - name: Update README
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Update badge on line 3
-          sed -i "3s|Home%20Assistant-[^-]*-41BDF5|Home%20Assistant-${VERSION}-41BDF5|" README.md
-          # Update overview section on line 21
-          sed -i "21s|\*\*Home Assistant [0-9.a-z]*\*\*|**Home Assistant ${VERSION}**|" README.md
+
+          sed -i "${{ inputs.badge-line }}s|Home%20Assistant-[^-]*-41BDF5|Home%20Assistant-${VERSION}-41BDF5|" "${{ inputs.readme-file }}"
+          sed -i "${{ inputs.overview-line }}s|\*\*Home Assistant [0-9.a-z]*\*\*|**Home Assistant ${VERSION}**|" "${{ inputs.readme-file }}"
 
       - name: Check for changes
-        id: check_changes
+        id: diff
         run: |
-          if git diff --quiet README.md; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit and push if changed
-        if: steps.check_changes.outputs.changed == 'true'
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add README.md
-          git commit -m "🔄 Update Home Assistant version to ${{ steps.version.outputs.version }}"
-          git push
+      - name: Create Pull Request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: "automation/update-ha-${{ steps.version.outputs.version }}"
+          delete-branch: true
+          title: "🔄 Update Home Assistant to ${{ steps.version.outputs.version }}"
+          commit-message: "🔄 Update Home Assistant version to ${{ steps.version.outputs.version }}"
+          body: |
+            Automated update triggered by `.HA_VERSION`.
+
+            This repository is intentionally a **demonstration / example**.
+            For production usage, reusable workflows should be pinned
+            to a version tag (e.g. `@v1`) instead of `@main`.
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
