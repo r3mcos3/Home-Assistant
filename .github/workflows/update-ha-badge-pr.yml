@@ -54,7 +54,8 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: "automation/update-ha-${{ steps.version.outputs.version }}"
+          # SANITIZE: replace dots in version with hyphens to make a valid branch name
+          branch: automation/update-ha-${{ steps.version.outputs.version//./- }}
           delete-branch: true
           title: "🔄 Update Home Assistant to ${{ steps.version.outputs.version }}"
           commit-message: "🔄 Update Home Assistant version to ${{ steps.version.outputs.version }}"
@@ -66,4 +67,3 @@ jobs:
             to a version tag (e.g. `@v1`) instead of `@main`.
           author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
-
