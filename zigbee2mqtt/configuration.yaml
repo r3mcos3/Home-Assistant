@@ -146,5 +146,7 @@ devices:
     friendly_name: GF Day Light Sensor
   '0x00be44fffeab8eed':
     friendly_name: OUT Garden Motion
+  '0x60a423fffef8d4d9':
+    friendly_name: OUT Garden Flood Light
 availability:
   enabled: true
