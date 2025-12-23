@@ -1,0 +1,94 @@
+blueprint:
+  name: "\U0001F4F8 Camera Snapshot on Motion to Telegram \U0001F916"
+  description: "\U0001F680 Automatically capture a snapshot from your camera \U0001F4F7
+    when motion is detected \U0001F3C3‍♂️ and send it instantly via your Telegram
+    bot \U0001F4E8.\n✨ Features: - \U0001F4F8 Instant high-quality snapshot. - \U0001F3C3‍♂️
+    Triggered by any motion sensor. - \U0001F916 Supports multiple Telegram bots via
+    Config Entry and Chat ID. - ✍️ Fully customizable message caption. - ⏱️ Adjustable
+    timeout (cooldown) between snapshots.\nVersion: 1.7.0 \U0001F3F7️\n"
+  domain: automation
+  author: r3mcos3
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/camera_motion_snapshot/camera_motion_snapshot.yaml
+  input:
+    motion_sensor:
+      name: "\U0001F3C3‍♂️ Motion Sensor"
+      description: "\U0001F50D Select the sensor that should trigger the snapshot."
+      selector:
+        entity:
+          domain:
+          - binary_sensor
+          device_class:
+          - motion
+          multiple: false
+          reorder: false
+    camera:
+      name: "\U0001F4F7 Camera"
+      description: "\U0001F5BC️ Choose the camera to take the snapshot from."
+      selector:
+        entity:
+          domain:
+          - camera
+          multiple: false
+          reorder: false
+    telegram_bot_entry:
+      name: "\U0001F916 Telegram Bot Instance"
+      description: "\U0001F50C Select the Telegram Bot integration instance to use."
+      selector:
+        config_entry:
+          integration: telegram_bot
+    target_chat_id:
+      name: "\U0001F194 Target Chat ID"
+      description: ✉️ The specific Telegram Chat ID to send the photo to.
+      selector:
+        text:
+          multiline: false
+          multiple: false
+    message_caption:
+      name: ✍️ Message Caption
+      description: "\U0001F4DD The full message to be sent as a caption with the photo."
+      default: "\U0001F6A8 Motion detected! \U0001F4F8"
+      selector:
+        text:
+          multiline: false
+          multiple: false
+    snapshot_path:
+      name: "\U0001F4C2 Snapshot Path"
+      description: "\U0001F4BE Local path to save the image (e.g., /config/www/snapshot.jpg)."
+      default: /config/www/snapshot_motion.jpg
+      selector:
+        text:
+          multiline: false
+          multiple: false
+    timeout:
+      name: ⏱️ Timeout (Cooldown)
+      description: ⏳ The time to wait after a snapshot before allowing another one
+        (in seconds).
+      default: 60
+      selector:
+        number:
+          min: 0.0
+          max: 3600.0
+          unit_of_measurement: seconds
+          mode: box
+          step: 1.0
+variables:
+  target_chat_id_var: !input target_chat_id
+trigger:
+- platform: state
+  entity_id: !input motion_sensor
+  from: 'off'
+  to: 'on'
+mode: single
+action:
+- service: camera.snapshot
+  target:
+    entity_id: !input camera
+  data:
+    filename: !input snapshot_path
+- delay: 00:00:02
+- service: telegram_bot.send_photo
+  data:
+    target: '{{ target_chat_id_var }}'
+    file: !input snapshot_path
+    caption: !input message_caption
+- delay: !input timeout
