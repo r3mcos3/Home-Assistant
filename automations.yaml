@@ -497,3 +497,12 @@
       target_chat_id: '7189751224'
       message_caption: "\U0001F6A8 Motion detected by the garden gate!\U0001F4F8"
       timeout: 300
+- id: '1766660076205'
+  alias: "\U0001F6E1️ Persistent Motion Toilet Light"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/persistent_motion_light.yaml
+    input:
+      motion_entity: binary_sensor.gf_toilet_motion_occupancy
+      light_entity: light.gf_toilet_light
+      no_motion_wait: 180
