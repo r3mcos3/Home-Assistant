@@ -1,6 +1,6 @@
 # 🏠 Home Assistant Configuration
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512240242-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.1.0.dev202512260243-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant)
 [![GitHub Stars](https://img.shields.io/github/stars/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant/stargazers)
 
@@ -18,7 +18,7 @@ This is my personal Home Assistant configuration. This repository contains all a
 
 ## 🎯 Overview
 
-This configuration runs on **Home Assistant 2026.1.0.dev202512240242** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
+This configuration runs on **Home Assistant 2026.1.0.dev202512260243** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
 
 ### Key Features
 
