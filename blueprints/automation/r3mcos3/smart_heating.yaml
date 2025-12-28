@@ -5,13 +5,14 @@ blueprint:
   source_url: https://github.com/r3mcos3/blueprints/blob/main/smart_heating/smart_heating.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: "Intelligent climate control with presence detection, door/window protection,
-    and energy-saving features! \U0001F321️\n\nFeatures:\n- \U0001F3E0 Presence-based
-    temperature adjustment (home/away)\n- \U0001F6AA Door/window open detection with
-    heating pause\n- \U0001F321️ Outdoor temperature factor (disable when warm outside)\n-
-    \U0001F319 Night mode with scheduled temperature reduction\n- ⏰ Pre-heating before
-    wake-up time\n- \U0001F4A7 Humidity compensation for comfort\n- ❄️ Frost protection
-    (minimum temperature)\n\n\U0001F4E6 Version: 1.2.4\n"
+  description: "\U0001F4E6 [Version 1.3.0] Intelligent climate control with presence
+    detection, door/window protection, manual override, and energy-saving features!
+    \U0001F321️\n\nFeatures:\n- \U0001F3E0 Presence-based temperature adjustment (home/away)\n-
+    \U0001F6AA Door/window open detection with heating pause\n- \U0001F321️ Outdoor
+    temperature factor (disable when warm outside)\n- \U0001F319 Night mode with scheduled
+    temperature reduction\n- ⏰ Pre-heating before wake-up time\n- \U0001F4A7 Humidity
+    compensation for comfort\n- ❄️ Frost protection (minimum temperature)\n- \U0001F6E0️
+    Manual override with configurable timeout\n"
   input:
     climate_entity:
       name: "\U0001F321️ Climate Entity"
@@ -23,8 +24,8 @@ blueprint:
           filter:
           - domain:
             - climate
-          multiple: false
           reorder: false
+          multiple: false
     indoor_temp_sensor:
       name: "\U0001F3E0 Indoor Temperature Sensor"
       description: 'Sensor measuring indoor temperature. Used for accurate temperature
@@ -38,8 +39,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          multiple: false
           reorder: false
+          multiple: false
     outdoor_temp_sensor:
       name: "\U0001F324️ Outdoor Temperature Sensor"
       description: 'Sensor measuring outdoor temperature. Heating disabled when above
@@ -53,8 +54,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          multiple: false
           reorder: false
+          multiple: false
     presence_zone:
       name: "\U0001F465 Presence Zone"
       description: 'The zone to monitor for presence (typically zone.home).
@@ -65,8 +66,8 @@ blueprint:
           filter:
           - domain:
             - zone
-          multiple: false
           reorder: false
+          multiple: false
     door_window_sensors:
       name: "\U0001F6AA Door/Window Sensors"
       description: 'Binary sensors for doors and windows. Heating pauses when open
@@ -266,8 +267,41 @@ blueprint:
                 - sensor
                 device_class:
                 - humidity
-              multiple: false
               reorder: false
+              multiple: false
+    manual_override_settings:
+      name: "\U0001F6E0️ Manual Override Settings"
+      icon: mdi:hand-back-right
+      collapsed: true
+      input:
+        override_duration:
+          name: ⏱️ Override Duration
+          description: 'How long manual override should last before automation resumes
+            (1-12 hours).
+
+            '
+          default: 2
+          selector:
+            number:
+              min: 1.0
+              max: 12.0
+              step: 1.0
+              unit_of_measurement: hours
+              mode: slider
+        override_helper:
+          name: "\U0001F518 Override Helper"
+          description: 'Input boolean helper to activate/deactivate override (create:
+            input_boolean.heating_override_active). Leave empty to disable this feature.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - input_boolean
+              reorder: false
+              multiple: false
 mode: single
 max_exceeded: silent
 variables:
@@ -288,6 +322,8 @@ variables:
   humidity_entity: !input humidity_sensor
   night_start_time: !input night_start
   night_end_time: !input night_end
+  override_duration_hours: !input override_duration
+  override_entity: !input override_helper
 triggers:
 - trigger: homeassistant
   event: start
@@ -332,6 +368,9 @@ triggers:
 - trigger: time_pattern
   minutes: /15
   id: periodic_check
+- trigger: state
+  entity_id: !input override_helper
+  id: override_toggled
 conditions: []
 actions:
 - variables:
@@ -362,17 +401,27 @@ actions:
       != '' %}\n  {% set humidity = states(humidity_entity) | float(50) %}\n  {% if
       humidity > 70 %}\n    -0.5\n  {% elif humidity < 30 %}\n    0.5\n  {% else %}\n
       \   0\n  {% endif %}\n{% else %}\n  0\n{% endif %}\n"
+    override_is_active: "{% if override_entity != {} and override_entity != '' %}\n
+      \ {{ is_state(override_entity, 'on') }}\n{% else %}\n  false\n{% endif %}\n"
+    override_has_expired: "{% if override_is_active and override_entity != {} and
+      override_entity != '' %}\n  {% set last_changed_ts = as_timestamp(states[override_entity].last_changed)
+      | float(0) %}\n  {% if last_changed_ts > 0 %}\n    {% set now_ts = now().timestamp()
+      %}\n    {% set elapsed_hours = (now_ts - last_changed_ts) / 3600 %}\n    {{
+      elapsed_hours >= override_duration_hours }}\n  {% else %}\n    false\n  {% endif
+      %}\n{% else %}\n  false\n{% endif %}\n"
 - variables:
     target_mode: "{% if current_indoor < temp_frost %}\n  frost_protection\n{% elif
+      override_is_active and not override_has_expired %}\n  manual_override\n{% elif
       is_outdoor_warm %}\n  eco\n{% elif any_opening_open %}\n  door_open\n{% elif
       people_count == 0 %}\n  away\n{% elif is_preheat_time %}\n  preheat\n{% elif
       is_night %}\n  night\n{% else %}\n  comfort\n{% endif %}\n"
     target_temp: "{% set adj = humidity_adjustment | float(0) %} {% if target_mode
-      == 'frost_protection' %}\n  {{ temp_frost }}\n{% elif target_mode == 'eco' %}\n
-      \ {{ temp_frost }}\n{% elif target_mode == 'door_open' %}\n  {{ temp_frost }}\n{%
-      elif target_mode == 'away' %}\n  {{ temp_away }}\n{% elif target_mode == 'preheat'
-      %}\n  {{ temp_comfort + adj }}\n{% elif target_mode == 'night' %}\n  {{ temp_night
-      + adj }}\n{% else %}\n  {{ temp_comfort + adj }}\n{% endif %}\n"
+      == 'frost_protection' %}\n  {{ temp_frost }}\n{% elif target_mode == 'manual_override'
+      %}\n  {{ current_target }}\n{% elif target_mode == 'eco' %}\n  {{ temp_frost
+      }}\n{% elif target_mode == 'door_open' %}\n  {{ temp_frost }}\n{% elif target_mode
+      == 'away' %}\n  {{ temp_away }}\n{% elif target_mode == 'preheat' %}\n  {{ temp_comfort
+      + adj }}\n{% elif target_mode == 'night' %}\n  {{ temp_night + adj }}\n{% else
+      %}\n  {{ temp_comfort + adj }}\n{% endif %}\n"
     current_target: '{{ state_attr(climate, ''temperature'') | float(0) }}'
     hvac_mode: '{{ states(climate) }}'
 - choose:
@@ -380,6 +429,50 @@ actions:
     - condition: template
       value_template: '{{ target_mode == ''frost_protection'' }}'
     sequence:
+    - action: climate.set_temperature
+      target:
+        entity_id: '{{ climate }}'
+      data:
+        temperature: '{{ temp_frost }}'
+        hvac_mode: heat
+  - conditions:
+    - condition: trigger
+      id: left_home
+    - condition: template
+      value_template: '{{ override_is_active }}'
+    - condition: template
+      value_template: '{{ override_entity != {} and override_entity != '''' }}'
+    sequence:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: '{{ override_entity }}'
+    - action: climate.set_temperature
+      target:
+        entity_id: '{{ climate }}'
+      data:
+        temperature: '{{ temp_away }}'
+  - conditions:
+    - condition: trigger
+      id: periodic_check
+    - condition: template
+      value_template: '{{ override_has_expired }}'
+    - condition: template
+      value_template: '{{ override_entity != {} and override_entity != '''' }}'
+    sequence:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: '{{ override_entity }}'
+  - conditions:
+    - condition: template
+      value_template: '{{ override_is_active }}'
+    - condition: template
+      value_template: '{{ current_indoor < temp_frost }}'
+    - condition: template
+      value_template: '{{ override_entity != {} and override_entity != '''' }}'
+    sequence:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: '{{ override_entity }}'
     - action: climate.set_temperature
       target:
         entity_id: '{{ climate }}'
@@ -519,8 +612,8 @@ actions:
     - condition: trigger
       id: periodic_check
     - condition: template
-      value_template: '{{ target_mode not in [''eco'', ''door_open'', ''preheat'']
-        }}'
+      value_template: '{{ target_mode not in [''eco'', ''door_open'', ''preheat'',
+        ''manual_override''] }}'
     - condition: template
       value_template: '{{ (current_target - target_temp) | abs > 0.5 }}'
     sequence:
