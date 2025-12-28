@@ -137,7 +137,7 @@ devices:
   '0x84ba20fffe77c666':
     friendly_name: GF Living Christmas Tree
   '0x84ba20fffe77b24a':
-    friendly_name: GF Living Christmas Garland
+    friendly_name: Laptop Accu
   '0xa4c138bd47758f01':
     friendly_name: GF Kitchen Spots
   '0x000d6ffffe2addc8':
@@ -148,5 +148,7 @@ devices:
     friendly_name: OUT Garden Motion
   '0x60a423fffef8d4d9':
     friendly_name: OUT Garden Flood Light
+  '0x5c0272fffe9206d3':
+    friendly_name: GF Living Christmas Garland
 availability:
   enabled: true
