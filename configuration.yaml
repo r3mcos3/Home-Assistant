@@ -15,3 +15,15 @@ group: !include files/groups.yaml
 homeassistant:
   allowlist_external_dirs:
     - "/config"
+
+mqtt:
+  sensor:
+  - name: Server Battery
+    default_entity_id: sensor.server_battery
+    state_topic: &server_battery_topic "battery2mqtt/server/BAT0"
+    value_template: "{{ value_json.capacity }}"
+    unit_of_measurement: '%'
+    json_attributes_topic: *server_battery_topic
+    availability_topic: "battery2mqtt/server/status"
+    device_class: battery
+    unique_id: server_battery
