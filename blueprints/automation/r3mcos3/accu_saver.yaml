@@ -1,0 +1,217 @@
+blueprint:
+  domain: automation
+  name: "\U0001F50B Accu Saver - Battery Health Manager"
+  author: r3mcos3
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/accu_saver/accu_saver.yaml
+  homeassistant:
+    min_version: 2025.12.0
+  description: "\U0001F4E6 [Version 1.2.0] Smart battery health management for laptop
+    servers! Automatically controls charging via smart plug to maintain optimal battery
+    levels and extend battery lifespan. \U0001F50C⚡\n\nFeatures:\n- \U0001F50B Battery
+    level monitoring with dual thresholds\n- ⚡ Automatic charge control via smart
+    plug\n- \U0001F3AF Configurable upper/lower battery limits\n- \U0001F504 Immediate
+    response - no delays\n- ⏰ Periodic status checks every 5 minutes\n- \U0001F6E1️
+    Prevents overcharging and deep discharge\n- \U0001F680 Startup synchronization
+    for correct initial state\n"
+  input:
+    battery_sensor:
+      name: "\U0001F50B Battery Percentage Sensor"
+      description: 'The sensor that monitors battery level percentage (e.g., sensor.laptop_battery_level).
+        Must report values between 0-100.
+
+        '
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            device_class:
+            - battery
+          multiple: false
+          reorder: false
+    smart_plug:
+      name: "\U0001F50C Smart Plug/Switch"
+      description: 'The smart plug or switch controlling the charger. Turning OFF
+        stops charging, turning ON resumes charging.
+
+        '
+      selector:
+        entity:
+          filter:
+          - domain:
+            - switch
+          multiple: false
+          reorder: false
+    battery_thresholds:
+      name: "\U0001F3AF Battery Threshold Settings"
+      icon: mdi:battery-charging
+      collapsed: true
+      input:
+        upper_threshold:
+          name: ⬆️ Upper Threshold (Stop Charging)
+          description: 'When battery reaches this percentage, charging will stop.
+            Recommended: 80% for optimal battery health.
+
+            '
+          default: 80
+          selector:
+            number:
+              min: 50.0
+              max: 100.0
+              step: 5.0
+              unit_of_measurement: '%'
+              mode: slider
+        lower_threshold:
+          name: ⬇️ Lower Threshold (Start Charging)
+          description: 'When battery drops to this percentage, charging will resume.
+            Recommended: 20% to avoid deep discharge.
+
+            '
+          default: 20
+          selector:
+            number:
+              min: 5.0
+              max: 50.0
+              step: 5.0
+              unit_of_measurement: '%'
+              mode: slider
+mode: single
+max_exceeded: silent
+variables:
+  battery: !input battery_sensor
+  plug: !input smart_plug
+  upper_limit: !input upper_threshold
+  lower_limit: !input lower_threshold
+  current_battery_level: '{{ states(battery) | float(0) }}'
+  plug_is_on: '{{ is_state(plug, ''on'') }}'
+  battery_sensor_available: '{{ not is_state(battery, ''unavailable'') and not is_state(battery,
+    ''unknown'') }}'
+triggers:
+- trigger: numeric_state
+  entity_id: !input battery_sensor
+  above: !input upper_threshold
+  id: battery_high
+- trigger: numeric_state
+  entity_id: !input battery_sensor
+  below: !input lower_threshold
+  id: battery_low
+- trigger: homeassistant
+  event: start
+  id: ha_start
+- trigger: event
+  event_type: automation_reloaded
+  id: automation_reload
+- trigger: state
+  entity_id: !input battery_sensor
+  from:
+  - unavailable
+  - unknown
+  id: sensor_recovered
+- trigger: time_pattern
+  minutes: /5
+  id: periodic_check
+conditions: []
+actions:
+- choose:
+  - conditions:
+    - condition: trigger
+      id: battery_high
+    - condition: template
+      value_template: '{{ battery_sensor_available }}'
+    - condition: template
+      value_template: '{{ plug_is_on }}'
+    sequence:
+    - action: switch.turn_off
+      target:
+        entity_id: '{{ plug }}'
+  - conditions:
+    - condition: trigger
+      id: battery_low
+    - condition: template
+      value_template: '{{ battery_sensor_available }}'
+    - condition: template
+      value_template: '{{ not plug_is_on }}'
+    sequence:
+    - action: switch.turn_on
+      target:
+        entity_id: '{{ plug }}'
+  - conditions:
+    - condition: trigger
+      id: sensor_recovered
+    - condition: template
+      value_template: '{{ battery_sensor_available }}'
+    sequence:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level >= upper_limit }}'
+        - condition: template
+          value_template: '{{ plug_is_on }}'
+        sequence:
+        - action: switch.turn_off
+          target:
+            entity_id: '{{ plug }}'
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level <= lower_limit }}'
+        - condition: template
+          value_template: '{{ not plug_is_on }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: '{{ plug }}'
+  - conditions:
+    - condition: trigger
+      id:
+      - ha_start
+      - automation_reload
+    - condition: template
+      value_template: '{{ battery_sensor_available }}'
+    sequence:
+    - delay:
+        seconds: 10
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level >= upper_limit }}'
+        - condition: template
+          value_template: '{{ plug_is_on }}'
+        sequence:
+        - action: switch.turn_off
+          target:
+            entity_id: '{{ plug }}'
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level <= lower_limit }}'
+        - condition: template
+          value_template: '{{ not plug_is_on }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: '{{ plug }}'
+  - conditions:
+    - condition: trigger
+      id: periodic_check
+    - condition: template
+      value_template: '{{ battery_sensor_available }}'
+    sequence:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level >= upper_limit }}'
+        - condition: template
+          value_template: '{{ plug_is_on }}'
+        sequence:
+        - action: switch.turn_off
+          target:
+            entity_id: '{{ plug }}'
+      - conditions:
+        - condition: template
+          value_template: '{{ current_battery_level <= lower_limit }}'
+        - condition: template
+          value_template: '{{ not plug_is_on }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: '{{ plug }}'
+  default: []
