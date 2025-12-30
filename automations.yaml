@@ -318,7 +318,7 @@
     path: r3mcos3/ai_parking_counter.yaml
     input:
       person_entity: person.remco
-      zone_1: zone.moerse_dreef
+      zone_1: zone.buurmalsenplein
       zone_2: zone.huibevendreef
       proximity_sensor: sensor.proximity_remco_remco_direction_of_travel
       camera_entity: camera.doorbell_camera_generic
@@ -332,6 +332,10 @@
       zone_2_enabled: true
       zone_3: zone.garderenstraat
       zone_3_enabled: true
+      zone_4: zone.genemuidenstraat
+      zone_4_enabled: true
+      zone_5: zone.berenrodelaan
+      zone_5_enabled: true
 - id: '1765905653209'
   alias: "\U0001F508 Media - Volume Control"
   description: ''
@@ -369,6 +373,7 @@
       humidity_sensor: sensor.multi_sensor_humidity
       override_helper: input_boolean.verwarming_override
       override_duration: 1
+      use_humidity: true
 - id: '1765992237695'
   alias: ⏰ Light - Alarm
   description: ''
@@ -499,6 +504,9 @@
       target_chat_id: '7189751224'
       message_caption: "\U0001F6A8 Motion detected by the garden gate!\U0001F4F8"
       timeout: 300
+      motion_delay: 5
+      presence_mode: away
+      person_entity: person.remco
 - id: '1766660076205'
   alias: "\U0001F6E1️ Persistent Motion Toilet Light"
   description: ''
@@ -507,7 +515,7 @@
     input:
       motion_entity: binary_sensor.gf_toilet_motion_occupancy
       light_entity: light.gf_toilet_light
-      no_motion_wait: 180
+      no_motion_wait: 300
 - id: '1766903216493'
   alias: "\U0001F50B Accu Saver - Battery Health Manager"
   description: ''
