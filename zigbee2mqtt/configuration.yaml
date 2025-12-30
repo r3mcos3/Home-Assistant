@@ -150,5 +150,7 @@ devices:
     friendly_name: OUT Garden Flood Light
   '0x5c0272fffe9206d3':
     friendly_name: GF Living Christmas Garland
+  '0xa4c138c41c8f3e3f':
+    friendly_name: GF Living Presence Sensor
 availability:
   enabled: true
