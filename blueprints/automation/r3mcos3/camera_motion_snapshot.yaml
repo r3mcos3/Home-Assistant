@@ -1,11 +1,12 @@
 blueprint:
   name: "\U0001F4F8 Camera Snapshot on Motion to Telegram \U0001F916"
-  description: "\U0001F680 Automatically capture a snapshot from your camera \U0001F4F7
-    when motion is detected \U0001F3C3‍♂️ and send it instantly via your Telegram
-    bot \U0001F4E8.\n✨ Features: - \U0001F4F8 Instant high-quality snapshot. - \U0001F3C3‍♂️
-    Triggered by any motion sensor. - \U0001F916 Supports multiple Telegram bots via
-    Config Entry and Chat ID. - ✍️ Fully customizable message caption. - ⏱️ Adjustable
-    timeout (cooldown) between snapshots.\nVersion: 1.7.0 \U0001F3F7️\n"
+  description: "\U0001F4E6 [Version 1.8.0] Automatically capture a snapshot from your
+    camera \U0001F4F7 when motion is detected \U0001F3C3‍♂️ and send it instantly
+    via your Telegram bot \U0001F4E8.\n✨ Features: - \U0001F4F8 Instant high-quality
+    snapshot. - \U0001F3C3‍♂️ Triggered by any motion sensor. - \U0001F916 Supports
+    multiple Telegram bots via Config Entry and Chat ID. - ✍️ Fully customizable message
+    caption. - ⏱️ Adjustable timeout (cooldown) between snapshots. - \U0001F3E0 Optional
+    presence-based filtering (only when home/away).\n"
   domain: automation
   author: r3mcos3
   source_url: https://github.com/r3mcos3/blueprints/blob/main/camera_motion_snapshot/camera_motion_snapshot.yaml
@@ -19,8 +20,8 @@ blueprint:
           - binary_sensor
           device_class:
           - motion
-          multiple: false
           reorder: false
+          multiple: false
     camera:
       name: "\U0001F4F7 Camera"
       description: "\U0001F5BC️ Choose the camera to take the snapshot from."
@@ -28,8 +29,8 @@ blueprint:
         entity:
           domain:
           - camera
-          multiple: false
           reorder: false
+          multiple: false
     telegram_bot_entry:
       name: "\U0001F916 Telegram Bot Instance"
       description: "\U0001F50C Select the Telegram Bot integration instance to use."
@@ -59,6 +60,18 @@ blueprint:
         text:
           multiline: false
           multiple: false
+    motion_delay:
+      name: ⏳ Motion Delay
+      description: ⏱️ Delay between motion detection and snapshot capture (in seconds).
+        Allows camera time to adjust before capturing.
+      default: 1
+      selector:
+        number:
+          min: 1.0
+          max: 10.0
+          unit_of_measurement: seconds
+          mode: box
+          step: 1.0
     timeout:
       name: ⏱️ Timeout (Cooldown)
       description: ⏳ The time to wait after a snapshot before allowing another one
@@ -71,15 +84,51 @@ blueprint:
           unit_of_measurement: seconds
           mode: box
           step: 1.0
+    presence_mode:
+      name: "\U0001F3E0 Presence Mode"
+      description: "\U0001F3AF Choose when to send snapshots based on presence."
+      default: always
+      selector:
+        select:
+          options:
+          - label: "\U0001F30D Always (ignore presence)"
+            value: always
+          - label: "\U0001F6B6 Only when away from home"
+            value: away
+          - label: "\U0001F3E0 Only when at home"
+            value: home
+          sort: false
+          custom_value: false
+          multiple: false
+    person_entity:
+      name: "\U0001F464 Person Tracker"
+      description: "\U0001F50D Select the person entity to track for presence detection.
+        Only used when Presence Mode is not set to 'Always'."
+      default: []
+      selector:
+        entity:
+          domain:
+          - person
+          reorder: false
+          multiple: false
 variables:
   target_chat_id_var: !input target_chat_id
+  presence_mode_var: !input presence_mode
+  person_entity_var: !input person_entity
 trigger:
 - platform: state
   entity_id: !input motion_sensor
   from: 'off'
   to: 'on'
 mode: single
+condition:
+- condition: template
+  value_template: "{% set mode = presence_mode_var %} {% if mode == 'always' %}\n
+    \ true\n{% elif mode == 'away' %}\n  {{ states(person_entity_var) != 'home' }}\n{%
+    elif mode == 'home' %}\n  {{ states(person_entity_var) == 'home' }}\n{% else %}\n
+    \ true\n{% endif %}\n"
 action:
+- delay: !input motion_delay
 - service: camera.snapshot
   target:
     entity_id: !input camera
