@@ -46,17 +46,6 @@
         target:
           entity_id: light.attic_lights
   mode: single
-- id: '1763407324981'
-  alias: "\U0001F6B6 Motion - Toilet Light"
-  description: Turns on toilet light when motion is detected and turns it off after
-    5 minutes
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.gf_toilet_motion_occupancy
-      light_target:
-        entity_id: light.gf_toilet_light
-      no_motion_wait: 300
 - id: '1763407837707'
   alias: "\U0001F6AA Door - Back Door Lights (Sunset)"
   description: Turns on conservatory and garden lights when back door opens after
@@ -358,21 +347,19 @@
   use_blueprint:
     path: r3mcos3/smart_heating.yaml
     input:
-      comfort_temp: 20
-      away_temp: 10
+      comfort_temp: 23
+      away_temp: 13
       night_temp: 13
       outdoor_temp_threshold: 15
       climate_entity: climate.living_room
       indoor_temp_sensor: sensor.multi_sensor_temperature
       outdoor_temp_sensor: sensor.thuis_temperatuur
       presence_zone: zone.home
-      door_window_sensors:
-      - binary_sensor.gf_door_front_contact_contact
-      - binary_sensor.gf_door_back_contact_contact
+      door_window_sensors: []
       night_start: '21:00:00'
       humidity_sensor: sensor.multi_sensor_humidity
       override_helper: input_boolean.verwarming_override
-      override_duration: 1
+      override_duration: 2
       use_humidity: true
 - id: '1765992237695'
   alias: ⏰ Light - Alarm
@@ -468,6 +455,14 @@
       - update.out_garden_multi_sensor_firmware
       - update.out_garden_gate_sensor_firmware
       - update.ff_bathroom_spots_firmware
+      - update.esphome_device_builder_update
+      - update.roller_shutter_upstairs_firmware
+      - update.garden_outlet_firmware
+      - update.shed_outlet_firmware
+      - update.watermeter_firmware
+      - update.slimmelezer_firmware
+      - update.roller_shutter_front_firmware
+      - update.roller_shutter_back_firmware
       reminder_hours: '6'
       send_to_ha: false
       take_backup: false
