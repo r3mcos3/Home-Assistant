@@ -512,7 +512,7 @@
       light_entity: light.gf_toilet_light
       no_motion_wait: 300
 - id: '1766903216493'
-  alias: "\U0001F50B Accu Saver - Battery Health Manager"
+  alias: "\U0001F50B Accu Saver - Battery Health Manager - Server"
   description: ''
   use_blueprint:
     path: r3mcos3/accu_saver.yaml
@@ -521,3 +521,12 @@
       smart_plug: switch.laptop_accu
       lower_threshold: 25
       check_interval: 5
+- id: '1767970603313'
+  alias: "\U0001F50B Accu Saver - Battery Health Manager - Asus"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/accu_saver.yaml
+    input:
+      battery_sensor: sensor.asus_latop_battery_charge_remaining_percentage
+      smart_plug: switch.asus_laptop_switch
+      lower_threshold: 30
