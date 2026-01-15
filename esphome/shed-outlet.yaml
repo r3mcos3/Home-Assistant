@@ -1,0 +1,106 @@
+substitutions:
+  name: shed-outlet
+  friendly_name: Shed Outlet
+
+esphome:
+  name: ${name}
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+  level: INFO
+
+# Enable Home Assistant API
+api:
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+  min_auth_mode: WPA2
+  manual_ip:
+    static_ip: 10.10.2.31
+    gateway: 10.10.2.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name} Hotspot"
+    password: !secret hotspot_password
+
+captive_portal:
+
+web_server:
+  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "${friendly_name} Uptime"
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} IP Address"
+    ssid:
+      name: "${friendly_name} SSID"
+    bssid:
+      name: "${friendly_name} BSSID"
+  - platform: version
+    name: "${friendly_name} ESPHome Version"
+
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+  - platform: gpio
+    name: "${friendly_name} Button"
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+      inverted: true
+    internal: true
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_press:
+      - switch.toggle: relay
+
+output:
+  - platform: esp8266_pwm
+    id: led
+    pin:
+      number: GPIO4
+      inverted: true
+
+light:
+  - platform: monochromatic
+    id: status_led
+    name: "${friendly_name} Light"
+    output: led
+
+switch:
+  - platform: gpio
+    id: relay
+    pin: GPIO12
+  - platform: template
+    name: "${friendly_name} Relay"
+    optimistic: true
+    id: relay_and_light
+    turn_on_action:
+      - switch.turn_on: relay
+      - light.turn_on: status_led
+    turn_off_action:
+      - switch.turn_off: relay
+      - light.turn_off: status_led
+
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"
