@@ -347,7 +347,7 @@
   use_blueprint:
     path: r3mcos3/smart_heating.yaml
     input:
-      comfort_temp: 19
+      comfort_temp: 22
       away_temp: 13
       night_temp: 13
       outdoor_temp_threshold: 15
