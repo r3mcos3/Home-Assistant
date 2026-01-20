@@ -5,7 +5,7 @@ blueprint:
   source_url: https://github.com/r3mcos3/blueprints/blob/main/smart_heating/smart_heating.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: "\U0001F4E6 [Version 1.3.1] Intelligent climate control with presence
+  description: "\U0001F4E6 [Version 1.4.0] Intelligent climate control with presence
     detection, door/window protection, manual override, and energy-saving features!
     \U0001F321️\n\nFeatures:\n- \U0001F3E0 Presence-based temperature adjustment (home/away)\n-
     \U0001F6AA Door/window open detection with heating pause\n- \U0001F321️ Outdoor
@@ -91,8 +91,9 @@ blueprint:
       collapsed: true
       input:
         comfort_temp:
-          name: "\U0001F3E0 Comfort Temperature"
-          description: 'Target temperature when people are home.
+          name: "\U0001F3E0 Comfort Temperature (Default)"
+          description: 'Default target temperature when people are home. This value
+            is used when no helper is configured.
 
             '
           default: 21
@@ -103,6 +104,22 @@ blueprint:
               step: 1.0
               unit_of_measurement: °C
               mode: slider
+        comfort_temp_helper:
+          name: "\U0001F39B️ Comfort Temperature Helper (Optional)"
+          description: 'Optional input_number helper to dynamically adjust comfort
+            temperature via UI. When configured, this overrides the default comfort
+            temperature above. Create a helper: input_number.heating_comfort_temp
+            (min: 5, max: 25, step: 0.5)
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - input_number
+              multiple: false
+              reorder: false
         away_temp:
           name: "\U0001F3C3 Away Temperature"
           description: 'Target temperature when nobody is home.
@@ -310,7 +327,11 @@ variables:
   outdoor_sensor: !input outdoor_temp_sensor
   zone: !input presence_zone
   door_sensors: !input door_window_sensors
-  temp_comfort: !input comfort_temp
+  comfort_temp_default: !input comfort_temp
+  comfort_temp_entity: !input comfort_temp_helper
+  temp_comfort: "{% if comfort_temp_entity != {} and comfort_temp_entity != '' %}\n
+    \ {{ states(comfort_temp_entity) | float(comfort_temp_default) }}\n{% else %}\n
+    \ {{ comfort_temp_default }}\n{% endif %}\n"
   temp_away: !input away_temp
   temp_frost: !input frost_protection_temp
   temp_night: !input night_temp
@@ -371,6 +392,9 @@ triggers:
 - trigger: state
   entity_id: !input override_helper
   id: override_toggled
+- trigger: state
+  entity_id: !input comfort_temp_helper
+  id: comfort_temp_changed
 conditions: []
 actions:
 - variables:
@@ -617,6 +641,21 @@ actions:
       data:
         temperature: '{{ target_temp }}'
         hvac_mode: heat
+  - conditions:
+    - condition: trigger
+      id: comfort_temp_changed
+    - condition: template
+      value_template: '{{ target_mode == ''comfort'' }}'
+    - condition: template
+      value_template: '{{ people_count > 0 }}'
+    - condition: template
+      value_template: '{{ not override_is_active }}'
+    sequence:
+    - action: climate.set_temperature
+      target:
+        entity_id: '{{ climate }}'
+      data:
+        temperature: '{{ temp_comfort + humidity_adjustment | float(0) }}'
   - conditions:
     - condition: trigger
       id:
