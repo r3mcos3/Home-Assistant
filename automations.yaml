@@ -412,9 +412,21 @@
       - update.extended_openai_conversation_update
       - update.life360_update
       - update.repeater
+      - update.esphome_device_builder_update
+      - update.hass_agent_2_integration_media_player_notifications_update
+      - update.ff_bathroom_spots_firmware
+      - update.roller_shutter_upstairs_firmware
+      - update.garden_outlet_firmware
+      - update.out_garden_gate_sensor_firmware
+      - update.shed_outlet_firmware
+      - update.roller_shutter_back_firmware
+      - update.watermeter_firmware
+      - update.roller_shutter_front_firmware
+      - update.slimmelezer_firmware
+      - update.out_garden_multi_sensor_firmware
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       take_backup: false
-      reminder_hours: '1'
+      reminder_hours: '12'
       notification_platform: mobile_app
       mobile_app_device:
       - 96dc4e1932960b1645890d2c1bb80479
