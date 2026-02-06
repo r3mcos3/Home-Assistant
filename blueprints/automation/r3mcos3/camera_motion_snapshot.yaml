@@ -1,6 +1,6 @@
 blueprint:
   name: "\U0001F4F8 Camera Snapshot on Motion to Telegram \U0001F916"
-  description: "\U0001F4E6 [Version 1.8.0] Automatically capture a snapshot from your
+  description: "\U0001F4E6 [Version 1.8.1] Automatically capture a snapshot from your
     camera \U0001F4F7 when motion is detected \U0001F3C3‍♂️ and send it instantly
     via your Telegram bot \U0001F4E8.\n✨ Features: - \U0001F4F8 Instant high-quality
     snapshot. - \U0001F3C3‍♂️ Triggered by any motion sensor. - \U0001F916 Supports
@@ -98,8 +98,8 @@ blueprint:
           - label: "\U0001F3E0 Only when at home"
             value: home
           sort: false
-          custom_value: false
           multiple: false
+          custom_value: false
     person_entity:
       name: "\U0001F464 Person Tracker"
       description: "\U0001F50D Select the person entity to track for presence detection.
@@ -129,15 +129,15 @@ condition:
     \ true\n{% endif %}\n"
 action:
 - delay: !input motion_delay
-- service: camera.snapshot
+- action: camera.snapshot
   target:
     entity_id: !input camera
   data:
     filename: !input snapshot_path
 - delay: 00:00:02
-- service: telegram_bot.send_photo
+- action: telegram_bot.send_photo
   data:
-    target: '{{ target_chat_id_var }}'
+    chat_id: '{{ target_chat_id_var }}'
     file: !input snapshot_path
     caption: !input message_caption
 - delay: !input timeout
