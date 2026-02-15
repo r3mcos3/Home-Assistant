@@ -364,6 +364,8 @@
       override_duration: 2
       use_humidity: true
       comfort_temp_helper: input_number.comfort_temp
+      door_open_delay: 300
+      door_closed_delay: 10
 - id: '1765992237695'
   alias: ⏰ Light - Alarm
   description: ''
