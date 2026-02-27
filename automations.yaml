@@ -411,7 +411,6 @@
       - update.home_assistant_operating_system_update
       - update.home_assistant_supervisor_update
       - update.advanced_ssh_web_terminal_update
-      - update.extended_openai_conversation_update
       - update.life360_update
       - update.repeater
       - update.esphome_device_builder_update
@@ -451,7 +450,6 @@
       - update.uap_ac_lite
       - update.uk_ultra
       - update.advanced_ssh_web_terminal_update
-      - update.extended_openai_conversation_update
       - update.usw_flex_mini_zolder
       - update.usw_flex_mini_beneden
       - update.us_8_60w
