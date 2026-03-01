@@ -414,7 +414,6 @@
       - update.life360_update
       - update.repeater
       - update.esphome_device_builder_update
-      - update.hass_agent_2_integration_media_player_notifications_update
       - update.ff_bathroom_spots_firmware
       - update.roller_shutter_upstairs_firmware
       - update.garden_outlet_firmware
