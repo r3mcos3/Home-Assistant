@@ -413,7 +413,6 @@
       - update.advanced_ssh_web_terminal_update
       - update.life360_update
       - update.repeater
-      - update.esphome_device_builder_update
       - update.ff_bathroom_spots_firmware
       - update.roller_shutter_upstairs_firmware
       - update.garden_outlet_firmware
@@ -424,6 +423,7 @@
       - update.roller_shutter_front_firmware
       - update.slimmelezer_firmware
       - update.out_garden_multi_sensor_firmware
+      - update.esphome_enhanced_dashboard_update
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       take_backup: false
       reminder_hours: '12'
@@ -469,7 +469,6 @@
       - update.out_garden_multi_sensor_firmware
       - update.out_garden_gate_sensor_firmware
       - update.ff_bathroom_spots_firmware
-      - update.esphome_device_builder_update
       - update.roller_shutter_upstairs_firmware
       - update.garden_outlet_firmware
       - update.shed_outlet_firmware
@@ -477,6 +476,7 @@
       - update.slimmelezer_firmware
       - update.roller_shutter_front_firmware
       - update.roller_shutter_back_firmware
+      - update.esphome_enhanced_dashboard_update
       reminder_hours: '6'
       send_to_ha: false
       take_backup: false
@@ -516,6 +516,7 @@
       motion_delay: 5
       presence_mode: away
       person_entity: person.remco
+      person_entity_2: person.annemarie
 - id: '1766660076205'
   alias: "\U0001F6E1️ Persistent Motion Toilet Light"
   description: ''
