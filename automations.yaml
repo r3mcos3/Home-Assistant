@@ -297,7 +297,7 @@
     path: r3mcos3/ai_weather_report.yaml
     input:
       weather_entity: weather.thuis
-      ai_task_entity: ai_task.openai_ai_task
+      ai_task_entity: ai_task.claude_ai_task
       report_length: 200
       target_input_text: input_text.ai_respone
 - id: '1765905578931'
@@ -316,7 +316,7 @@
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       ai_instructions: Ik 3 parkeerplaatsen voor me deur, 1 links van de boom en 2
         rechts van de boom, vertel met hoeveel parkeerplaatsen vrij zijn.
-      ai_task_entity: ai_task.google_ai_task
+      ai_task_entity: ai_task.claude_ai_task
       proximity_sensor_enabled: true
       zone_2_enabled: true
       zone_3: zone.garderenstraat
