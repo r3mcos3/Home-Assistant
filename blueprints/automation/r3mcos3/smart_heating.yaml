@@ -5,7 +5,7 @@ blueprint:
   source_url: https://github.com/r3mcos3/blueprints/blob/main/smart_heating/smart_heating.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: "\U0001F4E6 [Version 1.4.0] Intelligent climate control with presence
+  description: "\U0001F4E6 [Version 1.5.0] Intelligent climate control with presence
     detection, door/window protection, manual override, and energy-saving features!
     \U0001F321️\n\nFeatures:\n- \U0001F3E0 Presence-based temperature adjustment (home/away)\n-
     \U0001F6AA Door/window open detection with heating pause\n- \U0001F321️ Outdoor
@@ -24,8 +24,8 @@ blueprint:
           filter:
           - domain:
             - climate
-          multiple: false
           reorder: false
+          multiple: false
     indoor_temp_sensor:
       name: "\U0001F3E0 Indoor Temperature Sensor"
       description: 'Sensor measuring indoor temperature. Used for accurate temperature
@@ -39,8 +39,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          multiple: false
           reorder: false
+          multiple: false
     outdoor_temp_sensor:
       name: "\U0001F324️ Outdoor Temperature Sensor"
       description: 'Sensor measuring outdoor temperature. Heating disabled when above
@@ -54,8 +54,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          multiple: false
           reorder: false
+          multiple: false
     presence_zone:
       name: "\U0001F465 Presence Zone"
       description: 'The zone to monitor for presence (typically zone.home).
@@ -66,8 +66,8 @@ blueprint:
           filter:
           - domain:
             - zone
-          multiple: false
           reorder: false
+          multiple: false
     door_window_sensors:
       name: "\U0001F6AA Door/Window Sensors"
       description: 'Binary sensors for doors and windows. Heating pauses when open
@@ -118,8 +118,8 @@ blueprint:
               filter:
               - domain:
                 - input_number
-              multiple: false
               reorder: false
+              multiple: false
         away_temp:
           name: "\U0001F3C3 Away Temperature"
           description: 'Target temperature when nobody is home.
@@ -182,14 +182,16 @@ blueprint:
         door_open_delay:
           name: ⏱️ Door Open Delay
           description: 'Time to wait before pausing heating when a door/window opens.
+            Heating only pauses after the door has been continuously open for this
+            duration.
 
             '
-          default: 120
+          default: 300
           selector:
             number:
               min: 30.0
-              max: 300.0
-              step: 10.0
+              max: 600.0
+              step: 30.0
               unit_of_measurement: seconds
               mode: slider
         door_closed_delay:
@@ -284,8 +286,8 @@ blueprint:
                 - sensor
                 device_class:
                 - humidity
-              multiple: false
               reorder: false
+              multiple: false
     manual_override_settings:
       name: "\U0001F6E0️ Manual Override Settings"
       icon: mdi:hand-back-right
@@ -317,8 +319,8 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              multiple: false
               reorder: false
+              multiple: false
 mode: single
 max_exceeded: silent
 variables:
@@ -436,16 +438,16 @@ actions:
 - variables:
     target_mode: "{% if current_indoor < temp_frost %}\n  frost_protection\n{% elif
       override_is_active and not override_has_expired %}\n  manual_override\n{% elif
-      is_outdoor_warm %}\n  eco\n{% elif any_opening_open %}\n  door_open\n{% elif
-      people_count == 0 %}\n  away\n{% elif is_preheat_time %}\n  preheat\n{% elif
-      is_night %}\n  night\n{% else %}\n  comfort\n{% endif %}\n"
+      is_outdoor_warm %}\n  eco\n{% elif people_count == 0 %}\n  away\n{% elif is_preheat_time
+      %}\n  preheat\n{% elif is_night %}\n  night\n{% else %}\n  comfort\n{% endif
+      %}\n"
     target_temp: "{% set adj = humidity_adjustment | float(0) %} {% if target_mode
       == 'frost_protection' %}\n  {{ temp_frost }}\n{% elif target_mode == 'manual_override'
       %}\n  {{ current_target }}\n{% elif target_mode == 'eco' %}\n  {{ temp_frost
-      }}\n{% elif target_mode == 'door_open' %}\n  {{ temp_frost }}\n{% elif target_mode
-      == 'away' %}\n  {{ temp_away }}\n{% elif target_mode == 'preheat' %}\n  {{ temp_comfort
-      + adj }}\n{% elif target_mode == 'night' %}\n  {{ temp_night + adj }}\n{% else
-      %}\n  {{ temp_comfort + adj }}\n{% endif %}\n"
+      }}\n{% elif target_mode == 'away' %}\n  {{ temp_away }}\n{% elif target_mode
+      == 'preheat' %}\n  {{ temp_comfort + adj }}\n{% elif target_mode == 'night'
+      %}\n  {{ temp_night + adj }}\n{% else %}\n  {{ temp_comfort + adj }}\n{% endif
+      %}\n"
     current_target: '{{ state_attr(climate, ''temperature'') | float(0) }}'
     hvac_mode: '{{ states(climate) }}'
 - choose:
@@ -549,8 +551,10 @@ actions:
       data:
         hvac_mode: 'off'
   - conditions:
+    - condition: trigger
+      id: door_opened
     - condition: template
-      value_template: '{{ target_mode == ''door_open'' }}'
+      value_template: '{{ any_opening_open }}'
     - condition: template
       value_template: '{{ current_target != temp_frost }}'
     sequence:
@@ -704,8 +708,8 @@ actions:
     - condition: trigger
       id: periodic_check
     - condition: template
-      value_template: '{{ target_mode not in [''eco'', ''door_open'', ''preheat'',
-        ''manual_override''] }}'
+      value_template: '{{ target_mode not in [''eco'', ''preheat'', ''manual_override'']
+        }}'
     - condition: template
       value_template: '{{ (current_target - target_temp) | abs > 0.5 }}'
     sequence:
