@@ -366,6 +366,8 @@
       comfort_temp_helper: input_number.comfort_temp
       door_open_delay: 300
       door_closed_delay: 10
+      use_virtual_window_detection: true
+      use_gradual_transitions: true
 - id: '1765992237695'
   alias: ⏰ Light - Alarm
   description: ''

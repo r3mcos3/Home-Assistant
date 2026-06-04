@@ -5,14 +5,15 @@ blueprint:
   source_url: https://github.com/r3mcos3/blueprints/blob/main/smart_heating/smart_heating.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: "\U0001F4E6 [Version 1.5.0] Intelligent climate control with presence
+  description: "\U0001F4E6 [Version 1.8.0] Intelligent climate control with presence
     detection, door/window protection, manual override, and energy-saving features!
     \U0001F321️\n\nFeatures:\n- \U0001F3E0 Presence-based temperature adjustment (home/away)\n-
     \U0001F6AA Door/window open detection with heating pause\n- \U0001F321️ Outdoor
     temperature factor (disable when warm outside)\n- \U0001F319 Night mode with scheduled
     temperature reduction\n- ⏰ Pre-heating before wake-up time\n- \U0001F4A7 Humidity
     compensation for comfort\n- ❄️ Frost protection (minimum temperature)\n- \U0001F6E0️
-    Manual override with configurable timeout\n"
+    Manual override with configurable timeout\n- \U0001F50D Debug mode with persistent
+    notification for troubleshooting\n"
   input:
     climate_entity:
       name: "\U0001F321️ Climate Entity"
@@ -24,8 +25,8 @@ blueprint:
           filter:
           - domain:
             - climate
-          reorder: false
           multiple: false
+          reorder: false
     indoor_temp_sensor:
       name: "\U0001F3E0 Indoor Temperature Sensor"
       description: 'Sensor measuring indoor temperature. Used for accurate temperature
@@ -39,8 +40,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          reorder: false
           multiple: false
+          reorder: false
     outdoor_temp_sensor:
       name: "\U0001F324️ Outdoor Temperature Sensor"
       description: 'Sensor measuring outdoor temperature. Heating disabled when above
@@ -54,8 +55,8 @@ blueprint:
             - sensor
             device_class:
             - temperature
-          reorder: false
           multiple: false
+          reorder: false
     presence_zone:
       name: "\U0001F465 Presence Zone"
       description: 'The zone to monitor for presence (typically zone.home).
@@ -66,8 +67,8 @@ blueprint:
           filter:
           - domain:
             - zone
-          reorder: false
           multiple: false
+          reorder: false
     door_window_sensors:
       name: "\U0001F6AA Door/Window Sensors"
       description: 'Binary sensors for doors and windows. Heating pauses when open
@@ -118,8 +119,8 @@ blueprint:
               filter:
               - domain:
                 - input_number
-              reorder: false
               multiple: false
+              reorder: false
         away_temp:
           name: "\U0001F3C3 Away Temperature"
           description: 'Target temperature when nobody is home.
@@ -286,8 +287,8 @@ blueprint:
                 - sensor
                 device_class:
                 - humidity
-              reorder: false
               multiple: false
+              reorder: false
     manual_override_settings:
       name: "\U0001F6E0️ Manual Override Settings"
       icon: mdi:hand-back-right
@@ -319,8 +320,83 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              reorder: false
               multiple: false
+              reorder: false
+    virtual_window_settings:
+      name: "\U0001FA9F Virtual Window Detection"
+      icon: mdi:thermometer-alert
+      collapsed: true
+      input:
+        use_virtual_window_detection:
+          name: "\U0001FA9F Enable Virtual Window Detection"
+          description: 'Detect open windows by monitoring rapid indoor temperature
+            drops, even without physical sensors. Heating pauses when a sudden drop
+            is detected and resumes automatically after the next periodic check (~15
+            min).
+
+            '
+          default: false
+          selector:
+            boolean: {}
+        virtual_window_temp_drop:
+          name: "\U0001F321️ Temperature Drop Threshold"
+          description: 'Minimum temperature drop between two consecutive sensor readings
+            to trigger virtual window detection.
+
+            '
+          default: 1.5
+          selector:
+            number:
+              min: 0.5
+              max: 3.0
+              step: 0.5
+              unit_of_measurement: °C
+              mode: slider
+    transition_settings:
+      name: "\U0001F504 Gradual Transition Settings"
+      icon: mdi:trending-up
+      collapsed: true
+      input:
+        use_gradual_transitions:
+          name: "\U0001F504 Enable Gradual Transitions"
+          description: 'Instead of jumping directly to the target temperature, gradually
+            step up or down by a fixed amount every 15 minutes. Makes temperature
+            changes feel more natural.
+
+            '
+          default: false
+          selector:
+            boolean: {}
+        transition_step:
+          name: ↗️ Temperature Step
+          description: 'Temperature change per step, applied every 15 minutes during
+            gradual transitions.
+
+            '
+          default: 0.5
+          selector:
+            number:
+              min: 0.5
+              max: 2.0
+              step: 0.5
+              unit_of_measurement: °C
+              mode: slider
+    debug_settings:
+      name: "\U0001F50D Debug Settings"
+      icon: mdi:bug
+      collapsed: true
+      input:
+        enable_debug_mode:
+          name: "\U0001F50D Enable Debug Mode"
+          description: 'Creates or updates a persistent notification after every automation
+            run, showing the current heating mode, target temperature, and all relevant
+            state values. Useful for troubleshooting unexpected behavior — disable
+            when not needed.
+
+            '
+          default: false
+          selector:
+            boolean: {}
 mode: single
 max_exceeded: silent
 variables:
@@ -347,6 +423,11 @@ variables:
   night_end_time: !input night_end
   override_duration_hours: !input override_duration
   override_entity: !input override_helper
+  virtual_window_enabled: !input use_virtual_window_detection
+  virtual_window_temp_drop_threshold: !input virtual_window_temp_drop
+  gradual_transitions_enabled: !input use_gradual_transitions
+  transition_step_size: !input transition_step
+  debug_mode_enabled: !input enable_debug_mode
 triggers:
 - trigger: homeassistant
   event: start
@@ -397,6 +478,9 @@ triggers:
 - trigger: state
   entity_id: !input comfort_temp_helper
   id: comfort_temp_changed
+- trigger: state
+  entity_id: !input indoor_temp_sensor
+  id: indoor_rapid_drop
 conditions: []
 actions:
 - variables:
@@ -404,6 +488,10 @@ actions:
     current_indoor: '{{ states(indoor_sensor) | float(20) }}'
     people_count: '{{ states(zone) | int(0) }}'
     is_outdoor_warm: '{{ current_outdoor >= outdoor_threshold }}'
+    effective_preheat_mins: "{% if preheat_enabled and night_mode_enabled %}\n  {%
+      set factor = [(outdoor_threshold - current_outdoor) / 10 + 1, 1.0] | max %}\n
+      \ {{ (preheat_mins * [factor, 3.0] | min) | round(0) | int }}\n{% else %}\n
+      \ {{ preheat_mins }}\n{% endif %}\n"
     is_night: "{% if night_mode_enabled %}\n  {% set now_time = now().strftime('%H:%M:%S')
       %}\n  {% set start = night_start_time %}\n  {% set end = night_end_time %}\n
       \ {% if start > end %}\n    {{ now_time >= start or now_time < end }}\n  {%
@@ -412,14 +500,14 @@ actions:
     is_preheat_time: "{% if preheat_enabled and night_mode_enabled %}\n  {% set end_parts
       = night_end_time.split(':') %}\n  {% set end_hour = end_parts[0] | int %}\n
       \ {% set end_min = end_parts[1] | int %}\n  {% set total_mins = end_hour * 60
-      + end_min - preheat_mins %}\n  {% if total_mins < 0 %}\n    {% set total_mins
-      = total_mins + 1440 %}\n  {% endif %}\n  {% set preheat_hour = (total_mins //
-      60) | int %}\n  {% set preheat_min = (total_mins % 60) | int %}\n  {% set preheat_time
-      = '%02d:%02d:00' | format(preheat_hour, preheat_min) %}\n  {% set now_time =
-      now().strftime('%H:%M:%S') %}\n  {% if preheat_time > night_end_time %}\n    {{
-      now_time >= preheat_time or now_time < night_end_time }}\n  {% else %}\n    {{
-      now_time >= preheat_time and now_time < night_end_time }}\n  {% endif %}\n{%
-      else %}\n  false\n{% endif %}\n"
+      + end_min - effective_preheat_mins %}\n  {% if total_mins < 0 %}\n    {% set
+      total_mins = total_mins + 1440 %}\n  {% endif %}\n  {% set preheat_hour = (total_mins
+      // 60) | int %}\n  {% set preheat_min = (total_mins % 60) | int %}\n  {% set
+      preheat_time = '%02d:%02d:00' | format(preheat_hour, preheat_min) %}\n  {% set
+      now_time = now().strftime('%H:%M:%S') %}\n  {% if preheat_time > night_end_time
+      %}\n    {{ now_time >= preheat_time or now_time < night_end_time }}\n  {% else
+      %}\n    {{ now_time >= preheat_time and now_time < night_end_time }}\n  {% endif
+      %}\n{% else %}\n  false\n{% endif %}\n"
     any_opening_open: "{% set ns = namespace(open=false) %} {% for sensor in door_sensors
       %}\n  {% if states(sensor) == 'on' %}\n    {% set ns.open = true %}\n  {% endif
       %}\n{% endfor %} {{ ns.open }}\n"
@@ -436,6 +524,8 @@ actions:
       elapsed_hours >= override_duration_hours }}\n  {% else %}\n    false\n  {% endif
       %}\n{% else %}\n  false\n{% endif %}\n"
 - variables:
+    current_target: '{{ state_attr(climate, ''temperature'') | float(0) }}'
+    hvac_mode: '{{ states(climate) }}'
     target_mode: "{% if current_indoor < temp_frost %}\n  frost_protection\n{% elif
       override_is_active and not override_has_expired %}\n  manual_override\n{% elif
       is_outdoor_warm %}\n  eco\n{% elif people_count == 0 %}\n  away\n{% elif is_preheat_time
@@ -448,8 +538,7 @@ actions:
       == 'preheat' %}\n  {{ temp_comfort + adj }}\n{% elif target_mode == 'night'
       %}\n  {{ temp_night + adj }}\n{% else %}\n  {{ temp_comfort + adj }}\n{% endif
       %}\n"
-    current_target: '{{ state_attr(climate, ''temperature'') | float(0) }}'
-    hvac_mode: '{{ states(climate) }}'
+    heat_needed: '{{ current_indoor < target_temp }}'
 - choose:
   - conditions:
     - condition: template
@@ -498,7 +587,7 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ post_override_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: override_toggled
@@ -521,7 +610,7 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ post_cancel_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: template
       value_template: '{{ override_is_active }}'
@@ -556,13 +645,31 @@ actions:
     - condition: template
       value_template: '{{ any_opening_open }}'
     - condition: template
-      value_template: '{{ current_target != temp_frost }}'
+      value_template: '{{ hvac_mode != ''off'' }}'
     sequence:
-    - action: climate.set_temperature
+    - action: climate.set_hvac_mode
       target:
         entity_id: '{{ climate }}'
       data:
-        temperature: '{{ temp_frost }}'
+        hvac_mode: 'off'
+  - conditions:
+    - condition: trigger
+      id: indoor_rapid_drop
+    - condition: template
+      value_template: '{{ virtual_window_enabled }}'
+    - condition: template
+      value_template: "{{ (trigger.from_state.state | float(20) - trigger.to_state.state
+        | float(20))\n   >= virtual_window_temp_drop_threshold }}\n"
+    - condition: template
+      value_template: '{{ hvac_mode != ''off'' }}'
+    - condition: template
+      value_template: '{{ not any_opening_open }}'
+    sequence:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: '{{ climate }}'
+      data:
+        hvac_mode: 'off'
   - conditions:
     - condition: trigger
       id: left_home
@@ -581,19 +688,21 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ target_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: door_closed
     - condition: template
       value_template: '{{ not any_opening_open }}'
+    - condition: template
+      value_template: '{{ target_mode != ''eco'' }}'
     sequence:
     - action: climate.set_temperature
       target:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ target_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: night_start
@@ -601,6 +710,8 @@ actions:
       value_template: '{{ night_mode_enabled }}'
     - condition: template
       value_template: '{{ people_count > 0 }}'
+    - condition: template
+      value_template: '{{ not override_is_active }}'
     sequence:
     - action: climate.set_temperature
       target:
@@ -618,7 +729,7 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ temp_comfort + humidity_adjustment | float(0) }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: outdoor_cold
@@ -630,7 +741,7 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ target_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: periodic_check
@@ -644,7 +755,7 @@ actions:
         entity_id: '{{ climate }}'
       data:
         temperature: '{{ target_temp }}'
-        hvac_mode: heat
+        hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: comfort_temp_changed
@@ -703,7 +814,7 @@ actions:
           entity_id: '{{ climate }}'
         data:
           temperature: '{{ startup_target_temp }}'
-          hvac_mode: heat
+          hvac_mode: '{{ ''heat'' if heat_needed else hvac_mode }}'
   - conditions:
     - condition: trigger
       id: periodic_check
@@ -711,10 +822,37 @@ actions:
       value_template: '{{ target_mode not in [''eco'', ''preheat'', ''manual_override'']
         }}'
     - condition: template
-      value_template: '{{ (current_target - target_temp) | abs > 0.5 }}'
+      value_template: '{{ not any_opening_open }}'
+    - condition: template
+      value_template: "{{ (current_target - target_temp) | abs >\n   (transition_step_size
+        / 2 if gradual_transitions_enabled else 0.5) }}\n"
     sequence:
+    - variables:
+        sync_target_temp: "{% if gradual_transitions_enabled %}\n  {% set step = transition_step_size
+          | float(0.5) %}\n  {% set gap = target_temp - current_target %}\n  {% if
+          gap > step %}\n    {{ current_target + step }}\n  {% elif gap < -step %}\n
+          \   {{ current_target - step }}\n  {% else %}\n    {{ target_temp }}\n  {%
+          endif %}\n{% else %}\n  {{ target_temp }}\n{% endif %}\n"
     - action: climate.set_temperature
       target:
         entity_id: '{{ climate }}'
       data:
-        temperature: '{{ target_temp }}'
+        temperature: '{{ sync_target_temp }}'
+        hvac_mode: '{{ ''heat'' if current_indoor < sync_target_temp else hvac_mode
+          }}'
+- if:
+  - condition: template
+    value_template: '{{ debug_mode_enabled | bool(false) }}'
+  then:
+  - action: persistent_notification.create
+    data:
+      title: "\U0001F525 Smart Heating Debug"
+      notification_id: smart_heating_debug
+      message: '**Mode:** {{ target_mode }} **Target temp:** {{ target_temp }}°C **Indoor:**
+        {{ current_indoor }}°C | **Outdoor:** {{ current_outdoor }}°C **People home:**
+        {{ people_count }} **Night:** {{ is_night }} | **Pre-heat:** {{ is_preheat_time
+        }} **Override active:** {{ override_is_active }} **Any door/window open:**
+        {{ any_opening_open }} **Last run:** {{ now().strftime(''%Y-%m-%d %H:%M:%S'')
+        }}
+
+        '
