@@ -297,7 +297,7 @@
     path: r3mcos3/ai_weather_report.yaml
     input:
       weather_entity: weather.thuis
-      ai_task_entity: ai_task.claude_ai_task
+      ai_task_entity: ai_task.google_ai_task
       report_length: 200
       target_input_text: input_text.ai_respone
 - id: '1765905578931'
