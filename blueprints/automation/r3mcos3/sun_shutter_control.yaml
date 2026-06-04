@@ -1,0 +1,568 @@
+blueprint:
+  domain: automation
+  name: ☀️ Sun-Aware Shutter Control
+  author: r3mcos3
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/sun_shutter_control/sun_shutter_control.yaml
+  homeassistant:
+    min_version: 2025.12.0
+  description: "\U0001F4E6 [Version 1.14.0] Automatic shutter control based on sun
+    position \U0001F31E.\n\nAutomatically closes shutters when the sun shines on the
+    front or back of your house, and opens them again once the sun moves away. Uses
+    the sun's azimuth (compass direction 0–360°) and compares it to your house orientation.\n\nFeatures:\n-
+    ☀️ Automatically close shutters when the sun shines on the front or back facade\n-
+    \U0001F504 Automatically open shutters when the sun moves away (optional)\n- \U0001F4D0
+    Configurable sun window (degrees of margin per facade)\n- \U0001F305 Minimum sun
+    elevation setting (no action for low morning or evening sun)\n- \U0001F53D Configurable
+    close and open position\n- \U0001F590️ Manual override — triggers when a shutter
+    is manually **closed** (always),\n  or when manually **opened while someone is
+    home** (presence-aware). When nobody\n  is home the automation always takes full
+    control: manual opens are ignored and\n  the shutter closes when the sun shines
+    on the facade.\n  Override resets automatically at sunset so the next day starts
+    fresh,\n  or earlier when the shutter returns to the open position\n\n- \U0001F324️
+    Cloud detection — optional weather integration (supports two entities as\n  cross-check):
+    when it's overcast the shutters stay open (or open automatically\n  if they were
+    closed). When two entities are configured, both must agree before\n  shutters
+    close — prevents false closes caused by a single unreliable source\n\n- ⏱️ Anti-oscillation
+    cooldown — minimum wait time between moves to prevent\n  rapid up/down on partly
+    cloudy days\n\n- \U0001F4CD Position awareness — skips the command if shutters
+    are already at the target position\n\n\U0001F310 Finding your house azimuth —
+    Go to https://www.suncalc.org/, find your house and determine which direction
+    your front door faces. The orange line shows the sun direction per time of day,
+    but you need your facade direction (fixed compass bearing). North = 0°, East =
+    90°, South = 180°, West = 270°. The back of the house is calculated automatically
+    (front + 180°).\n\n\U0001F590️ Setting up manual override — Create a Toggle helper
+    per facade side via Settings → Devices & Services → Create Helper → Toggle (input_boolean),
+    e.g. \"Shutter front manual\". Link it below. The automation turns it on when
+    a shutter on that side is manually **closed** (always), or manually **opened while
+    someone is home** (when a presence entity is configured). It turns off at sunset
+    (so the next day starts fresh), or earlier when the shutter returns to the open
+    position. When nobody is home the automation ignores any override and closes on
+    sun position.\n"
+  input:
+    front_facing_azimuth:
+      name: "\U0001F3E0 Front facade direction (azimuth)"
+      description: 'The compass direction (azimuth) your front facade faces. North
+        = 0°, East = 90°, South = 180°, West = 270°. Stand at your front door and
+        look straight outside — that direction is this value. The back facade is calculated
+        automatically as front + 180°.
+
+        '
+      default: 180
+      selector:
+        number:
+          min: 0.0
+          max: 359.0
+          step: 1.0
+          unit_of_measurement: °
+          mode: slider
+    front_covers:
+      name: "\U0001F3E0 Front shutters"
+      description: 'Shutters on the front of the house. Closed when the sun shines
+        on the front facade.
+
+        '
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+          - domain:
+            - cover
+          reorder: false
+    back_covers:
+      name: "\U0001F3E1 Back shutters"
+      description: 'Shutters on the back of the house. Closed when the sun shines
+        on the back facade.
+
+        '
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+          - domain:
+            - cover
+          reorder: false
+    sun_settings:
+      name: ☀️ Sun Settings
+      icon: mdi:weather-sunny
+      collapsed: true
+      input:
+        sun_window:
+          name: "\U0001F4D0 Sun window angle"
+          description: 'How many degrees to the left and right of the facade direction
+            the sun is considered to be "shining on that facade". Default 90° means
+            the sun counts from 90° left to 90° right of the facade direction (half
+            the sky). Smaller = stricter, sun must shine more directly on the facade.
+
+            '
+          default: 90
+          selector:
+            number:
+              min: 10.0
+              max: 120.0
+              step: 5.0
+              unit_of_measurement: °
+              mode: slider
+        min_elevation:
+          name: "\U0001F305 Minimum sun elevation"
+          description: 'Minimum height of the sun above the horizon (degrees) before
+            the shutters are operated. Prevents action during low morning or evening
+            sun. Set to 0 to always activate when the sun is on that facade.
+
+            '
+          default: 10
+          selector:
+            number:
+              min: 0.0
+              max: 45.0
+              step: 1.0
+              unit_of_measurement: °
+              mode: slider
+    cover_settings:
+      name: ⚙️ Shutter Settings
+      icon: mdi:window-shutter
+      collapsed: true
+      input:
+        close_position:
+          name: "\U0001F53D Close position (%)"
+          description: 'Position of the shutters when the sun shines on that facade.
+            0% = fully closed, 50% = half closed, 100% = fully open.
+
+            '
+          default: 0
+          selector:
+            number:
+              min: 0.0
+              max: 100.0
+              step: 5.0
+              unit_of_measurement: '%'
+              mode: slider
+        auto_open:
+          name: "\U0001F53C Automatically open"
+          description: 'Turn on to automatically open the shutters when the sun is
+            no longer shining on that facade. Turn off to only close automatically.
+
+            '
+          default: true
+          selector:
+            boolean: {}
+        open_position:
+          name: "\U0001F53C Open position (%)"
+          description: 'Position the shutters move to when automatically opened (when
+            "Automatically open" is on). 100% = fully open.
+
+            '
+          default: 100
+          selector:
+            number:
+              min: 0.0
+              max: 100.0
+              step: 5.0
+              unit_of_measurement: '%'
+              mode: slider
+        cooldown_minutes:
+          name: ⏱️ Cooldown between moves (minutes)
+          description: 'Minimum time to wait before moving shutters again after a
+            previous movement. Prevents rapid up-and-down movement on partly cloudy
+            days. Set to 0 to disable.
+
+            '
+          default: 20
+          selector:
+            number:
+              min: 0.0
+              max: 120.0
+              step: 5.0
+              unit_of_measurement: min
+              mode: slider
+    weather_settings:
+      name: "\U0001F324️ Weather Settings"
+      icon: mdi:weather-cloudy
+      collapsed: true
+      input:
+        weather_entity:
+          name: "\U0001F324️ Weather entity (optional)"
+          description: 'Link your weather integration here to enable cloud detection.
+            When the weather condition is overcast or rainy, the shutters will be
+            treated as if the sun is not shining — they stay open or open automatically
+            (if "Automatically open" is enabled). Leave empty to ignore weather and
+            only use sun position.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - weather
+              multiple: false
+              reorder: false
+        weather_entity_2:
+          name: "\U0001F325️ Second weather entity (optional)"
+          description: 'Optional second weather source as a cross-check. When both
+            weather entities are configured, shutters only close when BOTH agree that
+            the conditions allow it (AND-logic). This prevents false closes when one
+            integration occasionally reports an incorrect weather state. Leave empty
+            to use only the first weather entity.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - weather
+              multiple: false
+              reorder: false
+        close_on_cloudy:
+          name: ☁️ When to close based on weather
+          description: 'Controls which weather conditions allow shutters to close.
+            Only applies when a weather entity is configured above.
+
+            '
+          default: sunny_and_partly
+          selector:
+            select:
+              options:
+              - label: Always close (ignore weather)
+                value: always
+              - label: Only when sunny or partly cloudy
+                value: sunny_and_partly
+              - label: Only when sunny
+                value: sunny_only
+              multiple: false
+              sort: false
+              custom_value: false
+    override_settings:
+      name: "\U0001F590️ Manual Override"
+      icon: mdi:hand-back-right
+      collapsed: true
+      input:
+        front_override_helper:
+          name: "\U0001F590️ Override helper front (optional)"
+          description: 'Link an input_boolean (toggle) helper for the front facade
+            here. The automation turns it on when a front shutter is manually **closed**,
+            or when manually **opened while someone is home** (requires presence entity
+            below). It turns off when the sun moves away from the front facade. When
+            nobody is home the automation ignores this override and closes on sun.
+            Create via: Settings → Helpers → Create Helper → Toggle.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - input_boolean
+              multiple: false
+              reorder: false
+        back_override_helper:
+          name: "\U0001F590️ Override helper back (optional)"
+          description: 'Link an input_boolean (toggle) helper for the back facade
+            here. Works the same as the front override helper.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - input_boolean
+              multiple: false
+              reorder: false
+        presence_person_1:
+          name: "\U0001F464 Person 1 (optional)"
+          description: 'First household member. When this person is home, manual opens
+            are respected and the automation will not close the shutter. When nobody
+            is home the automation takes full control. Leave both persons empty to
+            disable presence detection.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - person
+              - domain:
+                - device_tracker
+              multiple: false
+              reorder: false
+        presence_person_2:
+          name: "\U0001F464 Person 2 (optional)"
+          description: 'Second household member (e.g. partner). Works the same as
+            Person 1. Leave empty if there is only one person to track.
+
+            '
+          default: {}
+          selector:
+            entity:
+              filter:
+              - domain:
+                - person
+              - domain:
+                - device_tracker
+              multiple: false
+              reorder: false
+variables:
+  v_front_facing: !input front_facing_azimuth
+  v_sun_window: !input sun_window
+  v_min_elevation: !input min_elevation
+  v_auto_open: !input auto_open
+  v_front_covers: !input front_covers
+  v_back_covers: !input back_covers
+  v_front_override: !input front_override_helper
+  v_back_override: !input back_override_helper
+  v_presence_person_1: !input presence_person_1
+  v_presence_person_2: !input presence_person_2
+  v_weather_entity: !input weather_entity
+  v_weather_entity_2: !input weather_entity_2
+  v_cloud_mode: !input close_on_cloudy
+  v_cooldown: !input cooldown_minutes
+  v_close_pos: !input close_position
+  v_open_pos: !input open_position
+  v_front_override_active: '{{ v_front_override != {} and is_state(v_front_override,
+    ''on'') }}
+
+    '
+  v_back_override_active: '{{ v_back_override != {} and is_state(v_back_override,
+    ''on'') }}
+
+    '
+  v_someone_home: "{{ (v_presence_person_1 != {} and is_state(v_presence_person_1,
+    'home')) or\n   (v_presence_person_2 != {} and is_state(v_presence_person_2, 'home'))
+    }}\n"
+  v_weather_allows_close: "{% macro allows(entity) %}\n  {% set w = states(entity)
+    %}\n  {{ v_cloud_mode == 'always' or\n     (v_cloud_mode == 'sunny_and_partly'
+    and w in ['sunny', 'partlycloudy']) or\n     (v_cloud_mode == 'sunny_only' and
+    w == 'sunny') }}\n{% endmacro %} {% set c1 = allows(v_weather_entity) | trim |
+    bool if v_weather_entity != {} else true %} {% set c2 = allows(v_weather_entity_2)
+    | trim | bool if v_weather_entity_2 != {} else true %} {{ c1 and c2 }}\n"
+  v_sun_on_front: '{% set front = v_front_facing | float(180) %} {% set window = v_sun_window
+    | float(90) %} {% set az = state_attr(''sun.sun'', ''azimuth'') | float(0) %}
+    {% set el = state_attr(''sun.sun'', ''elevation'') | float(-90) %} {% set min_el
+    = v_min_elevation | float(10) %} {% set diff = ((az - front + 180) % 360) - 180
+    %} {{ el >= min_el and diff | abs <= window }}
+
+    '
+  v_sun_on_back: '{% set back = (v_front_facing | float(180) + 180) % 360 %} {% set
+    window = v_sun_window | float(90) %} {% set az = state_attr(''sun.sun'', ''azimuth'')
+    | float(0) %} {% set el = state_attr(''sun.sun'', ''elevation'') | float(-90)
+    %} {% set min_el = v_min_elevation | float(10) %} {% set diff = ((az - back +
+    180) % 360) - 180 %} {{ el >= min_el and diff | abs <= window }}
+
+    '
+  v_should_close_front: '{{ v_sun_on_front | bool and v_weather_allows_close | bool
+    }}
+
+    '
+  v_should_close_back: '{{ v_sun_on_back | bool and v_weather_allows_close | bool
+    }}
+
+    '
+  v_sun_active: '{{ state_attr(''sun.sun'', ''elevation'') | float(-90) >= v_min_elevation
+    | float(10) }}
+
+    '
+  v_front_on_cooldown: "{% if v_cooldown | int(0) == 0 %}\n  false\n{% else %}\n  {%
+    set covers = [v_front_covers] if v_front_covers is string else v_front_covers
+    | list %}\n  {% set secs = v_cooldown | int(20) * 60 %}\n  {% set ns = namespace(recent=false)
+    %}\n  {% for c in covers %}\n    {% if (now() | as_timestamp) - (states[c].last_changed
+    | as_timestamp) < secs %}\n      {% set ns.recent = true %}\n    {% endif %}\n
+    \ {% endfor %}\n  {{ ns.recent }}\n{% endif %}\n"
+  v_back_on_cooldown: "{% if v_cooldown | int(0) == 0 %}\n  false\n{% else %}\n  {%
+    set covers = [v_back_covers] if v_back_covers is string else v_back_covers | list
+    %}\n  {% set secs = v_cooldown | int(20) * 60 %}\n  {% set ns = namespace(recent=false)
+    %}\n  {% for c in covers %}\n    {% if (now() | as_timestamp) - (states[c].last_changed
+    | as_timestamp) < secs %}\n      {% set ns.recent = true %}\n    {% endif %}\n
+    \ {% endfor %}\n  {{ ns.recent }}\n{% endif %}\n"
+  v_front_needs_close: "{% set covers = [v_front_covers] if v_front_covers is string
+    else v_front_covers | list %} {% set target = v_close_pos | int(0) %} {% set ns
+    = namespace(needs=false) %} {% for c in covers %}\n  {% if state_attr(c, 'current_position')
+    | int(-1) != target %}\n    {% set ns.needs = true %}\n  {% endif %}\n{% endfor
+    %} {{ ns.needs }}\n"
+  v_front_needs_open: "{% set covers = [v_front_covers] if v_front_covers is string
+    else v_front_covers | list %} {% set target = v_open_pos | int(100) %} {% set
+    ns = namespace(needs=false) %} {% for c in covers %}\n  {% if state_attr(c, 'current_position')
+    | int(-1) != target %}\n    {% set ns.needs = true %}\n  {% endif %}\n{% endfor
+    %} {{ ns.needs }}\n"
+  v_back_needs_close: "{% set covers = [v_back_covers] if v_back_covers is string
+    else v_back_covers | list %} {% set target = v_close_pos | int(0) %} {% set ns
+    = namespace(needs=false) %} {% for c in covers %}\n  {% if state_attr(c, 'current_position')
+    | int(-1) != target %}\n    {% set ns.needs = true %}\n  {% endif %}\n{% endfor
+    %} {{ ns.needs }}\n"
+  v_back_needs_open: "{% set covers = [v_back_covers] if v_back_covers is string else
+    v_back_covers | list %} {% set target = v_open_pos | int(100) %} {% set ns = namespace(needs=false)
+    %} {% for c in covers %}\n  {% if state_attr(c, 'current_position') | int(-1)
+    != target %}\n    {% set ns.needs = true %}\n  {% endif %}\n{% endfor %} {{ ns.needs
+    }}\n"
+trigger:
+- platform: state
+  entity_id: sun.sun
+  attribute: azimuth
+  id: sun_position_changed
+- platform: homeassistant
+  event: start
+  id: ha_start
+- platform: state
+  entity_id: !input front_covers
+  id: front_cover_changed
+- platform: state
+  entity_id: !input back_covers
+  id: back_cover_changed
+- platform: state
+  entity_id: sun.sun
+  to: below_horizon
+  id: sun_below_horizon
+action:
+- if:
+  - condition: trigger
+    id: sun_below_horizon
+  then:
+  - if:
+    - condition: template
+      value_template: '{{ v_front_override != {} }}'
+    then:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: !input front_override_helper
+  - if:
+    - condition: template
+      value_template: '{{ v_back_override != {} }}'
+    then:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: !input back_override_helper
+- if:
+  - condition: trigger
+    id: front_cover_changed
+  - condition: template
+    value_template: '{{ trigger.to_state.context.user_id is not none }}'
+  - condition: template
+    value_template: '{{ v_front_override != {} }}'
+  - condition: template
+    value_template: '{% set pos_to = trigger.to_state.attributes.current_position
+      | int(-1) %} {% set pos_from = trigger.from_state.attributes.current_position
+      | int(-1) %} {% set is_closing = (pos_to < pos_from) if (pos_to >= 0 and pos_from
+      >= 0) else (trigger.to_state.state == ''closed'' and trigger.from_state.state
+      != ''closed'') %} {{ is_closing or ((v_presence_person_1 != {} or v_presence_person_2
+      != {}) and v_someone_home | bool) }}
+
+      '
+  then:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: !input front_override_helper
+- if:
+  - condition: trigger
+    id: back_cover_changed
+  - condition: template
+    value_template: '{{ trigger.to_state.context.user_id is not none }}'
+  - condition: template
+    value_template: '{{ v_back_override != {} }}'
+  - condition: template
+    value_template: '{% set pos_to = trigger.to_state.attributes.current_position
+      | int(-1) %} {% set pos_from = trigger.from_state.attributes.current_position
+      | int(-1) %} {% set is_closing = (pos_to < pos_from) if (pos_to >= 0 and pos_from
+      >= 0) else (trigger.to_state.state == ''closed'' and trigger.from_state.state
+      != ''closed'') %} {{ is_closing or ((v_presence_person_1 != {} or v_presence_person_2
+      != {}) and v_someone_home | bool) }}
+
+      '
+  then:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: !input back_override_helper
+- if:
+  - condition: trigger
+    id:
+    - sun_position_changed
+    - ha_start
+  then:
+  - if:
+    - condition: template
+      value_template: '{{ v_front_covers | list | length > 0 }}'
+    then:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{{ v_should_close_front | bool\n   and (not v_front_override_active
+            | bool\n        or ((v_presence_person_1 != {} or v_presence_person_2
+            != {}) and not v_someone_home | bool))\n   and not v_front_on_cooldown
+            | bool\n   and v_front_needs_close | bool }}\n"
+        sequence:
+        - service: cover.set_cover_position
+          target:
+            entity_id: !input front_covers
+          data:
+            position: !input close_position
+      - conditions:
+        - condition: template
+          value_template: '{{ not v_should_close_front | bool and v_auto_open | bool
+            and v_sun_active | bool }}'
+        sequence:
+        - if:
+          - condition: template
+            value_template: "{{ (not v_front_override_active | bool\n    or ((v_presence_person_1
+              != {} or v_presence_person_2 != {}) and not v_someone_home | bool))\n
+              \  and not v_front_on_cooldown | bool\n   and v_front_needs_open | bool
+              }}\n"
+          then:
+          - service: cover.set_cover_position
+            target:
+              entity_id: !input front_covers
+            data:
+              position: !input open_position
+        - if:
+          - condition: template
+            value_template: '{{ v_front_override != {} and not v_front_needs_open
+              | bool }}'
+          then:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input front_override_helper
+  - if:
+    - condition: template
+      value_template: '{{ v_back_covers | list | length > 0 }}'
+    then:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{{ v_should_close_back | bool\n   and (not v_back_override_active
+            | bool\n        or ((v_presence_person_1 != {} or v_presence_person_2
+            != {}) and not v_someone_home | bool))\n   and not v_back_on_cooldown
+            | bool\n   and v_back_needs_close | bool }}\n"
+        sequence:
+        - service: cover.set_cover_position
+          target:
+            entity_id: !input back_covers
+          data:
+            position: !input close_position
+      - conditions:
+        - condition: template
+          value_template: '{{ not v_should_close_back | bool and v_auto_open | bool
+            and v_sun_active | bool }}'
+        sequence:
+        - if:
+          - condition: template
+            value_template: "{{ (not v_back_override_active | bool\n    or ((v_presence_person_1
+              != {} or v_presence_person_2 != {}) and not v_someone_home | bool))\n
+              \  and not v_back_on_cooldown | bool\n   and v_back_needs_open | bool
+              }}\n"
+          then:
+          - service: cover.set_cover_position
+            target:
+              entity_id: !input back_covers
+            data:
+              position: !input open_position
+        - if:
+          - condition: template
+            value_template: '{{ v_back_override != {} and not v_back_needs_open |
+              bool }}'
+          then:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input back_override_helper
+mode: single
+max_exceeded: silent

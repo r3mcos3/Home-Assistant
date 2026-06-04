@@ -545,3 +545,21 @@
       battery_sensor: sensor.asus_latop_battery_charge_remaining_percentage
       smart_plug: switch.asus_laptop_switch
       lower_threshold: 30
+- id: '1780125206836'
+  alias: ☀️ Sun-aware Shutter Control
+  description: ''
+  use_blueprint:
+    path: r3mcos3/sun_shutter_control.yaml
+    input:
+      front_covers:
+      - cover.roller_shutter_front_roller_shutter_front
+      back_covers:
+      - cover.roller_shutter_back_roller_shutter_back
+      front_facing_azimuth: 93
+      front_override_helper: input_boolean.shutter_front_override
+      back_override_helper: input_boolean.shutter_back_override
+      weather_entity: weather.thuis
+      close_on_cloudy: sunny_and_partly
+      presence_person_1: person.annemarie
+      presence_person_2: person.remco
+      weather_entity_2: weather.met_no_tilburg_home
