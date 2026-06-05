@@ -5,7 +5,7 @@ blueprint:
   source_url: https://github.com/r3mcos3/blueprints/blob/main/sun_shutter_control/sun_shutter_control.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: "\U0001F4E6 [Version 1.14.0] Automatic shutter control based on sun
+  description: "\U0001F4E6 [Version 1.16.0] Automatic shutter control based on sun
     position \U0001F31E.\n\nAutomatically closes shutters when the sun shines on the
     front or back of your house, and opens them again once the sun moves away. Uses
     the sun's azimuth (compass direction 0–360°) and compares it to your house orientation.\n\nFeatures:\n-
@@ -18,26 +18,30 @@ blueprint:
     home** (presence-aware). When nobody\n  is home the automation always takes full
     control: manual opens are ignored and\n  the shutter closes when the sun shines
     on the facade.\n  Override resets automatically at sunset so the next day starts
-    fresh,\n  or earlier when the shutter returns to the open position\n\n- \U0001F324️
-    Cloud detection — optional weather integration (supports two entities as\n  cross-check):
-    when it's overcast the shutters stay open (or open automatically\n  if they were
-    closed). When two entities are configured, both must agree before\n  shutters
-    close — prevents false closes caused by a single unreliable source\n\n- ⏱️ Anti-oscillation
-    cooldown — minimum wait time between moves to prevent\n  rapid up/down on partly
-    cloudy days\n\n- \U0001F4CD Position awareness — skips the command if shutters
-    are already at the target position\n\n\U0001F310 Finding your house azimuth —
-    Go to https://www.suncalc.org/, find your house and determine which direction
-    your front door faces. The orange line shows the sun direction per time of day,
-    but you need your facade direction (fixed compass bearing). North = 0°, East =
-    90°, South = 180°, West = 270°. The back of the house is calculated automatically
-    (front + 180°).\n\n\U0001F590️ Setting up manual override — Create a Toggle helper
-    per facade side via Settings → Devices & Services → Create Helper → Toggle (input_boolean),
-    e.g. \"Shutter front manual\". Link it below. The automation turns it on when
-    a shutter on that side is manually **closed** (always), or manually **opened while
-    someone is home** (when a presence entity is configured). It turns off at sunset
-    (so the next day starts fresh), or earlier when the shutter returns to the open
-    position. When nobody is home the automation ignores any override and closes on
-    sun position.\n"
+    fresh,\n  or earlier when the shutter returns to the open position\n\n- \U0001F3E0
+    Only when nobody is home — optional toggle to disable all shutter operations\n
+    \ when someone is home; the automation only acts when the house is empty\n\n-
+    \U0001F465 Presence-aware re-evaluation — immediately re-evaluates shutter positions\n
+    \ when the house becomes empty, so the automation takes full control without\n
+    \ waiting for the next sun position update\n\n- \U0001F324️ Cloud detection —
+    optional weather integration (supports two entities as\n  cross-check): when it's
+    overcast the shutters stay open (or open automatically\n  if they were closed).
+    When two entities are configured, both must agree before\n  shutters close — prevents
+    false closes caused by a single unreliable source\n\n- ⏱️ Anti-oscillation cooldown
+    — minimum wait time between moves to prevent\n  rapid up/down on partly cloudy
+    days\n\n- \U0001F4CD Position awareness — skips the command if shutters are already
+    at the target position\n\n\U0001F310 Finding your house azimuth — Go to https://www.suncalc.org/,
+    find your house and determine which direction your front door faces. The orange
+    line shows the sun direction per time of day, but you need your facade direction
+    (fixed compass bearing). North = 0°, East = 90°, South = 180°, West = 270°. The
+    back of the house is calculated automatically (front + 180°).\n\n\U0001F590️ Setting
+    up manual override — Create a Toggle helper per facade side via Settings → Devices
+    & Services → Create Helper → Toggle (input_boolean), e.g. \"Shutter front manual\".
+    Link it below. The automation turns it on when a shutter on that side is manually
+    **closed** (always), or manually **opened while someone is home** (when a presence
+    entity is configured). It turns off at sunset (so the next day starts fresh),
+    or earlier when the shutter returns to the open position. When nobody is home
+    the automation ignores any override and closes on sun position.\n"
   input:
     front_facing_azimuth:
       name: "\U0001F3E0 Front facade direction (azimuth)"
@@ -231,9 +235,9 @@ blueprint:
                 value: sunny_and_partly
               - label: Only when sunny
                 value: sunny_only
+              custom_value: false
               multiple: false
               sort: false
-              custom_value: false
     override_settings:
       name: "\U0001F590️ Manual Override"
       icon: mdi:hand-back-right
@@ -305,6 +309,17 @@ blueprint:
                 - device_tracker
               multiple: false
               reorder: false
+        only_when_nobody_home:
+          name: "\U0001F3E0 Only operate when nobody is home"
+          description: 'When enabled, the automation will only close and open shutters
+            when nobody is home. When someone is home the automation does nothing
+            — the occupants stay in control. Requires at least one person entity configured
+            above.
+
+            '
+          default: false
+          selector:
+            boolean: {}
 variables:
   v_front_facing: !input front_facing_azimuth
   v_sun_window: !input sun_window
@@ -333,6 +348,11 @@ variables:
   v_someone_home: "{{ (v_presence_person_1 != {} and is_state(v_presence_person_1,
     'home')) or\n   (v_presence_person_2 != {} and is_state(v_presence_person_2, 'home'))
     }}\n"
+  v_only_nobody_home: !input only_when_nobody_home
+  v_home_blocks_automation: '{{ v_only_nobody_home | bool and v_someone_home | bool
+    }}
+
+    '
   v_weather_allows_close: "{% macro allows(entity) %}\n  {% set w = states(entity)
     %}\n  {{ v_cloud_mode == 'always' or\n     (v_cloud_mode == 'sunny_and_partly'
     and w in ['sunny', 'partlycloudy']) or\n     (v_cloud_mode == 'sunny_only' and
@@ -415,6 +435,12 @@ trigger:
   entity_id: sun.sun
   to: below_horizon
   id: sun_below_horizon
+- platform: state
+  entity_id: !input presence_person_1
+  id: presence_changed
+- platform: state
+  entity_id: !input presence_person_2
+  id: presence_changed
 action:
 - if:
   - condition: trigger
@@ -479,6 +505,9 @@ action:
     id:
     - sun_position_changed
     - ha_start
+    - presence_changed
+  - condition: template
+    value_template: '{{ not v_home_blocks_automation | bool }}'
   then:
   - if:
     - condition: template

@@ -565,3 +565,4 @@
       presence_person_1: person.annemarie
       presence_person_2: person.remco
       weather_entity_2: weather.met_no_tilburg_home
+      only_when_nobody_home: true
