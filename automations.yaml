@@ -44,7 +44,7 @@
         metadata: {}
         data: {}
         target:
-          entity_id: light.attic_lights
+          entity_id: light.at_attic_lights
   mode: single
 - id: '1763407837707'
   alias: "\U0001F6AA Door - Back Door Lights (Sunset)"
@@ -69,8 +69,8 @@
   - condition: light.is_off
     target:
       entity_id:
-      - light.conservatory_spots
-      - light.garden_lights
+      - light.out_conservatory_spots
+      - light.out_garden_lights
       - light.out_garden_flood_light
     options:
       behavior: any
@@ -81,8 +81,8 @@
       brightness_pct: 100
     target:
       entity_id:
-      - light.garden_lights
-      - light.conservatory_spots
+      - light.out_garden_lights
+      - light.out_conservatory_spots
       - light.out_garden_flood_light
   - delay:
       hours: 0
@@ -95,8 +95,8 @@
       transition: 10
     target:
       entity_id:
-      - light.garden_lights
-      - light.conservatory_spots
+      - light.out_garden_lights
+      - light.out_conservatory_spots
       - light.out_garden_flood_light
   mode: restart
 - id: '1763408109883'
@@ -150,7 +150,7 @@
     data:
       brightness_pct: 100
     target:
-      entity_id: light.shed_lights
+      entity_id: light.out_shed_lights
   - wait_for_trigger:
     - type: not_occupied
       device_id: 6c19ecefbd629a96075f4d30a56f231e
@@ -161,7 +161,7 @@
     metadata: {}
     data: {}
     target:
-      entity_id: light.shed_lights
+      entity_id: light.out_shed_lights
   mode: single
 - id: '1763481280542'
   alias: "\U0001F6B6 Motion - Hallway"
@@ -259,7 +259,7 @@
     input:
       lights_target:
         entity_id:
-        - light.livingroom_spots
+        - light.gf_living_spots
         - light.gf_kitchen_spots
       presence_zone: zone.home
       turn_off_all_lights: true
@@ -378,7 +378,7 @@
       person_entity: person.remco
       lights_target:
         entity_id:
-        - light.livingroom_spots
+        - light.gf_living_spots
         - light.gf_kitchen_spots
 - id: '1766041712731'
   alias: "\U0001F504 Update Notifications"
@@ -490,7 +490,7 @@
     input:
       motion_sensor: binary_sensor.trap_overloop_motion
       target_light:
-        entity_id: light.landing_spots
+        entity_id: light.ff_landing_spots
       turn_off_delay: 0
       brightness_day: 10
 - id: '1766216333616'
