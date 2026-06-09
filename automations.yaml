@@ -566,3 +566,17 @@
       presence_person_2: person.remco
       weather_entity_2: weather.met_no_tilburg_home
       only_when_nobody_home: true
+- id: '1780731977102'
+  alias: "\U0001F4F5 Child WiFi Blocker Elyza"
+  description: ''
+  use_blueprint:
+    path: r3mcos3/child_wifi_blocker.yaml
+    input:
+      child_name: Elyza
+      child_devices:
+      - switch.elyza_blocked
+      active_days:
+      - mon
+      - tue
+      - wed
+      - thu
