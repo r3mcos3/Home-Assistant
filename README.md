@@ -63,7 +63,7 @@ All automations can be found in [`automations.yaml`](automations.yaml). The conf
 - Child WiFi blocking on a schedule (via UniFi Network)
 - And more...
 
-Custom blueprints are available in [`blueprints/automation/r3mcos3/`](blueprints/automation/r3mcos3/).
+Custom blueprints are maintained in a [separate blueprints repository](https://github.com/r3mcos3/blueprints).
 
 ## 📁 Folder Structure
 
