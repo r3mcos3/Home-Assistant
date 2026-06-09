@@ -25,7 +25,6 @@ This configuration runs on **Home Assistant 2026.7.0.dev202606090319** (developm
 - 🤖 **AI-powered automations** with LLMVision
 - 📍 **Location tracking** via Life360
 - 💡 **Zigbee devices** via Zigbee2MQTT
-- 📵 **Child WiFi blocking** via UniFi Network integration
 - 🎨 **Custom themes** for the interface
 - 🔔 **Advanced notifications**
 - 📊 **Web scraping** for external data
@@ -60,7 +59,6 @@ All automations can be found in [`automations.yaml`](automations.yaml). The conf
 - Lighting and climate control
 - Notifications and alerts
 - Device tracking and presence detection
-- Child WiFi blocking on a schedule (via UniFi Network)
 - And more...
 
 Custom blueprints are maintained in a [separate blueprints repository](https://github.com/r3mcos3/blueprints).
