@@ -1,6 +1,6 @@
 # 🏠 Home Assistant Configuration
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.7.0.dev202606030322-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.7.0.dev202606090319-41BDF5.svg?style=flat-square&logo=home-assistant)](https://www.home-assistant.io/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant)
 [![GitHub Stars](https://img.shields.io/github/stars/r3mcos3/Home-Assistant?style=flat-square)](https://github.com/r3mcos3/Home-Assistant/stargazers)
 
@@ -18,13 +18,14 @@ This is my personal Home Assistant configuration. This repository contains all a
 
 ## 🎯 Overview
 
-This configuration runs on **Home Assistant 2026.7.0.dev202606030322** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
+This configuration runs on **Home Assistant 2026.7.0.dev202606090319** (development version) and uses a mix of official integrations and custom components to create a fully automated smart home experience.
 
 ### Key Features
 
 - 🤖 **AI-powered automations** with LLMVision
 - 📍 **Location tracking** via Life360
 - 💡 **Zigbee devices** via Zigbee2MQTT
+- 📵 **Child WiFi blocking** via UniFi Network integration
 - 🎨 **Custom themes** for the interface
 - 🔔 **Advanced notifications**
 - 📊 **Web scraping** for external data
@@ -59,7 +60,10 @@ All automations can be found in [`automations.yaml`](automations.yaml). The conf
 - Lighting and climate control
 - Notifications and alerts
 - Device tracking and presence detection
+- Child WiFi blocking on a schedule (via UniFi Network)
 - And more...
+
+Custom blueprints are available in [`blueprints/automation/r3mcos3/`](blueprints/automation/r3mcos3/).
 
 ## 📁 Folder Structure
 
