@@ -1,4 +1,4 @@
-// Person Tracker Card v1.4.13 - Multilanguage Version
+// Person Tracker Card v1.4.14 - Multilanguage Version
 // Full support for all editor options
 // Languages: Italian (default), English, French, German
 // v1.4.7: Liquid Ink layout (ink) — light mode card with ink blob background, animated dashed ring avatar, ink-wash chips, pair animation; all sensors/geocoded/maps/weather supported
@@ -42,7 +42,7 @@
 // v1.1.2: Activity icon now follows entity's icon attribute with fallback to predefined mapping
 // v1.1.2: Fixed WiFi detection for Android (case-insensitive check for "wifi", "Wi-Fi", etc.)
 
-console.log("Person Tracker Card v1.4.13 Multilanguage loading...");
+console.log("Person Tracker Card v1.4.14 Multilanguage loading...");
 
 const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace") || customElements.get("hui-view")
@@ -335,7 +335,7 @@ class LocalizationHelper {
   }
 }
 
-const CARD_VERSION = '1.4.13';
+const CARD_VERSION = '1.4.14';
 
 class PersonTrackerCard extends LitElement {
   static get properties() {
@@ -474,6 +474,7 @@ class PersonTrackerCard extends LitElement {
       // Layout
       layout: 'classic',
       compact_width: 300,
+      compact_stretch: false,
       // Display
       show_entity_picture: true,
       show_person_name: true,
@@ -2118,7 +2119,8 @@ class PersonTrackerCard extends LitElement {
     const batteryColor = this._getBatteryColor();
 
     // Larghezza configurabile
-    const maxWidth = this.config.compact_width || 300;
+    const compactStretch = this.config.compact_stretch === true;
+    const maxWidth = compactStretch ? null : (this.config.compact_width || 300);
 
     // Icon size configurabile - tutto si scala proporzionalmente
     const iconSize = this.config.compact_icon_size || 16;
@@ -2134,9 +2136,9 @@ class PersonTrackerCard extends LitElement {
 
     return html`
       <style>${this._getPairAnimationStyles('compact')}</style>
-      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: ${cardPadding}px; max-width: ${maxWidth}px;">
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: ${cardPadding}px;${maxWidth ? ` max-width: ${maxWidth}px;` : ' width: 100%; box-sizing: border-box;'}">
         ${this._renderWeatherBg()}
-        <div class="compact-grid">
+        <div class="${compactStretch ? 'compact-grid-stretch' : 'compact-grid'}">
           ${this.config.show_entity_picture && entityPicture ? html`
             <div class="compact-picture clickable" @click=${() => this._handleTapAction()}>
               <img src="${entityPicture}" alt="${personName}" style="width: ${pictureSize}px; height: ${pictureSize}px;${stateStyles.color ? ` border-color: ${stateStyles.color};` : ''}" />
@@ -4684,6 +4686,51 @@ class PersonTrackerCard extends LitElement {
         row-gap: 1px;
       }
 
+      .compact-grid-stretch {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "picture name     icons"
+          "picture location icons";
+        row-gap: 1px;
+        width: 100%;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .compact-grid-stretch .compact-picture {
+        grid-area: picture;
+        justify-self: start;
+        align-self: center;
+        margin-right: 8px;
+      }
+
+      .compact-grid-stretch .compact-name {
+        grid-area: name;
+        justify-self: start;
+        align-self: end;
+      }
+
+      .compact-grid-stretch .compact-location {
+        grid-area: location;
+        justify-self: start;
+        align-self: start;
+      }
+
+      .compact-grid-stretch .compact-icons {
+        grid-area: icons;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 4px;
+        padding-top: 0;
+        border-top: none;
+        margin-top: 0;
+      }
+
       .compact-picture {
         grid-area: picture;
         justify-self: start;
@@ -4984,7 +5031,7 @@ class PersonTrackerCard extends LitElement {
 
       /* Content layers stay above the weather background */
       .card-container { z-index: 1; }
-      .compact-grid { position: relative; z-index: 1; }
+      .compact-grid, .compact-grid-stretch { position: relative; z-index: 1; }
       .modern-container { position: relative; z-index: 1; }
 
       .weather-bg {
@@ -6275,7 +6322,7 @@ class PersonTrackerCard extends LitElement {
 if (!customElements.get('person-tracker-card')) {
   customElements.define('person-tracker-card', PersonTrackerCard);
   console.info(
-    '%c PERSON-TRACKER-CARD %c v1.4.13 %c!',
+    '%c PERSON-TRACKER-CARD %c v1.4.14 %c!',
     'background-color: #7DDA9F; color: black; font-weight: bold;',
     'background-color: #93ADCB; color: white; font-weight: bold;',
     'background-color: #A0D4A0; color: black; font-weight: bold;'
