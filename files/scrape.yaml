@@ -8,13 +8,3 @@
       icon: mdi:fuel
       unique_id: "euro95_poppel"
       value_template: '{{ value | replace (" ", "") | round(2) | float(0) }}'
-- resource: https://www.vanraak.be/nl/professionals/tanken/baarle-hertog
-  verify_ssl: false
-  scan_interval: 86400
-  sensor:
-    - name: Euro95 Baarle-Hertog
-      select: body > section.tankstation > div > div.row > div.col-md-9 > div > table > tbody > tr > td:nth-child(1) > span.text-bold
-      unit_of_measurement: "€"
-      icon: mdi:fuel
-      unique_id: "euro95_baarle_hertog"
-      value_template: '{{ value | replace (" ", "") | round(2) | float(0) }}'
