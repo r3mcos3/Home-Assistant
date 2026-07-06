@@ -580,3 +580,27 @@
       - tue
       - wed
       - thu
+- id: '1783355462897'
+  alias: "\U0001F6AA Entrance - Living/Kitchen Spots on Front Door"
+  description: Turns on living room and kitchen spots when the front door opens
+    and both shutters are closed
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.gf_door_front_contact_contact
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: cover.roller_shutter_front_roller_shutter_front
+    state: closed
+  - condition: state
+    entity_id: cover.roller_shutter_back_roller_shutter_back
+    state: closed
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.gf_living_spots
+      - light.gf_kitchen_spots
+  mode: single
