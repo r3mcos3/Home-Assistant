@@ -16,6 +16,16 @@ homeassistant:
   allowlist_external_dirs:
     - "/config"
 
+lovelace:
+  dashboards:
+    home-dashboard:
+      mode: yaml
+      filename: dashboards/home.yaml
+      title: Home
+      icon: mdi:home-assistant
+      show_in_sidebar: true
+      require_admin: false
+
 mqtt:
   sensor:
     - name: Server Battery
