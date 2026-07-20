@@ -376,7 +376,7 @@
   use_blueprint:
     path: r3mcos3/alarm_light.yaml
     input:
-      alarm_sensor: sensor.pixel_8_pro_next_alarm
+      alarm_sensor: sensor.oneplus_15_next_alarm
       person_entity: person.remco
       lights_target:
         entity_id:
@@ -433,7 +433,7 @@
       reminder_hours: '12'
       notification_platform: mobile_app
       mobile_app_device:
-      - 96dc4e1932960b1645890d2c1bb80479
+      - d982ce28d6172637af6020eced07265c
       send_to_ha: false
 - id: '1766136783624'
   alias: "\U0001F4F1 Telegram Update Notifications"
