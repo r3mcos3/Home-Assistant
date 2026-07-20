@@ -217,19 +217,21 @@
         id:
         - 'on'
       sequence:
-      - type: turn_on
-        device_id: f27a3b4a270070d93ddc9099ec4d3d7d
-        entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
-        domain: switch
+      - action: switch.turn_on
+        metadata: {}
+        target:
+          entity_id: switch.garden_outlet_garden_outlet_relay
+        data: {}
     - conditions:
       - condition: trigger
         id:
         - 'off'
       sequence:
-      - type: turn_off
-        device_id: f27a3b4a270070d93ddc9099ec4d3d7d
-        entity_id: d8b0d384dc078ef6f30bb58f918ba1b2
-        domain: switch
+      - action: switch.turn_off
+        metadata: {}
+        target:
+          entity_id: switch.garden_outlet_garden_outlet_relay
+        data: {}
   mode: single
 - id: '1764699483229'
   alias: "\U0001F464 Presence - Turn Off All Lights Santi  (Away)"
