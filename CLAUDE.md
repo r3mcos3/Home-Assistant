@@ -95,6 +95,18 @@ Automations follow two patterns:
 - 🔊 **Media** - For media/audio related automations
   - Example: `🔊 Media - Volume Control`
 
+- 🔋 **Battery** - For battery/power management automations
+  - Example: `🔋 Battery - Accu Saver - Server`
+
+- 🛎️ **Doorbell** - For doorbell-specific automations
+  - Example: `🛎️ Doorbell - Chime`
+
+- 🌡️ **Climate** - For heating/cooling/climate control automations
+  - Example: `🌡️ Climate - Smart Heating Controller`
+
+- 📵 **Network** - For WiFi/network/parental-control automations
+  - Example: `📵 Network - Child WiFi Blocker (Elyza)`
+
 **When creating or modifying automations, always apply the appropriate emoji prefix to the alias.**
 
 ## Home Assistant Commands

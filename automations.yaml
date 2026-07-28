@@ -328,7 +328,7 @@
       zone_5: zone.berenrodelaan
       zone_5_enabled: true
 - id: '1765905653209'
-  alias: "\U0001F508 Media - Volume Control"
+  alias: "\U0001F50A Media - Volume Control"
   description: ''
   use_blueprint:
     path: r3mcos3/volumecontrol.yaml
@@ -383,7 +383,7 @@
         - light.gf_living_spots
         - light.gf_kitchen_spots
 - id: '1766041712731'
-  alias: "\U0001F504 Update Notifications"
+  alias: "\U0001F514 Notify - Update Notifications"
   description: ''
   use_blueprint:
     path: r3mcos3/update_notifications.yaml
@@ -436,7 +436,7 @@
       - d982ce28d6172637af6020eced07265c
       send_to_ha: false
 - id: '1766136783624'
-  alias: "\U0001F4F1 Telegram Update Notifications"
+  alias: "\U0001F514 Notify - Telegram Update Notifications"
   description: ''
   use_blueprint:
     path: r3mcos3/telegram_update_notifications.yaml
@@ -485,7 +485,7 @@
       send_to_ha: false
       take_backup: false
 - id: '1766212614823'
-  alias: ☀️ Sun-aware Motion Landing Light
+  alias: 🚶 Motion - Sun-aware Landing Light
   description: ''
   use_blueprint:
     path: r3mcos3/sun_aware_motion_light.yaml
@@ -496,7 +496,7 @@
       turn_off_delay: 0
       brightness_day: 10
 - id: '1766216333616'
-  alias: ☀️ Sun Notifications
+  alias: "\U0001F514 Notify - Sun Notifications (Sunset)"
   description: ''
   use_blueprint:
     path: r3mcos3/sun_notifications.yaml
@@ -504,7 +504,7 @@
       notification_target: 01KCRE8DZCPF9BTMZKH4DTEHFN
       sunset_message: "De zon gaat onder \U0001F319"
 - id: '1766498469432'
-  alias: "\U0001F4F8 Camera Snapshot on Motion to Telegram \U0001F916"
+  alias: "\U0001F6B6 Motion - Camera Snapshot to Telegram (Garden)"
   description: ''
   use_blueprint:
     path: r3mcos3/camera_motion_snapshot.yaml
@@ -522,7 +522,7 @@
       person_entity: person.remco
       person_entity_2: person.annemarie
 - id: '1766660076205'
-  alias: "\U0001F6E1️ Persistent Motion Toilet Light"
+  alias: "\U0001F6B6 Motion - Persistent Toilet Light"
   description: ''
   use_blueprint:
     path: r3mcos3/persistent_motion_light.yaml
@@ -531,7 +531,7 @@
       light_entity: light.gf_toilet_light
       no_motion_wait: 300
 - id: '1766903216493'
-  alias: "\U0001F50B Accu Saver - Battery Health Manager - Server"
+  alias: "\U0001F50B Battery - Accu Saver - Server"
   description: ''
   use_blueprint:
     path: r3mcos3/accu_saver.yaml
@@ -541,7 +541,7 @@
       lower_threshold: 25
       check_interval: 5
 - id: '1767970603313'
-  alias: "\U0001F50B Accu Saver - Battery Health Manager - Asus"
+  alias: "\U0001F50B Battery - Accu Saver - Asus"
   description: ''
   use_blueprint:
     path: r3mcos3/accu_saver.yaml
@@ -550,7 +550,7 @@
       smart_plug: switch.asus_laptop_switch
       lower_threshold: 30
 - id: '1780125206836'
-  alias: ☀️ Sun-aware Shutter Control
+  alias: "\U000023F0 Schedule - Sun-aware Shutter Control"
   description: ''
   use_blueprint:
     path: r3mcos3/sun_shutter_control.yaml
@@ -570,7 +570,7 @@
       only_when_nobody_home: true
       sun_window: 60
 - id: '1780731977102'
-  alias: "\U0001F4F5 Child WiFi Blocker Elyza"
+  alias: "\U0001F4F5 Network - Child WiFi Blocker (Elyza)"
   description: ''
   use_blueprint:
     path: r3mcos3/child_wifi_blocker.yaml
