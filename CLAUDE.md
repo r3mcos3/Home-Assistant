@@ -186,6 +186,12 @@ Format: `{floor}_{room}_{season}_{item}`
 
 **When adding new devices, always follow this naming schema for consistency.**
 
+## Version Bumps
+
+**IMPORTANT**: When `.HA_VERSION` is updated, `README.md` MUST be updated in the same commit at 2 places:
+- The Home Assistant badge (top of file)
+- The version mentioned in the Overview section text
+
 ## Important Configuration Details
 
 - **Secrets**: Stored in `secrets.yaml` - never commit sensitive data
