@@ -11,8 +11,6 @@ esphome:
   friendly_name: ${friendly_name}
 
 api:
-  encryption:
-    key: !secret home_assistant_voice_092610_api_key
 
 wifi:
   ssid: !secret wifi_ssid
