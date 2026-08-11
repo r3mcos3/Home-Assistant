@@ -395,7 +395,6 @@
       - update.zigbee_core_firmware
       - update.home_assistant_skyconnect_5442f4dd_firmware
       - update.zigbee_zigbee_firmware
-      - update.home_assistant_voice_092610
       - update.uap_ac_lite
       - update.uk_ultra
       - update.usw_flex_mini_zolder
@@ -427,7 +426,6 @@
       - update.roller_shutter_front_firmware
       - update.slimmelezer_firmware
       - update.out_garden_multi_sensor_firmware
-      - update.esphome_enhanced_dashboard_update
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       take_backup: false
       reminder_hours: '12'
@@ -449,7 +447,6 @@
       - update.zigbee_core_firmware
       - update.home_assistant_skyconnect_5442f4dd_firmware
       - update.zigbee_zigbee_firmware
-      - update.home_assistant_voice_092610
       - update.uap_ac_lite
       - update.uk_ultra
       - update.advanced_ssh_web_terminal_update
@@ -480,12 +477,11 @@
       - update.slimmelezer_firmware
       - update.roller_shutter_front_firmware
       - update.roller_shutter_back_firmware
-      - update.esphome_enhanced_dashboard_update
       reminder_hours: '6'
       send_to_ha: false
       take_backup: false
 - id: '1766212614823'
-  alias: 🚶 Motion - Sun-aware Landing Light
+  alias: "\U0001F6B6 Motion - Sun-aware Landing Light"
   description: ''
   use_blueprint:
     path: r3mcos3/sun_aware_motion_light.yaml
@@ -550,7 +546,7 @@
       smart_plug: switch.asus_laptop_switch
       lower_threshold: 30
 - id: '1780125206836'
-  alias: "\U000023F0 Schedule - Sun-aware Shutter Control"
+  alias: ⏰ Schedule - Sun-aware Shutter Control
   description: ''
   use_blueprint:
     path: r3mcos3/sun_shutter_control.yaml
