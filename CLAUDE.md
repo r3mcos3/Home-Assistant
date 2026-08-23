@@ -199,6 +199,10 @@ Format: `{floor}_{room}_{season}_{item}`
 - **Database**: SQLite database `home-assistant_v2.db` stores history
 - **Allowed external dirs**: `/config` and `/config/tmp` for file operations
 
+## Claude Code Background Sessions
+
+This repo has no configured git remote — it's a single local checkout with direct commits to `main` (no PR workflow, no pushing). `.claude/settings.json` sets `worktree.bgIsolation: "none"`, so Claude Code background sessions edit/commit directly in the main checkout instead of going through a temporary `EnterWorktree` isolation step for every change. That worktree step is unnecessary friction here and, since there's a stale/dangling `origin` ref left over from before the remote was removed, its default "fresh" base can diverge from the actual local `main` tip.
+
 ## VSCode Configuration
 
 The `.vscode/settings.json` configures:

@@ -92,6 +92,11 @@ appdaemon/compiled/
 !/groups.yaml
 !/scenes.yaml
 !/scripts.yaml
+
+# Claude Code project settings (shared, see CLAUDE.md) - settings.local.json stays ignored
+!/.claude/
+.claude/*
+!/.claude/settings.json
 !/customize.yaml
 !/lovelace/
 !/packages/
