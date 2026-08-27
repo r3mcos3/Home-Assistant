@@ -563,7 +563,7 @@
       presence_person_1: person.annemarie
       presence_person_2: person.remco
       weather_entity_2: weather.met_no_tilburg_home
-      only_when_nobody_home: true
+      only_when_nobody_home: false
       sun_window: 60
 - id: '1780731977102'
   alias: "\U0001F4F5 Network - Child WiFi Blocker (Elyza)"
