@@ -5,7 +5,7 @@ blueprint:
     Optionally, it can use different brightness levels depending on the sun's position.
     Version: 2.2
   domain: automation
-  source_url: https://github.com/r3mconl/blueprints/blob/main/sun_aware_motion_light/sun_aware_motion_light.yaml
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/sun_aware_motion_light/sun_aware_motion_light.yaml
   homeassistant:
     min_version: 2024.6.0
   input:
