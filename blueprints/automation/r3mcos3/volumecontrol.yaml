@@ -1,53 +1,52 @@
-# Version: 1.0
 blueprint:
   domain: automation
-  name: 🔈 Volume Control!
+  name: "\U0001F508 Volume Control!"
   author: r3mcos3
   source_url: https://github.com/r3mcos3/blueprints/blob/main/volumecontrol/volumecontrol.yaml
   homeassistant:
     min_version: 2025.12.0
-  description: >
-    Blueprint to automate all your speakers 🔈
-
-
-    📦 Version: 1.0
-
+  description: "\U0001F4E6 [Version 1.0] Blueprint to automate all your speakers \U0001F508\n"
   input:
     media:
-      name: 📻 Media Players
-      description: >
-        `Speakers`
+      name: "\U0001F4FB Media Players"
+      description: '`Speakers`
 
 
         Speakers to use.
+
+        '
       default: []
       selector:
         target:
           entity:
-            - domain:
-                - media_player
+          - domain:
+            - media_player
     scheduler:
-      name: 🗓️ Scheduler
-      description: >
-        `Scheduler`
+      name: "\U0001F5D3️ Scheduler"
+      description: '`Scheduler`
 
 
         for more information about schedulers click [here](https://www.home-assistant.io/integrations/schedule/)
 
         to make your scheduler click [here](https://my.home-assistant.io/redirect/helpers/).
+
+        '
       default: []
       selector:
         entity:
           filter:
-            - domain:
-                - schedule
+          - domain:
+            - schedule
+          multiple: false
+          reorder: false
     volume_up:
-      name: 🔊 Volume Up Level
-      description: >
-        `Volume High Setting`
+      name: "\U0001F50A Volume Up Level"
+      description: '`Volume High Setting`
 
 
         The volume goes to this level when the scheduler goes to on
+
+        '
       default: 0.6
       selector:
         number:
@@ -56,12 +55,13 @@ blueprint:
           step: 0.1
           mode: slider
     volume_down:
-      name: 🔈 Volume Down Level
-      description: >
-        `Volume Low Setting`
+      name: "\U0001F508 Volume Down Level"
+      description: '`Volume Low Setting`
 
 
         The volume goes to this level when the scheduler goes to off
+
+        '
       default: 0.2
       selector:
         number:
@@ -70,47 +70,47 @@ blueprint:
           step: 0.1
           mode: slider
     custom_action:
-      name: 🎬 Custom Action
-      description: >
-        `Custom Action` `Optional`
+      name: "\U0001F3AC Custom Action"
+      description: '`Custom Action` `Optional`
 
 
-        This custom action gets executed if scheduler get to 'on' or 'off'
+        This custom action gets executed if scheduler get to ''on'' or ''off''
+
+        '
       default:
       selector:
-        action:
+        action: {}
 mode: single
-
 trigger:
-  - platform: state
-    entity_id: !input scheduler
-    to: "on"
-    id: aan
-  - platform: state
-    entity_id: !input scheduler
-    to: "off"
-    id: uit
+- platform: state
+  entity_id: !input scheduler
+  to: 'on'
+  id: aan
+- platform: state
+  entity_id: !input scheduler
+  to: 'off'
+  id: uit
 action:
-  - choose:
-      - conditions:
-          - condition: trigger
-            id:
-              - aan
-        sequence:
-          - service: media_player.volume_set
-            target: !input media
-            data:
-              volume_level: !input volume_up
-      - conditions:
-          - condition: trigger
-            id:
-              - uit
-        sequence:
-          - service: media_player.volume_set
-            target: !input media
-            data:
-              volume_level: !input volume_down
-  - if:
-      - condition: template
-        value_template: "{{ input_custom_action != none }}"
-    then: !input custom_action
+- choose:
+  - conditions:
+    - condition: trigger
+      id:
+      - aan
+    sequence:
+    - service: media_player.volume_set
+      target: !input media
+      data:
+        volume_level: !input volume_up
+  - conditions:
+    - condition: trigger
+      id:
+      - uit
+    sequence:
+    - service: media_player.volume_set
+      target: !input media
+      data:
+        volume_level: !input volume_down
+- if:
+  - condition: template
+    value_template: '{{ input_custom_action != none }}'
+  then: !input custom_action

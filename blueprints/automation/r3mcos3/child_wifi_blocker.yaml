@@ -35,8 +35,8 @@ blueprint:
           default: Child
           selector:
             text:
-              multiple: false
               multiline: false
+              multiple: false
         child_devices:
           name: "\U0001F4F1 Devices to block"
           description: 'Select the UniFi switch entity for each device this child
@@ -108,8 +108,8 @@ blueprint:
                 value: sat
               - label: Sunday
                 value: sun
-              sort: false
               custom_value: false
+              sort: false
     options_section:
       name: ⚙️ Options
       icon: mdi:cog-outline
@@ -146,8 +146,8 @@ blueprint:
                 - group
               - domain:
                 - binary_sensor
-              reorder: false
               multiple: false
+              reorder: false
         blueprint_enabled:
           name: ✅ Enable this automation
           description: 'Toggle off to temporarily pause all WiFi blocking for this

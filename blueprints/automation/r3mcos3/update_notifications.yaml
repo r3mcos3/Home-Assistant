@@ -78,9 +78,9 @@ blueprint:
                 value: '12'
               - label: Every 24 hours
                 value: '24'
-              sort: false
-              custom_value: false
               multiple: false
+              custom_value: false
+              sort: false
         only_after:
           name: "\U0001F305 Only After"
           description: Only send notifications after this time.

@@ -220,8 +220,8 @@ blueprint:
               filter:
               - domain:
                 - weather
-              reorder: false
               multiple: false
+              reorder: false
         weather_entity_2:
           name: "\U0001F325️ Second weather entity (optional)"
           description: 'Optional second weather source as a cross-check. When both
@@ -237,8 +237,8 @@ blueprint:
               filter:
               - domain:
                 - weather
-              reorder: false
               multiple: false
+              reorder: false
         close_on_cloudy:
           name: ☁️ When to close based on weather
           description: 'Controls which weather conditions allow shutters to close.
@@ -255,9 +255,9 @@ blueprint:
                 value: sunny_and_partly
               - label: Only when sunny
                 value: sunny_only
-              sort: false
-              custom_value: false
               multiple: false
+              custom_value: false
+              sort: false
     override_settings:
       name: "\U0001F590️ Manual Override"
       icon: mdi:hand-back-right
@@ -279,8 +279,8 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              reorder: false
               multiple: false
+              reorder: false
         back_override_helper:
           name: "\U0001F590️ Override helper back (optional)"
           description: 'Link an input_boolean (toggle) helper for the back facade
@@ -293,8 +293,8 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              reorder: false
               multiple: false
+              reorder: false
         presence_person_1:
           name: "\U0001F464 Person 1 (optional)"
           description: 'First household member. When this person is home, manual opens
@@ -311,8 +311,8 @@ blueprint:
                 - person
               - domain:
                 - device_tracker
-              reorder: false
               multiple: false
+              reorder: false
         presence_person_2:
           name: "\U0001F464 Person 2 (optional)"
           description: 'Second household member (e.g. partner). Works the same as
@@ -327,8 +327,8 @@ blueprint:
                 - person
               - domain:
                 - device_tracker
-              reorder: false
               multiple: false
+              reorder: false
         only_when_nobody_home:
           name: "\U0001F3E0 Only operate when nobody is home"
           description: 'When enabled, the automation will only close and open shutters
@@ -407,8 +407,8 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              reorder: false
               multiple: false
+              reorder: false
         back_stuck_helper:
           name: "\U0001F9CA Stuck helper back (optional)"
           description: 'Link an input_boolean (toggle) helper for the back facade
@@ -421,8 +421,8 @@ blueprint:
               filter:
               - domain:
                 - input_boolean
-              reorder: false
               multiple: false
+              reorder: false
     auto_open_settings:
       name: "\U0001F319 Auto-Open Exceptions"
       icon: mdi:weather-night

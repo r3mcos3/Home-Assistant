@@ -1,7 +1,7 @@
 blueprint:
   name: ☀️ Sun Notifications
-  description: "\U0001F305 Get notified at sunrise and sunset via Telegram. Version
-    1.1.2"
+  description: "\U0001F4E6 [Version 1.1.2] Get notified at sunrise and sunset via
+    Telegram. \U0001F305\n"
   domain: automation
   author: r3mcos3
   source_url: https://github.com/r3mcos3/blueprints/blob/main/sun_notifications/sun_notifications.yaml
@@ -33,8 +33,8 @@ blueprint:
       default: De zon komt op ☀️
       selector:
         text:
-          multiple: false
           multiline: false
+          multiple: false
     sunset_enabled:
       name: "\U0001F307 Enable Sunset Notification"
       description: If enabled, sends a notification when the sun sets.
@@ -53,8 +53,8 @@ blueprint:
       default: "De zon gaat onder \U0001F303"
       selector:
         text:
-          multiple: false
           multiline: false
+          multiple: false
 variables:
   sunrise_enabled_var: !input sunrise_enabled
   sunset_enabled_var: !input sunset_enabled

@@ -66,9 +66,9 @@ blueprint:
           - label: 60 minutes before
             value: -01:00:00
           mode: dropdown
+          multiple: false
           custom_value: false
           sort: false
-          multiple: false
     brightness_pct:
       name: ✨ Brightness
       description: The brightness percentage for the lights.
@@ -94,9 +94,9 @@ blueprint:
           - label: Weekends Only (Sat-Sun)
             value: weekends
           mode: dropdown
+          multiple: false
           custom_value: false
           sort: false
-          multiple: false
 mode: single
 max_exceeded: silent
 variables:

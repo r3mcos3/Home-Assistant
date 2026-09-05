@@ -224,8 +224,8 @@ blueprint:
           default: ''
           selector:
             text:
-              multiple: false
               multiline: false
+              multiple: false
     snapshot_settings:
       name: "\U0001F4F8 Snapshot Settings"
       icon: mdi:camera
@@ -244,8 +244,8 @@ blueprint:
           default: /config/www/parking_spot.jpg
           selector:
             text:
-              multiple: false
               multiline: false
+              multiple: false
 mode: single
 trigger_variables:
   _zone_2_enabled: !input zone_2_enabled
