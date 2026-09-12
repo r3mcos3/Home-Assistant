@@ -1,6 +1,9 @@
-// Person Tracker Card v1.4.14 - Multilanguage Version
+// Person Tracker Card v1.4.16 - Multilanguage Version
 // Full support for all editor options
 // Languages: Italian (default), English, French, German
+// v1.4.16: home_icon_entity option for ink layout — read home state icon dynamically from a HA entity state
+// v1.4.15: home_icon config option for ink layout — customize the location icon shown when at home; supports any MDI icon or "auto" to use the detected device icon (phone/tablet/laptop)
+//          Polish (pl) language support added to card and editor (PR #43 by @zalexandr)
 // v1.4.7: Liquid Ink layout (ink) — light mode card with ink blob background, animated dashed ring avatar, ink-wash chips, pair animation; all sensors/geocoded/maps/weather supported
 // v1.4.6: Maps integration — maps_provider config (google/apple/osm) opens GPS location on zone/address click; show_geocoded_location enabled by default; editor dropdown fix (value="none" sentinel, label+fixedMenuPosition); geocoded switch check !== false; GPS coords from person.attributes
 // v1.4.5: Orbital layout (orbital) — 3D spinning photo coin, three tilted orbital rings, orbiting
@@ -42,7 +45,7 @@
 // v1.1.2: Activity icon now follows entity's icon attribute with fallback to predefined mapping
 // v1.1.2: Fixed WiFi detection for Android (case-insensitive check for "wifi", "Wi-Fi", etc.)
 
-console.log("Person Tracker Card v1.4.14 Multilanguage loading...");
+console.log("Person Tracker Card v1.4.16 Multilanguage loading...");
 
 const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace") || customElements.get("hui-view")
@@ -76,7 +79,9 @@ class LocalizationHelper {
       'de-DE': 'de',
       'nl': 'nl',
       'nl-NL': 'nl',
-      'nl-BE': 'nl'
+      'nl-BE': 'nl',
+      'pl': 'pl',
+      'pl-PL': 'pl'
     };
 
     this.currentLanguage = languageMap[haLanguage] || 'en';
@@ -269,6 +274,52 @@ class LocalizationHelper {
         'wx.humidity': 'Luftfeuchte', 'wx.network': 'Netzwerk', 'wx.activity': 'Aktivität',
         'wx.pressure': 'Druck', 'wx.feels': 'Gefühlt', 'wx.device2': 'Gerät 2',
       },
+      'pl': {
+        'common.person_tracker': 'Lokalizator osób',
+        'common.unknown': 'Nieznany',
+        'common.home': 'W domu',
+        'common.away': 'Poza domem',
+        'common.not_home': 'Nieobecny',
+        'attributes.battery': 'Bateria',
+        'attributes.speed': 'Prędkość',
+        'attributes.direction': 'Kierunek',
+        'attributes.accuracy': 'Dokładność',
+        'attributes.gps_accuracy': 'Dokładność GPS',
+        'attributes.altitude': 'Wysokość',
+        'attributes.source': 'Źródło',
+        'attributes.last_changed': 'Ostatnia zmiana',
+        'attributes.distance': 'Odległość',
+        'units.km': 'km',
+        'units.m': 'm',
+        'units.km_h': 'km/h',
+        'units.percent': '%',
+        'time.just_now': 'Przed chwilą',
+        'time.minute': 'minuta',
+        'time.minutes': 'minut',
+        'time.hour': 'godzina',
+        'time.hours': 'godzin',
+        'time.day': 'dzień',
+        'time.days': 'dni',
+        'time.ago': 'temu',
+        'weather.sunny': 'Słonecznie',
+        'weather.clear-night': 'Bezchmurna noc',
+        'weather.cloudy': 'Pochmurno',
+        'weather.partlycloudy': 'Częściowe zachmurzenie',
+        'weather.fog': 'Mgła',
+        'weather.hail': 'Grad',
+        'weather.lightning': 'Wyładowania',
+        'weather.lightning-rainy': 'Burza',
+        'weather.pouring': 'Ulewa',
+        'weather.rainy': 'Deszczowo',
+        'weather.snowy': 'Śnieg',
+        'weather.snowy-rainy': 'Deszcz ze śniegiem',
+        'weather.windy': 'Wietrznie',
+        'weather.windy-variant': 'Bardzo wietrznie',
+        'weather.exceptional': 'Wyjątkowa pogoda',
+        'wx.battery': 'Bateria', 'wx.watch': 'Zegarek', 'wx.wind': 'Wiatr',
+        'wx.humidity': 'Wilgotność', 'wx.network': 'Sieć', 'wx.activity': 'Aktywność',
+        'wx.pressure': 'Ciśn.', 'wx.feels': 'Odczuwalna', 'wx.device2': 'Urządz.2',
+      },
       'nl': {
         'common.person_tracker': 'Persoon Tracker',
         'common.unknown': 'Onbekend',
@@ -335,7 +386,7 @@ class LocalizationHelper {
   }
 }
 
-const CARD_VERSION = '1.4.14';
+const CARD_VERSION = '1.4.16';
 
 class PersonTrackerCard extends LitElement {
   static get properties() {
@@ -661,6 +712,7 @@ class PersonTrackerCard extends LitElement {
     }
 
     if (this.config.wifi_ssid_sensor) entities.push(this.config.wifi_ssid_sensor);
+    if (this.config.home_icon_entity) entities.push(this.config.home_icon_entity);
 
     return entities;
   }
@@ -4286,8 +4338,15 @@ class PersonTrackerCard extends LitElement {
     // Zone icon from HA zone entity
     const zoneEntity = entity.state !== 'home' && entity.state !== 'not_home'
       ? (this.hass.states[`zone.${entity.state}`] || null) : null;
+    const homeIconFromEntity = this.config.home_icon_entity
+      ? (this.hass.states[this.config.home_icon_entity]?.state || null)
+      : null;
+    const homeIcon = homeIconFromEntity
+      || (this.config.home_icon === 'auto'
+        ? this._getDeviceIcon(this._resolvedPrefix)
+        : (this.config.home_icon || 'mdi:home'));
     const zoneHaIcon = zoneEntity?.attributes?.icon
-      || (entity.state === 'home' ? 'mdi:home' : entity.state === 'not_home' ? 'mdi:map-marker-off' : 'mdi:map-marker');
+      || (entity.state === 'home' ? homeIcon : entity.state === 'not_home' ? 'mdi:map-marker-off' : 'mdi:map-marker');
 
     const cardBg = this.config.transparent_background ? 'transparent' : '#ffffff';
     const hasWeather = !!(this.config.show_weather && this._weatherState && this.config.show_weather_background !== false);
@@ -6322,7 +6381,7 @@ class PersonTrackerCard extends LitElement {
 if (!customElements.get('person-tracker-card')) {
   customElements.define('person-tracker-card', PersonTrackerCard);
   console.info(
-    '%c PERSON-TRACKER-CARD %c v1.4.14 %c!',
+    '%c PERSON-TRACKER-CARD %c v1.4.16 %c!',
     'background-color: #7DDA9F; color: black; font-weight: bold;',
     'background-color: #93ADCB; color: white; font-weight: bold;',
     'background-color: #A0D4A0; color: black; font-weight: bold;'
