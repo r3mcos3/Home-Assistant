@@ -311,7 +311,7 @@
     path: r3mcos3/ai_parking_counter.yaml
     input:
       person_entity: person.remco
-      zone_1: zone.buurmalsenplein
+      zone_1: zone.berenrodelaan
       zone_2: zone.huibevendreef
       proximity_sensor: sensor.proximity_remco_remco_direction_of_travel
       camera_entity: camera.doorbell_camera_generic
@@ -392,7 +392,6 @@
     path: r3mcos3/update_notifications.yaml
     input:
       update_entities:
-      - update.hacs_update
       - update.13_home
       - update.ac_mesh
       - update.zigbee_core_firmware
@@ -429,6 +428,12 @@
       - update.roller_shutter_front_firmware
       - update.slimmelezer_firmware
       - update.out_garden_multi_sensor_firmware
+      - update.card_mod_update
+      - update.fordconnect_query_for_eu_uk_north_america_update
+      - update.esphome_device_builder_update
+      - update.voetbal_nl_update
+      - update.mushroom_update
+      - update.mushroom_themes_update
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       take_backup: false
       reminder_hours: '12'
@@ -468,7 +473,6 @@
       - update.llm_vision_update
       - update.life360_update
       - update.home_assistant_supervisor_update
-      - update.hacs_update
       - update.home_assistant_core_update
       - update.out_garden_multi_sensor_firmware
       - update.out_garden_gate_sensor_firmware
@@ -480,6 +484,12 @@
       - update.slimmelezer_firmware
       - update.roller_shutter_front_firmware
       - update.roller_shutter_back_firmware
+      - update.card_mod_update
+      - update.fordconnect_query_for_eu_uk_north_america_update
+      - update.mushroom_update
+      - update.mushroom_themes_update
+      - update.esphome_device_builder_update
+      - update.voetbal_nl_update
       reminder_hours: '6'
       send_to_ha: false
       take_backup: false
