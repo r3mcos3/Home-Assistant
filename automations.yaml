@@ -430,7 +430,6 @@
       - update.card_mod_update
       - update.fordconnect_query_for_eu_uk_north_america_update
       - update.esphome_device_builder_update
-      - update.voetbal_nl_update
       - update.mushroom_update
       - update.mushroom_themes_update
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
