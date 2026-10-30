@@ -373,6 +373,7 @@
       door_closed_delay: 10
       use_virtual_window_detection: true
       use_gradual_transitions: true
+      enable_debug_mode: false
 - id: '1765992237695'
   alias: ⏰ Light - Alarm
   description: ''

@@ -1,94 +1,86 @@
-# Version: 1.0.13
 blueprint:
-  name: "💡 Presence - Home/Away Lights"
-  description:
-    "📦 [Version 1.0.13] Turns on specified lights when someone arrives home after sunset, and turns
-    them off when the last person leaves."
+  name: "\U0001F4A1 Presence - Home/Away Lights"
+  description: "\U0001F4E6 [Version 1.1.0] Turns on specified lights when someone
+    arrives home after sunset, and turns them off when the last person leaves."
   domain: automation
   source_url: https://github.com/r3mcos3/blueprints/blob/main/presence_lights/presence_lights.yaml
   homeassistant:
     min_version: 2025.12.0
-
   input:
     lights_target:
-      name: 💡 Target Lights
+      name: "\U0001F4A1 Target Lights"
       description: The lights to control based on presence.
       selector:
         target:
           entity:
-            domain: light
-
+          - domain:
+            - light
     presence_zone:
-      name: 🏠 Presence Zone
+      name: "\U0001F3E0 Presence Zone"
       description: The zone to monitor for arrivals and departures (e.g., zone.home).
       selector:
         entity:
-          domain: zone
-
+          filter:
+          - domain:
+            - zone
+          multiple: false
+          reorder: false
     arrival_brightness:
-      name: "✨ Arrival Brightness"
+      name: ✨ Arrival Brightness
       description: The brightness percentage for the lights when they turn on.
       default: 33
       selector:
         number:
-          min: 0
-          max: 100
-          unit_of_measurement: "%"
-
+          min: 1.0
+          max: 100.0
+          unit_of_measurement: '%'
+          mode: slider
+          step: 1.0
     turn_off_all_lights:
-      name: "🔌 Turn off all lights on departure"
-      description: "If enabled, all lights (light.all) will be turned off. If disabled, only the selected target lights will be turned off."
+      name: "\U0001F50C Turn off all lights on departure"
+      description: If enabled, all lights (light.all) will be turned off. If disabled,
+        only the selected target lights will be turned off.
       default: false
       selector:
         boolean: {}
-
 mode: restart
 max_exceeded: silent
-
-trigger:
-  - platform: numeric_state
-    entity_id: !input presence_zone
-    above: 0
-    id: home
-  - platform: numeric_state
-    entity_id: !input presence_zone
-    below: 1
-    id: away
-
-action:
-  - variables:
-      _turn_off_all_lights: !input turn_off_all_lights
-  - choose:
-      # Case 1: Arrived Home
+triggers:
+- trigger: numeric_state
+  entity_id: !input presence_zone
+  above: 0
+  id: home
+- trigger: numeric_state
+  entity_id: !input presence_zone
+  below: 1
+  id: away
+actions:
+- variables:
+    _turn_off_all_lights: !input turn_off_all_lights
+- choose:
+  - conditions:
+    - condition: trigger
+      id: home
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    sequence:
+    - action: light.turn_on
+      target: !input lights_target
+      data:
+        brightness_pct: !input arrival_brightness
+  - conditions:
+    - condition: trigger
+      id: away
+    sequence:
+    - choose:
       - conditions:
-          - condition: trigger
-            id: home
-          - condition: state
-            entity_id: sun.sun
-            state: "below_horizon"
+        - condition: template
+          value_template: '{{ _turn_off_all_lights | bool }}'
         sequence:
-          - service: light.turn_on
-            target: !input lights_target
-            data:
-              brightness_pct: !input arrival_brightness
-
-      # Case 2: Left Home
-      - conditions:
-          - condition: trigger
-            id: away
-        sequence:
-          - choose:
-              # If the 'turn_off_all_lights' switch is ON
-              - conditions:
-                  - condition: template
-                    value_template: "{{ _turn_off_all_lights | bool }}"
-                sequence:
-                  - service: light.turn_off
-                    data: {}
-                    target:
-                      entity_id: all
-            # If the 'turn_off_all_lights' switch is OFF (default)
-            default:
-              - service: light.turn_off
-                target: !input lights_target
-                data: {}
+        - action: light.turn_off
+          target:
+            entity_id: all
+      default:
+      - action: light.turn_off
+        target: !input lights_target

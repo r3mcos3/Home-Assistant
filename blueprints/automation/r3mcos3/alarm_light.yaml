@@ -1,6 +1,6 @@
 blueprint:
   name: ⏰ Alarm Light
-  description: "\U0001F4E6 [Version 1.0.0] Turn on lights before your alarm goes off
+  description: "\U0001F4E6 [Version 1.1.0] Turn on lights before your alarm goes off
     for a gentle wake-up! Only triggers when you're home and it's dark outside. Perfect
     for gradual morning lighting. \U0001F305\n"
   domain: automation
@@ -32,8 +32,9 @@ blueprint:
         '
       selector:
         entity:
-          domain:
-          - person
+          filter:
+          - domain:
+            - person
           multiple: false
           reorder: false
     lights_target:
@@ -75,11 +76,34 @@ blueprint:
       default: 33
       selector:
         number:
-          min: 0.0
+          min: 1.0
           max: 100.0
           step: 1.0
           unit_of_measurement: '%'
           mode: slider
+    transition_seconds:
+      name: "\U0001F305 Fade-in Duration"
+      description: 'Let the lights fade in over this many seconds for a gradual wake-up.
+        0 = switch on immediately. Not every light supports transitions.
+
+        '
+      default: 0
+      selector:
+        number:
+          min: 0.0
+          max: 900.0
+          step: 30.0
+          unit_of_measurement: seconds
+          mode: slider
+    only_when_dark:
+      name: "\U0001F319 Only When Dark"
+      description: 'Only turn on the lights when the sun is below the horizon. Disable
+        to also wake up with light on bright summer mornings.
+
+        '
+      default: true
+      selector:
+        boolean: {}
     weekday_selection:
       name: "\U0001F4C5 Active Days"
       description: Choose which days this automation should run.
@@ -101,25 +125,28 @@ mode: single
 max_exceeded: silent
 variables:
   weekday_choice: !input weekday_selection
-trigger:
+  alarm_sensor_id: !input alarm_sensor
+  dark_only: !input only_when_dark
+triggers:
 - trigger: time
   at:
     entity_id: !input alarm_sensor
     offset: !input offset_before_alarm
-condition:
+conditions:
 - condition: state
   entity_id: !input person_entity
   state: home
-- condition: state
-  entity_id: sun.sun
-  state: below_horizon
 - condition: template
-  value_template: "{% set today = now().weekday() %} {% if weekday_choice == 'all'
-    %}\n  true\n{% elif weekday_choice == 'weekdays' %}\n  {{ today < 5 }}\n{% elif
-    weekday_choice == 'weekends' %}\n  {{ today >= 5 }}\n{% else %}\n  true\n{% endif
-    %}\n"
-action:
+  value_template: '{{ not dark_only or is_state(''sun.sun'', ''below_horizon'') }}'
+- condition: template
+  value_template: "{% set alarm = as_datetime(states(alarm_sensor_id), none) %} {%
+    set today = as_local(alarm).weekday() if alarm else now().weekday() %} {% if weekday_choice
+    == 'all' %}\n  true\n{% elif weekday_choice == 'weekdays' %}\n  {{ today < 5 }}\n{%
+    elif weekday_choice == 'weekends' %}\n  {{ today >= 5 }}\n{% else %}\n  true\n{%
+    endif %}\n"
+actions:
 - action: light.turn_on
   target: !input lights_target
   data:
     brightness_pct: !input brightness_pct
+    transition: !input transition_seconds

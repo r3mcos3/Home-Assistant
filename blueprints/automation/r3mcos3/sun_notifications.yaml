@@ -1,6 +1,6 @@
 blueprint:
   name: ☀️ Sun Notifications
-  description: "\U0001F4E6 [Version 1.1.2] Get notified at sunrise and sunset via
+  description: "\U0001F4E6 [Version 1.2.0] Get notified at sunrise and sunset via
     Telegram. \U0001F305\n"
   domain: automation
   author: r3mcos3
@@ -22,11 +22,46 @@ blueprint:
         boolean: {}
     sunrise_offset:
       name: ⏰ Sunrise Offset
-      description: Offset from the sunrise event (e.g., '-00:30:00' for 30 minutes
-        before).
+      description: Offset from the sunrise event. Pick a preset or type your own as
+        HH:MM:SS, with a leading '-' for before (e.g. '-00:20:00').
       default: 00:00:00
       selector:
-        time: {}
+        select:
+          custom_value: true
+          mode: dropdown
+          options:
+          - label: 2 hours before
+            value: -02:00:00
+          - label: 1 hour before
+            value: -01:00:00
+          - label: 45 minutes before
+            value: -00:45:00
+          - label: 30 minutes before
+            value: -00:30:00
+          - label: 15 minutes before
+            value: -00:15:00
+          - label: 10 minutes before
+            value: -00:10:00
+          - label: 5 minutes before
+            value: -00:05:00
+          - label: Exactly at the moment
+            value: 00:00:00
+          - label: 5 minutes after
+            value: 00:05:00
+          - label: 10 minutes after
+            value: 00:10:00
+          - label: 15 minutes after
+            value: 00:15:00
+          - label: 30 minutes after
+            value: 00:30:00
+          - label: 45 minutes after
+            value: 00:45:00
+          - label: 1 hour after
+            value: 01:00:00
+          - label: 2 hours after
+            value: 02:00:00
+          multiple: false
+          sort: false
     sunrise_message:
       name: "\U0001F4AC Sunrise Message"
       description: The message to send at sunrise. Templates are supported.
@@ -43,10 +78,46 @@ blueprint:
         boolean: {}
     sunset_offset:
       name: ⏰ Sunset Offset
-      description: Offset from the sunset event (e.g., '00:15:00' for 15 minutes after).
+      description: Offset from the sunset event. Pick a preset or type your own as
+        HH:MM:SS, with a leading '-' for before (e.g. '-00:20:00').
       default: 00:00:00
       selector:
-        time: {}
+        select:
+          custom_value: true
+          mode: dropdown
+          options:
+          - label: 2 hours before
+            value: -02:00:00
+          - label: 1 hour before
+            value: -01:00:00
+          - label: 45 minutes before
+            value: -00:45:00
+          - label: 30 minutes before
+            value: -00:30:00
+          - label: 15 minutes before
+            value: -00:15:00
+          - label: 10 minutes before
+            value: -00:10:00
+          - label: 5 minutes before
+            value: -00:05:00
+          - label: Exactly at the moment
+            value: 00:00:00
+          - label: 5 minutes after
+            value: 00:05:00
+          - label: 10 minutes after
+            value: 00:10:00
+          - label: 15 minutes after
+            value: 00:15:00
+          - label: 30 minutes after
+            value: 00:30:00
+          - label: 45 minutes after
+            value: 00:45:00
+          - label: 1 hour after
+            value: 01:00:00
+          - label: 2 hours after
+            value: 02:00:00
+          multiple: false
+          sort: false
     sunset_message:
       name: "\U0001F4AC Sunset Message"
       description: The message to send at sunset. Templates are supported.
@@ -55,36 +126,33 @@ blueprint:
         text:
           multiline: false
           multiple: false
-variables:
-  sunrise_enabled_var: !input sunrise_enabled
-  sunset_enabled_var: !input sunset_enabled
-  sunrise_message_var: !input sunrise_message
-  sunset_message_var: !input sunset_message
-trigger:
-- platform: sun
+triggers:
+- trigger: sun
   event: sunrise
   offset: !input sunrise_offset
   id: sunrise_trigger
-- platform: sun
+  enabled: !input sunrise_enabled
+- trigger: sun
   event: sunset
   offset: !input sunset_offset
   id: sunset_trigger
-action:
+  enabled: !input sunset_enabled
+actions:
 - choose:
   - conditions:
-    - condition: template
-      value_template: '{{ trigger.id == ''sunrise_trigger'' and sunrise_enabled_var
-        }}'
+    - condition: trigger
+      id: sunrise_trigger
     sequence:
-    - service: telegram_bot.send_message
+    - action: telegram_bot.send_message
       data:
-        message: '{{ sunrise_message_var }}'
+        config_entry_id: !input notification_target
+        message: !input sunrise_message
   - conditions:
-    - condition: template
-      value_template: '{{ trigger.id == ''sunset_trigger'' and sunset_enabled_var
-        }}'
+    - condition: trigger
+      id: sunset_trigger
     sequence:
-    - service: telegram_bot.send_message
+    - action: telegram_bot.send_message
       data:
-        message: '{{ sunset_message_var }}'
+        config_entry_id: !input notification_target
+        message: !input sunset_message
 mode: single

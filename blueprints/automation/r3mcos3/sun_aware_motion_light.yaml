@@ -1,6 +1,6 @@
 blueprint:
   name: "✨\U0001F4A1 Sun-aware Motion Light Control \U0001F3C3‍♂️☀️"
-  description: "\U0001F4E6 [Version 1.0.1] Smart Light Control for Motion \U0001F3C3‍♂️.
+  description: "\U0001F4E6 [Version 1.1.0] Smart Light Control for Motion \U0001F3C3‍♂️.
     Turns on a light with adjustable brightness when motion is detected. Optionally,
     it can use different brightness levels depending on the sun's position \U0001F305."
   domain: automation
@@ -14,10 +14,11 @@ blueprint:
       description: "The \U0001F3C3‍♂️ motion sensor that detects presence."
       selector:
         entity:
-          domain:
-          - binary_sensor
-          device_class:
-          - motion
+          filter:
+          - domain:
+            - binary_sensor
+            device_class:
+            - motion
           multiple: false
           reorder: false
     target_light:
@@ -35,11 +36,11 @@ blueprint:
       default: 80
       selector:
         number:
-          min: 0.0
+          min: 1.0
           max: 100.0
           unit_of_measurement: '%'
-          step: 1.0
           mode: slider
+          step: 1.0
     sun_aware_settings:
       name: ☀️ Sun-aware Settings
       description: "Configure brightness levels \U0001F313 based on the sun's position
@@ -61,11 +62,11 @@ blueprint:
           default: 100
           selector:
             number:
-              min: 0.0
+              min: 1.0
               max: 100.0
               unit_of_measurement: '%'
-              step: 1.0
               mode: slider
+              step: 1.0
         brightness_night:
           name: "\U0001F319 Brightness (Night)"
           description: "The ✨ brightness percentage for when the sun \U0001F319 is
@@ -73,13 +74,13 @@ blueprint:
           default: 10
           selector:
             number:
-              min: 0.0
+              min: 1.0
               max: 100.0
               unit_of_measurement: '%'
-              step: 1.0
               mode: slider
+              step: 1.0
     turn_off_delay:
-      name: Turn-off delay
+      name: ⏱️ Turn-off delay
       description: The ⏱️ wait time in minutes before the light turns off after no
         motion is detected. Set to 0 for no delay.
       default: 5
@@ -90,13 +91,13 @@ blueprint:
           step: 1.0
           unit_of_measurement: minutes
           mode: slider
-trigger:
-- platform: state
+triggers:
+- trigger: state
   entity_id: !input motion_sensor
   from: 'off'
   to: 'on'
   id: motion_on
-- platform: state
+- trigger: state
   entity_id: !input motion_sensor
   from: 'on'
   to: 'off'
@@ -107,41 +108,25 @@ trigger:
     seconds: 0
 variables:
   sun_aware_enabled: !input sun_aware_enabled
-action:
+  day_brightness: !input brightness_day
+  night_brightness: !input brightness_night
+  fixed_brightness: !input default_brightness
+actions:
 - choose:
   - conditions:
     - condition: trigger
       id: motion_on
     sequence:
-    - choose:
-      - conditions:
-        - condition: template
-          value_template: '{{ sun_aware_enabled }}'
-        sequence:
-        - choose:
-          - conditions:
-            - condition: state
-              entity_id: sun.sun
-              state: above_horizon
-            sequence:
-            - service: light.turn_on
-              target: !input target_light
-              data:
-                brightness_pct: !input brightness_day
-          default:
-          - service: light.turn_on
-            target: !input target_light
-            data:
-              brightness_pct: !input brightness_night
-      default:
-      - service: light.turn_on
-        target: !input target_light
-        data:
-          brightness_pct: !input default_brightness
+    - action: light.turn_on
+      target: !input target_light
+      data:
+        brightness_pct: "{% if not sun_aware_enabled %}\n  {{ fixed_brightness }}\n{%
+          elif is_state('sun.sun', 'above_horizon') %}\n  {{ day_brightness }}\n{%
+          else %}\n  {{ night_brightness }}\n{% endif %}\n"
   - conditions:
     - condition: trigger
       id: motion_off
     sequence:
-    - service: light.turn_off
+    - action: light.turn_off
       target: !input target_light
 mode: restart

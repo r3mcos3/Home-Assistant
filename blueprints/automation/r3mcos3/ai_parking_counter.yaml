@@ -1,6 +1,6 @@
 blueprint:
   name: "\U0001F697 AI - Parking Spot Counter"
-  description: "\U0001F4E6 [Version 2.0.0] Analyzes camera feed with AI to count free
+  description: "\U0001F4E6 [Version 2.1.0] Analyzes camera feed with AI to count free
     and occupied parking spaces upon arrival. Supports 1 required + 4 optional zone
     detection points.\n"
   domain: automation
@@ -13,8 +13,9 @@ blueprint:
       description: The person entity to track for zone arrivals.
       selector:
         entity:
-          domain:
-          - person
+          filter:
+          - domain:
+            - person
           multiple: false
           reorder: false
     zone_1:
@@ -22,8 +23,9 @@ blueprint:
       description: Primary zone to monitor for arrival. This detection point is required.
       selector:
         entity:
-          domain:
-          - zone
+          filter:
+          - domain:
+            - zone
           multiple: false
           reorder: false
     proximity_settings:
@@ -45,8 +47,9 @@ blueprint:
           default: sensor.home_nearest_direction_of_travel
           selector:
             entity:
-              domain:
-              - sensor
+              filter:
+              - domain:
+                - sensor
               multiple: false
               reorder: false
     optional_zones:
@@ -67,8 +70,9 @@ blueprint:
           default: zone.home
           selector:
             entity:
-              domain:
-              - zone
+              filter:
+              - domain:
+                - zone
               multiple: false
               reorder: false
         zone_3_enabled:
@@ -83,8 +87,9 @@ blueprint:
           default: zone.home
           selector:
             entity:
-              domain:
-              - zone
+              filter:
+              - domain:
+                - zone
               multiple: false
               reorder: false
         zone_4_enabled:
@@ -99,8 +104,9 @@ blueprint:
           default: zone.home
           selector:
             entity:
-              domain:
-              - zone
+              filter:
+              - domain:
+                - zone
               multiple: false
               reorder: false
         zone_5_enabled:
@@ -115,8 +121,9 @@ blueprint:
           default: zone.home
           selector:
             entity:
-              domain:
-              - zone
+              filter:
+              - domain:
+                - zone
               multiple: false
               reorder: false
     ai_settings:
@@ -132,8 +139,9 @@ blueprint:
           default: camera.front_door
           selector:
             entity:
-              domain:
-              - camera
+              filter:
+              - domain:
+                - camera
               multiple: false
               reorder: false
         ai_task_entity:
@@ -142,8 +150,9 @@ blueprint:
           default: ai_task.google_ai_task
           selector:
             entity:
-              domain:
-              - ai_task
+              filter:
+              - domain:
+                - ai_task
               multiple: false
               reorder: false
         ai_instructions:
@@ -179,8 +188,9 @@ blueprint:
           default: input_number.free_parking_spots
           selector:
             entity:
-              domain:
-              - input_number
+              filter:
+              - domain:
+                - input_number
               multiple: false
               reorder: false
         occupied_spots_sensor:
@@ -190,10 +200,25 @@ blueprint:
           default: input_number.occupied_parking_spots
           selector:
             entity:
-              domain:
-              - input_number
+              filter:
+              - domain:
+                - input_number
               multiple: false
               reorder: false
+        scan_cooldown:
+          name: ⏱️ Scan Cooldown
+          description: 'Minimum time between two scans. Prevents several AI calls
+            when you pass multiple zones on one trip. Set to 0 to scan on every arrival.
+
+            '
+          default: 10
+          selector:
+            number:
+              min: 0.0
+              max: 120.0
+              step: 5.0
+              unit_of_measurement: minutes
+              mode: slider
     notification_settings:
       name: "\U0001F4F1 Notification Settings"
       icon: mdi:bell
@@ -203,7 +228,7 @@ blueprint:
         telegram_bot:
           name: "\U0001F4F1 Telegram Bot"
           description: Select your Telegram bot. Leave empty to disable notifications.
-          default: {}
+          default: ''
           selector:
             config_entry:
               integration: telegram_bot
@@ -247,6 +272,7 @@ blueprint:
               multiline: false
               multiple: false
 mode: single
+max_exceeded: silent
 trigger_variables:
   _zone_2_enabled: !input zone_2_enabled
   _zone_3_enabled: !input zone_3_enabled
@@ -254,41 +280,47 @@ trigger_variables:
   _zone_5_enabled: !input zone_5_enabled
   _proximity_enabled: !input proximity_sensor_enabled
   _proximity_sensor: !input proximity_sensor
-trigger:
-- platform: zone
+  _scan_cooldown: !input scan_cooldown
+triggers:
+- trigger: zone
   entity_id: !input person_entity
   zone: !input zone_1
   event: enter
   id: zone_1_enter
-- platform: zone
+- trigger: zone
   entity_id: !input person_entity
   zone: !input zone_2
   event: enter
   id: zone_2_enter
   enabled: '{{ _zone_2_enabled }}'
-- platform: zone
+- trigger: zone
   entity_id: !input person_entity
   zone: !input zone_3
   event: enter
   id: zone_3_enter
   enabled: '{{ _zone_3_enabled }}'
-- platform: zone
+- trigger: zone
   entity_id: !input person_entity
   zone: !input zone_4
   event: enter
   id: zone_4_enter
   enabled: '{{ _zone_4_enabled }}'
-- platform: zone
+- trigger: zone
   entity_id: !input person_entity
   zone: !input zone_5
   event: enter
   id: zone_5_enter
   enabled: '{{ _zone_5_enabled }}'
-condition:
+conditions:
 - condition: template
   value_template: '{{ not _proximity_enabled or states(_proximity_sensor) == ''towards''
     }}'
-action:
+- condition: template
+  value_template: '{% set last = this.attributes.last_triggered %} {{ last is none
+    or (now() - last).total_seconds() >= (_scan_cooldown | float(0)) * 60 }}
+
+    '
+actions:
 - variables:
     _camera: !input camera_entity
     _ai_task: !input ai_task_entity
@@ -316,11 +348,16 @@ action:
     instructions: '{{ _final_instructions }}'
     structure:
       vrije_plekken:
+        description: Number of FREE parking spaces (no car parked) out of the total.
+        required: true
         selector:
           number:
             min: 0
             max: !input parking_spaces_total
       bezette_plekken:
+        description: Number of OCCUPIED parking spaces (a car is parked) out of the
+          total.
+        required: true
         selector:
           number:
             min: 0
@@ -340,31 +377,42 @@ action:
         - media_content_type: app
           media_content_id: media-source://camera
   response_variable: parking_result
+- alias: Check AI answer
+  condition: template
+  value_template: "{{ parking_result is mapping\n   and parking_result.data is mapping\n
+    \  and parking_result.data.vrije_plekken is number\n   and parking_result.data.bezette_plekken
+    is number }}\n"
+- variables:
+    _free_spots: '{{ [[parking_result.data.vrije_plekken | int(0), 0] | max, _total_spaces
+      | int(0)] | min }}'
+    _occupied_spots: '{{ [[parking_result.data.bezette_plekken | int(0), 0] | max,
+      _total_spaces | int(0)] | min }}'
 - alias: Update free parking spots
   action: input_number.set_value
   target:
     entity_id: '{{ _free_sensor }}'
   data:
-    value: '{{ parking_result.data.vrije_plekken | int(0) }}'
+    value: '{{ _free_spots }}'
 - alias: Update occupied parking spots
   action: input_number.set_value
   target:
     entity_id: '{{ _occupied_sensor }}'
   data:
-    value: '{{ parking_result.data.bezette_plekken | int(0) }}'
+    value: '{{ _occupied_spots }}'
 - alias: Send Telegram notification
   if:
   - condition: template
-    value_template: '{{ _telegram_bot != none and _telegram_message | trim != ''''
-      }}'
+    value_template: '{{ _telegram_bot is string and _telegram_bot | length > 0 and
+      _telegram_message | trim != '''' }}'
   then:
   - action: telegram_bot.send_message
+    continue_on_error: true
     data:
       config_entry_id: '{{ _telegram_bot }}'
       title: "{% if _telegram_title | trim != '' %}\n  {{ _telegram_title }}\n{% endif
         %}"
-      message: '{{ _telegram_message | replace(''{free_spots}'', states(_free_sensor)
-        | int(0) | string) }}'
+      message: '{{ _telegram_message | replace(''{free_spots}'', _free_spots | string)
+        }}'
 - alias: Save camera snapshot
   if:
   - condition: template

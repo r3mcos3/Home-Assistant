@@ -1,6 +1,6 @@
 blueprint:
   name: "\U0001F504 Update Notifications"
-  description: "\U0001F4E6 [Version 2.6.0] Get notified about Home Assistant updates
+  description: "\U0001F4E6 [Version 2.7.0] Get notified about Home Assistant updates
     via Mobile App! Receive notifications when updates are available for core, addons,
     or integrations. Includes actionable buttons to install or skip updates directly
     from the notification. \U0001F680\n"
@@ -18,8 +18,9 @@ blueprint:
         '
       selector:
         entity:
-          domain:
-          - update
+          filter:
+          - domain:
+            - update
           multiple: true
           reorder: false
     notification_settings:
@@ -34,7 +35,8 @@ blueprint:
           default: []
           selector:
             device:
-              integration: mobile_app
+              filter:
+              - integration: mobile_app
               multiple: true
         send_to_ha:
           name: "\U0001F3E0 Send to HA"
@@ -131,35 +133,37 @@ trigger_variables:
   reminder_hours: '{{ _reminder_hours | default(''None'') }}'
   reminder_hours_float: '{{ 0 if reminder_hours == ''None'' else reminder_hours |
     float(0) }}'
-  reminder_minutes: '{{ (reminder_hours_float * 60) | int(0) }}'
+  reminder_minutes: '{{ (reminder_hours_float * 60) | round(0) | int(0) }}'
   run_config_check: !input run_config_check
   update_entities: !input update_entities
-trigger:
+triggers:
 - id: new
-  platform: state
+  trigger: state
   entity_id: !input update_entities
   to: 'on'
 - id: started
-  platform: state
+  trigger: state
   entity_id: !input update_entities
   attribute: in_progress
   from: false
   to: true
 - id: done
-  platform: state
+  trigger: state
   entity_id: !input update_entities
   from: 'on'
   to: 'off'
 - id: ha_start
-  platform: homeassistant
+  trigger: homeassistant
   event: start
 - id: reminder
-  platform: template
+  trigger: template
+  enabled: '{{ reminder_minutes > 0 }}'
   value_template: "{% set total_minutes = now().hour * 60 + now().minute %} {{ states.update
-    | selectattr('state', 'eq', 'on') | list | count > 0\n  and reminder_minutes >
-    0\n  and total_minutes % reminder_minutes == 0 }}\n"
+    | selectattr('entity_id', 'in', update_entities) | selectattr('state', 'eq', 'on')
+    | list | count > 0\n  and reminder_minutes > 0\n  and total_minutes % reminder_minutes
+    == 0 }}\n"
 - id: core_check
-  platform: template
+  trigger: template
   value_template: "{% set ns = namespace(core=none) %} {% for u in integration_entities('hassio')
     | select('in', update_entities)\n      if (device_attr(u, 'identifiers') | first)[1]
     == 'core' %}\n    {% set ns.core = u %}\n{% endfor %} {% if run_config_check and
@@ -170,7 +174,7 @@ trigger:
     | first | attr('last_changed') }}\n  {% endfor %}\n{% else %}\n  {{ false }}\n{%
     endif %}\n"
 - id: mobile_callback
-  platform: event
+  trigger: event
   event_type: mobile_app_notification_action
 variables:
   mobile_app_device: !input mobile_app_device
@@ -181,9 +185,6 @@ variables:
   core_update_entity: "{% for u in integration_entities('hassio') | select('search',
     '^update[.]')\n      if (device_attr(u, 'identifiers') | first)[1] == 'core' %}\n
     \   {{ u }}\n{% endfor %}\n"
-  os_update_entity: "{% for u in integration_entities('hassio') | select('search',
-    '^update[.]')\n      if (device_attr(u, 'identifiers') | first)[1] == 'OS' %}\n
-    \   {{ u }}\n{% endfor %}\n"
   callback_action: '{{ trigger.event.data.action | default('''') if trigger.id ==
     ''mobile_callback'' else '''' }}'
   callback_entity_id: "{% if trigger.id == 'mobile_callback' and trigger.event.data.tag
@@ -191,9 +192,7 @@ variables:
     | regex_replace('^(reminder_|config_check_)', '') %}\n  {{ 'update.' ~ clean_tag
     if not clean_tag.startswith('update.') else clean_tag }}\n{% else %}\n{% endif
     %}\n"
-  callback_friendly_name: '{{ state_attr(callback_entity_id, ''friendly_name'') |
-    default(callback_entity_id, true) }}'
-action:
+actions:
   choose:
   - alias: Update completed
     conditions: '{{ trigger.id == ''done'' }}'
@@ -201,17 +200,41 @@ action:
     - variables:
         entity_id: '{{ trigger.entity_id }}'
         friendly_name: '{{ state_attr(trigger.entity_id, ''friendly_name'') }}'
-    - alias: Send Mobile App completion notification
+        was_installed: '{{ state_attr(trigger.entity_id, ''installed_version'') ==
+          state_attr(trigger.entity_id, ''latest_version'') }}
+
+          '
+    - alias: Send Mobile App completion notification (or clear it after a skip)
       repeat:
         for_each: '{{ mobile_app_device }}'
         sequence:
-        - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify
-            }}
-          data:
-            title: ✅ Update Complete
-            message: '{{ friendly_name }} update completed!'
+        - variables:
+            device_name: '{{ device_attr(repeat.item, ''name'') | slugify }}'
+        - if:
+          - condition: template
+            value_template: '{{ was_installed }}'
+          then:
+          - action: notify.mobile_app_{{ device_name }}
+            continue_on_error: true
             data:
-              tag: '{{ entity_id[7:] }}'
+              title: ✅ Update Complete
+              message: '{{ friendly_name }} update completed!'
+              data:
+                tag: '{{ entity_id[7:] }}'
+          else:
+          - action: notify.mobile_app_{{ device_name }}
+            continue_on_error: true
+            data:
+              message: clear_notification
+              data:
+                tag: '{{ entity_id[7:] }}'
+        - alias: Clear a pending reminder for this update
+          action: notify.mobile_app_{{ device_name }}
+          continue_on_error: true
+          data:
+            message: clear_notification
+            data:
+              tag: reminder_{{ entity_id[7:] }}
     - alias: Dismiss HA notification if enabled
       if:
       - condition: template
@@ -232,34 +255,12 @@ action:
           true) }}'
         release_url: "{{ state_attr(entity_id, 'release_url')\n  | default(changelog_urls[entity_id]
           | default('', true), true) }}\n"
-        ids: '{{ device_attr(entity_id, ''identifiers'') | first }}'
+        ids: '{% set i = device_attr(entity_id, ''identifiers'') %} {{ (i | list |
+          first) if i else ('''', '''') }}
+
+          '
         include_core_check: '{{ run_config_check and ids[0] == ''hassio'' and ids[1]
           == ''core'' }}'
-    - alias: Check time window
-      condition: time
-      after: !input only_after
-      before: !input only_before
-    - alias: Send Mobile App notification
-      repeat:
-        for_each: '{{ mobile_app_device }}'
-        sequence:
-        - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify
-            }}
-          data:
-            title: "\U0001F504 {{ friendly_name }}"
-            message: "\U0001F4E6 {{ latest_version }} (installed: {{ installed_version
-              }}) {% if release_summary %}{{ release_summary | truncate(100) }}{%
-              endif %}\n"
-            data:
-              actions: "{% set actions = [\n  {'action': 'install_update', 'title':
-                '✅ Install'},\n  {'action': 'skip_update', 'title': '⏭️ Skip'}\n]
-                %} {% if release_url %}\n  {% set actions = actions + [{'action':
-                'URI', 'title': '\U0001F4CB Changelog', 'uri': release_url}] %}\n{%
-                endif %} {{ actions }}\n"
-              tag: '{{ entity_id[7:] }}'
-              url: '{{ release_url if release_url else ''/config/updates'' }}'
-              clickAction: '{{ release_url if release_url else ''/config/updates''
-                }}'
     - alias: Send to HA if enabled
       if:
       - condition: template
@@ -286,6 +287,42 @@ action:
       - action: hassio.addon_start
         data:
           addon: core_check_config
+    - alias: Outside the notification window - wait until it opens
+      if:
+      - condition: not
+        conditions:
+        - condition: time
+          after: !input only_after
+          before: !input only_before
+      then:
+      - wait_for_trigger:
+        - trigger: time
+          at: !input only_after
+      - alias: Stop when the update was installed or skipped in the meantime
+        condition: template
+        value_template: '{{ is_state(entity_id, ''on'') }}'
+    - alias: Send Mobile App notification
+      repeat:
+        for_each: '{{ mobile_app_device }}'
+        sequence:
+        - action: notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify
+            }}
+          continue_on_error: true
+          data:
+            title: "\U0001F504 {{ friendly_name }}"
+            message: "\U0001F4E6 {{ latest_version }} (installed: {{ installed_version
+              }}) {% if release_summary %}{{ release_summary | truncate(100) }}{%
+              endif %}\n"
+            data:
+              actions: "{% set actions = [\n  {'action': 'install_update', 'title':
+                '✅ Install'},\n  {'action': 'skip_update', 'title': '⏭️ Skip'}\n]
+                %} {% if release_url %}\n  {% set actions = actions + [{'action':
+                'URI', 'title': '\U0001F4CB Changelog', 'uri': release_url}] %}\n{%
+                endif %} {{ actions }}\n"
+              tag: '{{ entity_id[7:] }}'
+              url: '{{ release_url if release_url else ''/config/updates'' }}'
+              clickAction: '{{ release_url if release_url else ''/config/updates''
+                }}'
   - alias: Update started
     conditions: '{{ trigger.id == ''started'' }}'
     sequence:
@@ -316,10 +353,20 @@ action:
         latest_version: '{{ state_attr(entity_id, ''latest_version'') }}'
         release_url: "{{ state_attr(entity_id, 'release_url')\n  | default(changelog_urls[entity_id]
           | default('', true), true) }}\n"
-    - alias: Check time window
-      condition: time
-      after: !input only_after
-      before: !input only_before
+    - alias: Outside the notification window - wait until it opens
+      if:
+      - condition: not
+        conditions:
+        - condition: time
+          after: !input only_after
+          before: !input only_before
+      then:
+      - wait_for_trigger:
+        - trigger: time
+          at: !input only_after
+      - alias: Stop when the update was installed or skipped in the meantime
+        condition: template
+        value_template: '{{ is_state(entity_id, ''on'') }}'
     - alias: Send Mobile App config check notification
       repeat:
         for_each: '{{ mobile_app_device }}'
@@ -337,34 +384,22 @@ action:
                 'URI', 'title': '\U0001F4CB Changelog', 'uri': release_url}] %}\n{%
                 endif %} {{ actions }}\n"
               tag: config_check_{{ entity_id[7:] }}
-  - alias: On HA startup, dismiss completed update notifications
+  - alias: On HA startup, dismiss notifications of updates that are no longer pending
     conditions: '{{ trigger.id == ''ha_start'' }}'
     sequence:
-    - alias: Dismiss core notification if no longer needed
-      if:
-      - condition: template
-        value_template: '{{ core_update_entity != '''' and expand(core_update_entity)
-          | first | attr(''state'') == ''off'' }}'
-      then:
-      - action: persistent_notification.dismiss
-        data:
-          notification_id: update_{{ core_update_entity[7:] }}
-    - alias: Dismiss OS notification if no longer needed
-      if:
-      - condition: template
-        value_template: '{{ os_update_entity != '''' and expand(os_update_entity)
-          | first | attr(''state'') == ''off'' }}'
-      then:
-      - action: persistent_notification.dismiss
-        data:
-          notification_id: update_{{ os_update_entity[7:] }}
+    - repeat:
+        for_each: '{{ update_entities | select(''is_state'', ''off'') | list }}'
+        sequence:
+        - action: persistent_notification.dismiss
+          data:
+            notification_id: update_{{ repeat.item[7:] }}
   - alias: Send periodic reminders
     conditions: '{{ trigger.id == ''reminder'' }}'
     sequence:
     - variables:
-        pending_updates: "{{ states.update\n  | selectattr('state', 'eq', 'on')\n
-          \ | rejectattr('attributes.in_progress', 'true')\n  | map(attribute='entity_id')
-          | list }}\n"
+        pending_updates: "{{ states.update\n  | selectattr('entity_id', 'in', update_entities)\n
+          \ | selectattr('state', 'eq', 'on')\n  | rejectattr('attributes.in_progress',
+          'true')\n  | map(attribute='entity_id') | list }}\n"
         update_count: '{{ pending_updates | count }}'
     - alias: Check time window
       condition: time
@@ -388,6 +423,7 @@ action:
                     \ | default(changelog_urls[repeat.item] | default('', true), true)
                     }}\n"
               - action: notify.mobile_app_{{ device_name }}
+                continue_on_error: true
                 data:
                   title: "\U0001F514 Update Reminder"
                   message: "{{ state_attr(repeat.item, 'friendly_name') }} \U0001F4E6
@@ -403,6 +439,7 @@ action:
     conditions:
     - '{{ trigger.id == ''mobile_callback'' }}'
     - '{{ callback_action == ''install_update'' }}'
+    - '{{ callback_entity_id in update_entities }}'
     sequence:
     - alias: Log callback data for debugging
       action: system_log.write
@@ -431,11 +468,15 @@ action:
           target:
             entity_id: '{{ callback_entity_id }}'
           data:
-            backup: '{{ take_backup }}'
+            backup: '{{ take_backup and ((state_attr(callback_entity_id, ''supported_features'')
+              | int(0)) | bitwise_and(8)) > 0 }}
+
+              '
   - alias: Handle Mobile App skip callback
     conditions:
     - '{{ trigger.id == ''mobile_callback'' }}'
     - '{{ callback_action == ''skip_update'' }}'
+    - '{{ callback_entity_id in update_entities }}'
     sequence:
     - alias: Log callback data for debugging
       action: system_log.write
@@ -464,10 +505,11 @@ action:
           target:
             entity_id: '{{ callback_entity_id }}'
   default:
-  - alias: Log unhandled callback event
+  - alias: Log install/skip callbacks that could not be handled
     if:
     - condition: template
-      value_template: '{{ trigger.id == ''mobile_callback'' }}'
+      value_template: '{{ trigger.id == ''mobile_callback'' and callback_action in
+        [''install_update'', ''skip_update''] }}'
     then:
     - action: system_log.write
       data:
