@@ -634,3 +634,81 @@
       - media_player.nest_hub_woonkamer_2
       tts_entity: tts.home_assistant_cloud
       language: nl
+- id: '1793100000001'
+  alias: "\U0001F514 Notify - Zigbee2MQTT Watchdog"
+  description: Meldt via Telegram als Zigbee2MQTT offline gaat, herstart de add-on
+    (max 2 pogingen) en meldt het resultaat of de waarschijnlijke oorzaak.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+    to:
+    - 'off'
+    - unavailable
+    for: '00:02:00'
+  actions:
+  - action: telegram_bot.send_message
+    continue_on_error: true
+    data:
+      config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
+      parse_mode: markdown
+      message: "⚠️ *Zigbee2MQTT is offline*\nSinds {{ as_local(trigger.to_state.last_changed).strftime('%H:%M')
+        }} (status: {{ trigger.to_state.state }}).\n\U0001F501 Herstart van de add-on
+        wordt geprobeerd..."
+  - repeat:
+      count: 2
+      sequence:
+      - action: hassio.addon_restart
+        continue_on_error: true
+        data:
+          addon: 45df7312_zigbee2mqtt
+      - wait_template: '{{ is_state(''binary_sensor.zigbee2mqtt_bridge_connection_state'',
+          ''on'') }}'
+        timeout: '00:03:00'
+        continue_on_timeout: true
+      - if:
+        - condition: state
+          entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+          state: 'on'
+        then:
+        - action: telegram_bot.send_message
+          continue_on_error: true
+          data:
+            config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
+            parse_mode: markdown
+            message: "✅ *Zigbee2MQTT is hersteld*\nDe add-on is herstart (poging
+              {{ repeat.index }}) en de bridge is weer online."
+        - stop: Zigbee2MQTT hersteld
+      - if:
+        - condition: template
+          value_template: '{{ repeat.first }}'
+        then:
+        - action: telegram_bot.send_message
+          continue_on_error: true
+          data:
+            config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
+            parse_mode: markdown
+            message: "⏳ Poging 1 mislukt, bridge nog niet online. Tweede herstart
+              wordt gestart..."
+  - variables:
+      mqtt_state: '{{ config_entry_attr(''01KCJTJ1BGW50S7WK1CT4E6MPS'', ''state'') }}'
+      bridge_state: '{{ states(''binary_sensor.zigbee2mqtt_bridge_connection_state'') }}'
+      addon_entity_state: '{{ states(''update.zigbee2mqtt_update'') }}'
+      reason: >-
+        {% if mqtt_state != 'loaded' %}
+          MQTT-integratie in HA is niet geladen (status: {{ mqtt_state }}). Controleer de Mosquitto-broker.
+        {% elif bridge_state == 'unavailable' %}
+          De bridge is unavailable: HA ontvangt geen MQTT-status. Mogelijk is de broker of de verbinding ermee weg.
+        {% elif addon_entity_state == 'unavailable' %}
+          De add-on-entiteit is unavailable: de Supervisor reageert mogelijk niet op de herstart.
+        {% else %}
+          MQTT en Supervisor zijn in orde, maar Zigbee2MQTT komt niet online. Waarschijnlijk start de add-on niet op, of de Zigbee-adapter (10.10.2.182:6638) is niet bereikbaar. Bekijk de add-on log.
+        {% endif %}
+  - action: telegram_bot.send_message
+    continue_on_error: true
+    data:
+      config_entry_id: 01KCRE8DZCPF9BTMZKH4DTEHFN
+      parse_mode: markdown
+      message: "❌ *Zigbee2MQTT herstel mislukt*\nTwee herstarts hebben de bridge
+        niet online gekregen.\n\n\U0001F50D *Waarschijnlijke oorzaak*\n{{ reason | trim
+        }}\n\n_Status: bridge={{ bridge_state }}, mqtt={{ mqtt_state }}_"
+  mode: single
