@@ -1,0 +1,293 @@
+blueprint:
+  domain: automation
+  name: "\U0001F525 Simple Heating"
+  author: r3mcos3
+  source_url: https://github.com/r3mcos3/blueprints/blob/main/simple_heating/simple_heating.yaml
+  homeassistant:
+    min_version: 2025.12.0
+  description: "\U0001F4E6 [Version 1.1.0] Dead-simple heating: a Home temperature
+    and an Away temperature, \U0001F3E0 / \U0001F3C3 switched by who is home and by
+    your sleep schedule. \U0001F319\n\nFeatures:\n- \U0001F3E0 Home / \U0001F3C3 Away
+    temperature, both adjustable\n- \U0001F465 2 required persons + 2 optional persons:
+    anyone home = Home (instantly), nobody home = Away (after an adjustable delay,
+    default 10 min)\n- ✋ Manual changes on the thermostat are respected and held until
+    you change them again, everybody leaves, or you go to sleep\n- \U0001F319 Sleeping
+    = Away temperature, ☀️ morning = back to Home (fixed times or an optional sleep
+    switch)\n- \U0001F6E1️ Restart-safe, ignores unavailable persons and thermostat\n"
+  input:
+    climate_entity:
+      name: "\U0001F321️ Climate Entity"
+      description: 'The heater / thermostat to control (e.g. climate.kachel). Its
+        hvac mode should be on (heat); this blueprint only sets the target temperature.
+
+        '
+      selector:
+        entity:
+          filter:
+          - domain:
+            - climate
+          multiple: false
+          reorder: false
+    person_1:
+      name: "\U0001F464 Person 1"
+      description: First person whose presence is tracked (required).
+      selector:
+        entity:
+          filter:
+          - domain:
+            - person
+          multiple: false
+          reorder: false
+    person_2:
+      name: "\U0001F464 Person 2"
+      description: Second person whose presence is tracked (required).
+      selector:
+        entity:
+          filter:
+          - domain:
+            - person
+          multiple: false
+          reorder: false
+    temperature_settings:
+      name: "\U0001F321️ Temperatures"
+      icon: mdi:thermometer
+      collapsed: true
+      input:
+        home_temp:
+          name: "\U0001F3E0 Home Temperature"
+          description: Target temperature when somebody is home and awake.
+          default: 20
+          selector:
+            number:
+              min: 5.0
+              max: 30.0
+              step: 0.5
+              unit_of_measurement: °C
+              mode: slider
+        away_temp:
+          name: "\U0001F3C3 Away Temperature"
+          description: Target temperature when nobody is home, and while sleeping.
+          default: 15
+          selector:
+            number:
+              min: 5.0
+              max: 30.0
+              step: 0.5
+              unit_of_measurement: °C
+              mode: slider
+    sleep_settings:
+      name: "\U0001F319 Sleep Schedule"
+      icon: mdi:sleep
+      collapsed: true
+      input:
+        sleep_time:
+          name: "\U0001F319 Bedtime"
+          description: 'From this time the Away temperature is used. Ignored when
+            a sleep switch is selected below.
+
+            '
+          default: '23:00:00'
+          selector:
+            time: {}
+        wake_time:
+          name: ☀️ Wake-up Time
+          description: 'From this time the Home temperature is used again (if somebody
+            is home). Ignored when a sleep switch is selected below.
+
+            '
+          default: 07:00:00
+          selector:
+            time: {}
+        sleep_helper:
+          name: "\U0001F6CF️ Sleep Switch (optional)"
+          description: 'Optional input_boolean that is ON while you sleep (e.g. toggled
+            by a bedtime button or a phone sleep focus). When set, it replaces the
+            fixed bedtime / wake-up times. Leave empty to use the fixed times.
+
+            '
+          default: []
+          selector:
+            entity:
+              filter:
+              - domain:
+                - input_boolean
+              multiple: false
+              reorder: false
+    presence_settings:
+      name: "\U0001F6AA Leaving Delay"
+      icon: mdi:timer-outline
+      collapsed: true
+      input:
+        leave_delay:
+          name: ⏱️ Leaving Delay
+          description: 'Minutes the house must stay empty before switching to Away
+            (and dropping a manual change). Somebody coming back within this time
+            = nothing happens. 0 = immediately. Arriving home is always instant.
+
+            '
+          default: 10
+          selector:
+            number:
+              min: 0.0
+              max: 120.0
+              step: 1.0
+              unit_of_measurement: min
+              mode: slider
+    extra_persons:
+      name: "\U0001F465 Extra Persons"
+      icon: mdi:account-multiple-plus
+      collapsed: true
+      input:
+        person_3:
+          name: "\U0001F464 Person 3 (optional)"
+          description: Third person to track. Leave empty if not needed.
+          default: []
+          selector:
+            entity:
+              filter:
+              - domain:
+                - person
+              multiple: false
+              reorder: false
+        person_4:
+          name: "\U0001F464 Person 4 (optional)"
+          description: Fourth person to track. Leave empty if not needed.
+          default: []
+          selector:
+            entity:
+              filter:
+              - domain:
+                - person
+              multiple: false
+              reorder: false
+mode: queued
+max: 10
+max_exceeded: silent
+trigger_variables:
+  tv_p1: !input person_1
+  tv_p2: !input person_2
+  tv_p3: !input person_3
+  tv_p4: !input person_4
+  tv_persons: '{{ [tv_p1, tv_p2, tv_p3, tv_p4] | select(''string'') | reject(''eq'',
+    '''') | list }}
+
+    '
+triggers:
+- trigger: homeassistant
+  event: start
+  id: ha_start
+- trigger: event
+  event_type: automation_reloaded
+  id: automation_reload
+- trigger: state
+  entity_id: !input climate_entity
+  from:
+  - unavailable
+  - unknown
+  id: climate_back
+- trigger: template
+  value_template: '{{ tv_persons | select(''is_state'', ''home'') | list | length
+    > 0 }}
+
+    '
+  id: first_arrival
+- trigger: template
+  value_template: '{% set known = tv_persons | reject(''is_state'', ''unavailable'')
+    | reject(''is_state'', ''unknown'') | list %} {{ known | length > 0 and (known
+    | select(''is_state'', ''home'') | list | length) == 0 }}
+
+    '
+  for:
+    minutes: !input leave_delay
+  id: all_left
+- trigger: time
+  at: !input sleep_time
+  id: sleep_time
+- trigger: time
+  at: !input wake_time
+  id: wake_time
+- trigger: state
+  entity_id: !input sleep_helper
+  to: 'on'
+  id: sleep_helper_on
+- trigger: state
+  entity_id: !input sleep_helper
+  to: 'off'
+  id: sleep_helper_off
+conditions: []
+actions:
+- variables:
+    trigger_id: '{{ trigger.id | default(''manual'') if trigger is defined else ''manual''
+      }}'
+    climate: !input climate_entity
+    p1: !input person_1
+    p2: !input person_2
+    p3: !input person_3
+    p4: !input person_4
+    persons: '{{ [p1, p2, p3, p4] | select(''string'') | reject(''eq'', '''') | list
+      }}
+
+      '
+    temp_home: !input home_temp
+    temp_away: !input away_temp
+    sleep_at: !input sleep_time
+    wake_at: !input wake_time
+    sleep_helper: !input sleep_helper
+    sleep_helper_configured: '{{ sleep_helper is string and sleep_helper | length
+      > 0 }}'
+- condition: template
+  value_template: '{{ not (trigger_id in [''sleep_time'', ''wake_time''] and sleep_helper_configured)
+    }}
+
+    '
+- if:
+  - condition: template
+    value_template: '{{ trigger_id in [''ha_start'', ''automation_reload''] }}'
+  then:
+  - delay:
+      seconds: 30
+- variables:
+    climate_ok: '{{ states(climate) not in [''unavailable'', ''unknown''] }}'
+    known: '{{ persons | reject(''is_state'', ''unavailable'') | reject(''is_state'',
+      ''unknown'') | list }}
+
+      '
+    anyone_home: '{{ persons | select(''is_state'', ''home'') | list | length > 0
+      }}'
+    presence_known: '{{ known | length > 0 }}'
+    current_setpoint: '{{ state_attr(climate, ''temperature'') | float(none) }}'
+    is_sleeping: "{% if sleep_helper_configured %}\n  {{ is_state(sleep_helper, 'on')
+      }}\n{% else %}\n  {% set n = now().strftime('%H:%M:%S') %}\n  {% if sleep_at
+      > wake_at %}\n    {{ n >= sleep_at or n < wake_at }}\n  {% else %}\n    {{ sleep_at
+      <= n < wake_at }}\n  {% endif %}\n{% endif %}\n"
+    desired_mode: '{% if is_sleeping %}away {% elif not presence_known %}unknown {%
+      elif anyone_home %}home {% else %}away{% endif %}
+
+      '
+    target_temp: '{% if desired_mode == ''home'' %}{{ temp_home }} {% elif desired_mode
+      == ''away'' %}{{ temp_away }} {% else %}none{% endif %}
+
+      '
+    is_forced_event: "{{ (trigger_id in ['sleep_time', 'sleep_helper_on', 'wake_time',
+      'sleep_helper_off']\n      and desired_mode != 'unknown')\n   or (trigger_id
+      == 'all_left' and desired_mode == 'away')\n   or (trigger_id == 'first_arrival'
+      and desired_mode == 'home')\n   or (trigger_id in ['ha_start', 'automation_reload']\n
+      \      and presence_known and not anyone_home and desired_mode == 'away') }}\n"
+    is_managed_value: "{{ current_setpoint is none\n   or (current_setpoint - temp_home)
+      | abs <= 0.3\n   or (current_setpoint - temp_away) | abs <= 0.3 }}\n"
+    is_resync_event: '{{ trigger_id in [''ha_start'', ''automation_reload'', ''climate_back'',
+      ''manual''] }}
+
+      '
+    should_write: "{{ climate_ok\n   and desired_mode != 'unknown'\n   and (is_forced_event
+      or (is_resync_event and is_managed_value))\n   and (current_setpoint is none
+      or (current_setpoint - target_temp | float) | abs > 0.05) }}\n"
+- if:
+  - condition: template
+    value_template: '{{ should_write }}'
+  then:
+  - action: climate.set_temperature
+    target:
+      entity_id: '{{ climate }}'
+    data:
+      temperature: '{{ target_temp | float }}'
