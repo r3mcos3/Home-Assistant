@@ -1,0 +1,62 @@
+# Managed by Recorder Studio. Manual edits will be overwritten.
+# Include from configuration.yaml with:  recorder: !include recorder_studio.yaml
+
+auto_purge: true
+auto_repack: true
+purge_keep_days: 14
+commit_interval: 5
+
+exclude:
+  entities:
+  - binary_sensor.sun_solar_rising
+  - sensor.13_home_bedrijfstijd
+  - sensor.13_home_cpu_utilization_2
+  - sensor.13_home_memory_utilization
+  - sensor.13_home_uptime
+  - sensor.ac_mesh_cpu_utilization
+  - sensor.ac_mesh_uptime
+  - sensor.bathroom_ff_bathroom_spots_uptime
+  - sensor.canon_ts3700_series_beschikbaarheid
+  - sensor.dirigera_uptime
+  - sensor.g3_instant_bedrijfstijd
+  - sensor.g4_doorbell_bedrijfstijd
+  - sensor.g4_instant_bedrijfstijd
+  - sensor.garden_out_garden_multi_sensor_uptime
+  - sensor.garden_outlet_garden_outlet_uptime
+  - sensor.garden_outlet_garden_outlet_wifi_signal
+  - sensor.gf_living_presence_sensor_target_distance_closest
+  - sensor.kajplats_e27_ws_g95_clear_806lm_uptime
+  - sensor.myggbett_door_window_sensor_uptime
+  - sensor.out_garden_motion_linkquality
+  - sensor.roller_shutter_back_roller_shutter_back_uptime
+  - sensor.roller_shutter_front_roller_shutter_front_uptime
+  - sensor.roller_shutter_front_roller_shutter_front_wifi_signal
+  - sensor.roller_shutter_upstairs_roller_shutter_upstairs_uptime
+  - sensor.roller_shutter_upstairs_roller_shutter_upstairs_wifi_signal
+  - sensor.shed_outlet_shed_outlet_uptime
+  - sensor.shed_outlet_shed_outlet_wifi_signal
+  - sensor.slimmelezer_slimmelezer_uptime
+  - sensor.slimmelezer_slimmelezer_wi_fi_signal
+  - sensor.smart_wifi_chime_bedrijfstijd
+  - sensor.sun_next_dawn
+  - sensor.sun_next_dusk
+  - sensor.sun_next_midnight
+  - sensor.sun_next_noon
+  - sensor.sun_next_rising
+  - sensor.sun_next_setting
+  - sensor.sun_solar_azimuth
+  - sensor.sun_solar_elevation
+  - sensor.uap_ac_lite_cpu_utilization
+  - sensor.uap_ac_lite_memory_utilization
+  - sensor.uap_ac_lite_uptime
+  - sensor.uk_ultra_cpu_utilization
+  - sensor.uk_ultra_memory_utilization
+  - sensor.uk_ultra_uptime
+  - sensor.uptime
+  - sensor.us_8_60w_cpu_utilization
+  - sensor.us_8_60w_uptime
+  - sensor.usw_flex_mini_beneden_uptime
+  - sensor.usw_flex_mini_zolder_uptime
+  - sensor.watermeter_water_meter_uptime
+  - sensor.zigbee_core_uptime
+  - sensor.zigbee_zigbee_beschikbaarheid

@@ -27,3 +27,5 @@ mqtt:
       availability_topic: "battery2mqtt/server/status"
       device_class: battery
       unique_id: server_battery
+
+recorder: !include recorder_studio.yaml
