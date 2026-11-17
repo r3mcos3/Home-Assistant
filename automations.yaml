@@ -433,6 +433,8 @@
       - update.esphome_device_builder_update
       - update.mushroom_update
       - update.mushroom_themes_update
+      - update.kajplats_e27_ws_g95_clear_806lm_firmware
+      - update.recorder_studio
       telegram_bot: 01KCRE8DZCPF9BTMZKH4DTEHFN
       take_backup: false
       reminder_hours: '12'
@@ -646,6 +648,65 @@
       wake_time: 06:30:00
       sleep_time: '21:00:00'
       home_temp: 18
+- id: '1794683454146'
+  alias: "\U0001F4A1 Light - Living Room Sync"
+  description: Turns on the accent lamp whenever the ceiling switches are toggled
+    on.
+  triggers:
+  - trigger: switch.turned_on
+    target:
+      entity_id:
+      - switch.gf_living_ceiling_1
+      - switch.gf_living_ceiling_2
+    options:
+      behavior: each
+      for: 00:00:00
+    id: 'on'
+  - trigger: switch.turned_off
+    target:
+      entity_id:
+      - switch.gf_living_ceiling_1
+      - switch.gf_living_ceiling_2
+    options:
+      behavior: each
+      for: 00:00:00
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        target:
+          entity_id:
+          - light.kajplats_e27_ws_g95_clear_806lm
+          - light.gf_living_spots
+        data:
+          brightness_pct: 100
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - action: light.decrease_brightness
+        metadata: {}
+        target:
+          entity_id:
+          - light.gf_living_spots
+        data:
+          step_pct: 66
+      - action: light.decrease_brightness
+        metadata: {}
+        target:
+          entity_id:
+          - light.kajplats_e27_ws_g95_clear_806lm
+        data:
+          step_pct: 40
+  mode: single
 - id: '1795000000001'
   alias: "\U0001F514 Notify - Add-on Watchdog (Zigbee2MQTT)"
   description: Meldt via Telegram als Zigbee2MQTT offline gaat, herstart de add-on en meldt het resultaat of de waarschijnlijke oorzaak.
