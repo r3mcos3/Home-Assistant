@@ -105,3 +105,4 @@ appdaemon/compiled/
 !/.HA_VERSION
 
 *.jpg
+zigbee2mqtt/secret.yaml

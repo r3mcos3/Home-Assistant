@@ -3,7 +3,7 @@ mqtt:
   base_topic: zigbee2mqtt
   server: mqtt://10.10.2.51:1883
   user: mqtt
-  password: Elyza2017
+  password: '!secret mqtt_password'
 serial:
   rtscts: false
   port: tcp://10.10.2.182:6638
