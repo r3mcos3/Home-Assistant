@@ -5,6 +5,7 @@ auto_purge: true
 auto_repack: true
 purge_keep_days: 14
 commit_interval: 5
+db_url: !secret recorder_studio_db_url
 
 exclude:
   entities:
@@ -18,25 +19,20 @@ exclude:
   - sensor.bathroom_ff_bathroom_spots_uptime
   - sensor.canon_ts3700_series_beschikbaarheid
   - sensor.dirigera_uptime
+  - sensor.ff_shutter_upstairs_uptime
   - sensor.g3_instant_bedrijfstijd
   - sensor.g4_doorbell_bedrijfstijd
   - sensor.g4_instant_bedrijfstijd
   - sensor.garden_out_garden_multi_sensor_uptime
-  - sensor.garden_outlet_garden_outlet_uptime
-  - sensor.garden_outlet_garden_outlet_wifi_signal
   - sensor.gf_living_presence_sensor_target_distance_closest
+  - sensor.gf_shutter_back_uptime
+  - sensor.gf_shutter_front_uptime
   - sensor.kajplats_e27_ws_g95_clear_806lm_uptime
   - sensor.myggbett_door_window_sensor_uptime
   - sensor.out_garden_motion_linkquality
-  - sensor.roller_shutter_back_roller_shutter_back_uptime
-  - sensor.roller_shutter_front_roller_shutter_front_uptime
-  - sensor.roller_shutter_front_roller_shutter_front_wifi_signal
-  - sensor.roller_shutter_upstairs_roller_shutter_upstairs_uptime
-  - sensor.roller_shutter_upstairs_roller_shutter_upstairs_wifi_signal
-  - sensor.shed_outlet_shed_outlet_uptime
-  - sensor.shed_outlet_shed_outlet_wifi_signal
-  - sensor.slimmelezer_slimmelezer_uptime
-  - sensor.slimmelezer_slimmelezer_wi_fi_signal
+  - sensor.out_garden_outlet_uptime
+  - sensor.out_shed_outlet_uptime
+  - sensor.slimmelezer_uptime
   - sensor.smart_wifi_chime_bedrijfstijd
   - sensor.sun_next_dawn
   - sensor.sun_next_dusk
@@ -57,6 +53,6 @@ exclude:
   - sensor.us_8_60w_uptime
   - sensor.usw_flex_mini_beneden_uptime
   - sensor.usw_flex_mini_zolder_uptime
-  - sensor.watermeter_water_meter_uptime
+  - sensor.watermeter_uptime
   - sensor.zigbee_core_uptime
   - sensor.zigbee_zigbee_beschikbaarheid

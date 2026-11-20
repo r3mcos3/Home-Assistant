@@ -107,7 +107,22 @@ Automations follow two patterns:
 - 📵 **Network** - For WiFi/network/parental-control automations
   - Example: `📵 Network - Child WiFi Blocker (Elyza)`
 
+- 💡 **Light** - For light-only logic that is not motion/schedule based
+  - Example: `💡 Light - Living Room Sync`
+
+### Automation Naming Scheme
+
+- **Alias** (English): `{emoji} {Category} - {Subject}` with an optional `(Detail)` suffix, e.g. `🚪 Entrance - Back Door Lights (Sunset)`. Door/entrance automations always use `Entrance`, never `Door`.
+- **Entity ID** (English): `automation.{category}_{subject}` = the alias without emoji, in snake_case, e.g. `automation.entrance_back_door_lights_sunset`. After changing an alias, rename the entity_id too (it does not follow automatically).
+- Never leave `_2`-style suffixes; remove orphaned registry entries instead.
+
 **When creating or modifying automations, always apply the appropriate emoji prefix to the alias.**
+
+## ESPHome Devices
+
+- Do NOT change `name:` in an ESPHome YAML just to tidy entity IDs: it changes the mDNS hostname, so OTA and discovery by name break and the integration has to be removed and re-added.
+- Rename entity IDs in the Home Assistant entity registry instead (firmware, hostname and IP stay untouched). Devices have static IPs and are matched by MAC.
+- Follow the same schema, e.g. `switch.out_garden_outlet_relay`, `light.out_shed_outlet_light`.
 
 ## Home Assistant Commands
 
